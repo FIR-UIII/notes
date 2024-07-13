@@ -1,18 +1,33 @@
 Команды чтобы не забыть:
-```
-#git init
-#git add <file or .> 
-#git commit -m <decription>
-#git push <origin> <branch>
+```BASH
+git init
+git add <file or .> 
+git commit -m <type>:<task_num>:<description>
+git status 
+  * 'Untracked files' ='untracked' новый файл который не добавили к индексации через 'add'
+  * 'Changes to be committed' = 'staged' файл был проиндексирован через add
+  * 'Changes not staged for commit' = 'modified' изменен но не добавили к индексации через 'add'
+git push <origin> <branch>
   > insert access token OR via Git_agent. Password does't works anymore
-```
 
-###
-git log 
+### Исправление ошибок после commit до push
+##### добавить новый файл в последний коммит (HEAD)
+git commit --amend --no-edit
+  * --no-edit сообщение коммита не будет меняться
+
+##### Убрать файл из коммита
+git restore --staged <file or .>
+
+##### «Откатить» файл который не был добавлен к индексации 'add'
+git restore <file>
+
+##### «Откатить» коммит
+git reset --hard <commit hash>
+  * commit hash можно найти в 'git log'
+
+### История работы git
+git log --oneline
   > HEAD указывает на коммит, который сделан последним
 
-git status
-  > untracked неотслеживаемый неиндексируемый
-  > staged подготовлен через git add для коммита
-  > tracked все файлы, в которых Git так или иначе отслеживает изменения (git commit или git add)
-  > modified изменен с последнего коммита
+
+```

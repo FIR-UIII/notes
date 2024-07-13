@@ -1,5 +1,5 @@
 1. Запустить ВМ
-2. Зайти на веб http://192.168.1.27/#/login
+2. Зайти на веб http://<ip>/#/login
 3. Выбрать подключение html-5 
 4. Логин admin:eve
 
@@ -13,12 +13,6 @@ Cisco 3725 + NM-16ESW
 ### Установка образов
 192.168.1.27 root:root
 каталог - /opt/unetlab/addons/
-
-Логин/пароль от ОС:
-root/root
-root/eve
-user/Test123
-root/Test123
 
 ### Ошибка 
 ![[Pasted image 20240101160024.png]]

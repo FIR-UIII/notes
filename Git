@@ -1,9 +1,18 @@
 Команды чтобы не забыть:
+```
 #git init
-
-#git add <file or .>
-
+#git add <file or .> 
 #git commit -m <decription>
-
 #git push <origin> <branch>
   > insert access token OR via Git_agent. Password does't works anymore
+```
+
+###
+git log 
+  > HEAD указывает на коммит, который сделан последним
+
+git status
+  > untracked неотслеживаемый неиндексируемый
+  > staged подготовлен через git add для коммита
+  > tracked все файлы, в которых Git так или иначе отслеживает изменения (git commit или git add)
+  > modified изменен с последнего коммита

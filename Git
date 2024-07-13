@@ -1,0 +1,9 @@
+Команды чтобы не забыть:
+#git init
+
+#git add <file or .>
+
+#git commit -m <decription>
+
+#git push <origin> <branch>
+  > insert access token OR via Git_agent. Password does't works anymore

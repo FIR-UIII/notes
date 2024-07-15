@@ -15,8 +15,15 @@ git push <origin> <branch>
 git commit --amend --no-edit
   * --no-edit сообщение коммита не будет меняться
 
+git tag -a v1.0 -m "version 1.0" | git tag -d v1.0
+
 ##### Убрать файл из коммита
 git restore --staged <file or .>
+
+#### ветвление
+Git branch -v > выводит список веток с указанием * текущей
+Git checkout main > переключает на ветку main
+Git merge <branchname>
 
 ##### «Откатить» файл который не был добавлен к индексации 'add'
 git restore <file>
@@ -25,7 +32,12 @@ git restore <file>
 git reset --hard <commit hash>
   * commit hash можно найти в 'git log'
 
-### История работы git
+##### получение данных из репозитория
+Git fetch <shortname> скачивает разницу но не сливает информацию
+Git pull <shortname> скачивает разницу и сливает (merge) информацию
+Git clone <url> скачивает весь проект целиком
+
+##### История работы git
 git log --oneline
   > HEAD указывает на коммит, который сделан последним
 

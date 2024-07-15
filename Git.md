@@ -31,13 +31,13 @@ code rewie:
     >> request changes - на доработку
     >> approve - утвердить
 ```
-# Ветвление
+# Ветвление и слияние
 ```
 git branch -v > выводит список веток с указанием * текущей
 git branch {feature/new} создать новую ветку
 git checkout main > переключает на ветку main
 ```
-### Слияние merge
+### Слияние
 ```
 git checkout main перейти в ветку в которую будет проводится слияние
 git merge <branch_new> слияние ветки branch_new в main

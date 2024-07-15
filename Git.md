@@ -1,15 +1,18 @@
 # Основные команды
 ```BASH
 git init
-git remote add origin {GIT_URL}
-git remote -v
 touch .gitignore
 git add <file or .>
+git commit -m "1.0"
+git branch -M main
+
+git remote add origin {URL} && git remote -v
+
 git status 
   * 'Untracked files' ='untracked' новый файл который не добавили к индексации через 'add'
   * 'Changes to be committed' = 'staged' файл был проиндексирован через add
   * 'Changes not staged for commit' = 'modified' изменен но не добавили к индексации через 'add'
-git commit -m <type>:<task_num>:<description>
+
 git push (-u origin main)* сохранить в удаленный репозиторий
   * только для первого раза или когда даннной ветки нет в удал.репозитории
   ** insert access token OR via Git_agent. Password does't works anymore

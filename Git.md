@@ -10,26 +10,41 @@ git status
   * 'Changes to be committed' = 'staged' файл был проиндексирован через add
   * 'Changes not staged for commit' = 'modified' изменен но не добавили к индексации через 'add'
 git commit -m <type>:<task_num>:<description>
-git push (-u origin main)*
+git push (-u origin main)* сохранить в удаленный репозиторий
   * только для первого раза или когда даннной ветки нет в удал.репозитории
-  > insert access token OR via Git_agent. Password does't works anymore
-git pull скачать изменения в репозитории
+  ** insert access token OR via Git_agent. Password does't works anymore
+  > rejected (non-fast-forward):
+    >> push --force: удалит коммиты отличные от fast-forward и перезатрет посление отличия
+```
+# Начало работы и обновление локального репозитория
+```
+git checkout main && git pull && git merge feature/new
 ```
 # Pull request. После создания новой ветки проекта
 ```
-Pull request > new > from-to > create > merge pull request
+git push -u origin (main or HEAD)
+  > Create pull request: https[:]// > create pull request > code rewie > merge pull request
+или через сайт github:
+  > Pull request > new > from-to > create > code rewie > merge pull request
+code rewie:
+  > File changed > rewie:
+    >> request changes - на доработку
+    >> approve - утвердить
 ```
 # Ветвление
 ```
 git branch -v > выводит список веток с указанием * текущей
-git branch {new_branch} создать новую ветку
+git branch {feature/new} создать новую ветку
 git checkout main > переключает на ветку main
 ```
 ### Слияние merge
 ```
 git checkout main перейти в ветку в которую будет проводится слияние
 git merge <branch_new> слияние ветки branch_new в main
- > CONFLICT: конфликт одного файла - вручную проверить и выбрать эталонную версию
+ > CONFLICT: конфликт одного файла - вручную проверить и выбрать эталонную версию. Удалить маркеры конфликта <<<<<<
+ > Fast-forward: состояние где одна ветка стала продолжением другой влив в себя коммиты прошлой. Отлючить: `--no-ff`
+ > Non-fast-forward: состония где хронология коммитов разошлась
+git log --graph --oneline проверить что история коммитов не нарушена
 git branch -в <branch_new> удаление ветки <branch_new>
 ```
 # Получение данных из репозитория
@@ -39,7 +54,8 @@ git pull <shortname> скачивает разницу
 git clone <url> скачивает весь проект целиком
 ```
 # История работы git
-```git log --oneline
+```
+git log --oneline
   > HEAD указывает на коммит, который сделан последним
 ```
 # Проверить изменения

@@ -36,15 +36,16 @@ git reset --hard <commit hash>
 ```
 # Ветвление
 ```
-Git branch -v > выводит список веток с указанием * текущей
-Git checkout main > переключает на ветку main
-Git merge <branchname>
+git branch -v > выводит список веток с указанием * текущей
+git branch {new_branch} создать новую ветку
+git checkout main > переключает на ветку main
+git merge <branchname>
 ```
 # Получение данных из репозитория
 ```
-Git fetch <shortname> скачивает разницу но не сливает информацию
-Git pull <shortname> скачивает разницу и сливает (merge) информацию
-Git clone <url> скачивает весь проект целиком
+git fetch <shortname> скачивает разницу но не сливает информацию
+git pull <shortname> скачивает разницу и сливает (merge) информацию
+git clone <url> скачивает весь проект целиком
 ```
 # История работы git
 ```git log --oneline
@@ -52,10 +53,13 @@ Git clone <url> скачивает весь проект целиком
 ```
 # Проверить изменения
 ```
-git diff {--staged} <hash_commitA> <hash_commitB>
+git diff {--staged} <hash_commitA> <hash_commitB> сравнение комиитов и файлоа
  a/ исходная версия файла
  b/ измененная версия файла
  @@ -1,10 +1,10 - с первой строки было изменено 10 строк
  - красным - удалено
  + зеленым - добавлено
+
+git diff <branch1>{~1} <branch2> сравнение веток
+  {~1} версия N коммитов назад
 ```

@@ -1,7 +1,7 @@
 
-| Заголовок                     | Описание                                                                                   | Рекомендуемое значение | ПСИ проверка                                                                                   |
+| Заголовок                     | Описание                                                                                   | Рекомендуемое значение | Проверка                                                                                   |
 |--------------------------------|------------------------------------------------------------------------------------------|------------------------|------------------------------------------------------------------------------------------------|
-| Content-Security-Policy        | Определяет откуда можно загружать контент на страницу.                                   | [content-security-policy.com](https://content-security-policy.com/)                                     | [CSP Evaluator](https://csp-evaluator.withgoogle.com/)                                               |
+| Content-Security-Policy        | Определяет откуда можно загружать контент на страницу.| [content-security-policy.com](https://content-security-policy.com/) [CSP Evaluator](https://csp-evaluator.withgoogle.com/)  |                                              |
 | X-Content-Type-Options         | Предотвращает неправильную интерпретацию браузером MIME-типов загружаемых ресурсов.     | `nosniff`               | -                                                                                    |
 | Content-Type                   | Определяет тип передаваемого контента.                                                    | `text/html; charset=UTF-8` | -                                                                                    |
 | X-Frame-Options               | Предотвращает встраивание вашего документа в другие приложения.                           | `DENY`, `SAMEORIGIN`     | -                                                                                    |
@@ -14,25 +14,5 @@
 | Set-Cookie                     | Управляет установкой cookie.                                                              | `Secure`, `SameSite: Lax`, `HttpOnly` | -                                                                                    |
 | Clear-Site-Data              | Запускает очистку хранящихся в браузере данных (куки, хранилище, кеш), связанных с источником. | `"cache", "cookies", "storage"` | -                                                                                    |
 | X-XSS-Protection              | Приказывает браузеру прервать выполнение обнаруженных атак межсайтового скриптинга.        | `1; mode=block`           | -                                                                                    |
-| Permissions-Policy            | Управляет доступом к определенным функциям браузера.                                    | `camera=(), fullscreen=*, geolocation=(self "https://example.com" "https://another.example.com")` | -                                                                                    |
+| Permissions-Policy            | Управляет доступом к определенным функциям браузера `camera=(), fullscreen=*, geolocation=(self) =() — полный запрет; =* — полный доступ; (self "https://example.com") — предоставление разрешения только указанному источнику | - | - |
 |Server X-Powered-By X-Vault-Token ETag x-amz-request-id|Защита от раскрытия информации о сервере и техстеке|Рекомендуется исключить||
-
-
-
-const dbRequest = indexedDB.open("YourDatabaseName");
-
-dbRequest.onsuccess = function(event) {
-  const db = event.target.result;
-  const transaction = db.transaction(["yourObjectStore"], "readonly");
-  const objectStore = transaction.objectStore("yourObjectStore");
-  const getRequest = objectStore.getAll();
-
-  getRequest.onsuccess = function(event) {
-    // Alert the data
-    alert(JSON.stringify(event.target.result));
-  };
-};
-
-dbRequest.onerror = function(event) {
-  console.error("Error opening database:", event.target.errorCode);
-};

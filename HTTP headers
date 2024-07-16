@@ -1,3 +1,10 @@
+|Заголовок|Описание|Рекомендуемое значение|ПСИ проверка|
+|----|----|----|------|
+||||||
+
+
+
+
 const dbRequest = indexedDB.open("YourDatabaseName");
 
 dbRequest.onsuccess = function(event) {

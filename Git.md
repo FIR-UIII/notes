@@ -23,7 +23,7 @@ git push (-u origin main)* сохранить в удаленный репози
 ```
 # Начало работы и обновление локального репозитория
 ```
-git checkout main && git pull
+git checkout feature && git pull
 ```
 # Pull request. После создания новой ветки проекта
 ```

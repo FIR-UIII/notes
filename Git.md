@@ -16,6 +16,7 @@ git status
 git push (-u origin main)* сохранить в удаленный репозиторий
   * только для первого раза или когда даннной ветки нет в удал.репозитории
   ** insert access token OR via Git_agent. Password does't works anymore
+  *** git remote set-url origin https://YOUR_TOKEN@github.com/USERNAME/REPOSITORY.git
   > rejected (non-fast-forward):
     >> push --force: удалит коммиты отличные от fast-forward и перезатрет посление отличия
 ```

@@ -23,7 +23,9 @@ git push (-u origin main)* сохранить в удаленный репози
 ```
 # Начало работы и обновление локального репозитория
 ```
-git checkout feature && git pull
+git checkout feature && git pull {--rebase | --merge}
+   rebase - поставить локальные правки после remote
+   merge - по умолчанию
 ```
 # Pull request. После создания новой ветки проекта
 ```

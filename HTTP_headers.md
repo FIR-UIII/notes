@@ -15,7 +15,7 @@
 | Clear-Site-Data              | Запускает очистку хранящихся в браузере данных (куки, хранилище, кеш), связанных с источником. | `"cache", "cookies", "storage"` | -                                                                                    |
 | X-XSS-Protection              | Приказывает браузеру прервать выполнение обнаруженных атак межсайтового скриптинга.        | `1; mode=block`           | -                                                                                    |
 | Permissions-Policy            | Управляет доступом к определенным функциям браузера.                                    | `camera=(), fullscreen=*, geolocation=(self "https://example.com" "https://another.example.com")` | -                                                                                    |
-
+|Server X-Powered-By X-Vault-Token ETag x-amz-request-id|Защита от раскрытия информации о сервере и техстеке|Рекомендуется исключить||
 
 
 

@@ -3,6 +3,12 @@
 |data|data1|data2||
 
 
+| Syntax      | Description |
+| ----------- | ----------- |
+| Header      | Title       |
+| Paragraph   | Text        |
+
+
 
 
 const dbRequest = indexedDB.open("YourDatabaseName");

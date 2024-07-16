@@ -23,7 +23,7 @@ git push (-u origin main)* сохранить в удаленный репози
 ```
 # Начало работы и обновление локального репозитория
 ```
-git checkout main && git pull && git merge feature/new
+git checkout main && git pull
 ```
 # Pull request. После создания новой ветки проекта
 ```
@@ -38,14 +38,24 @@ code rewie:
 ```
 # Ветвление и слияние
 ```
-git branch -v > выводит список веток с указанием * текущей
+git branch -v -a > выводит список веток с указанием * текущей
 git branch {feature/new} создать новую ветку
-git checkout main > переключает на ветку main
+git checkout main > переключает на ветку main. в то состояние перейдут и файлы в директории. 
 ```
 ### Слияние
 ```
-git checkout main перейти в ветку в которую будет проводится слияние
-git merge <branch_new> слияние ветки branch_new в main
+1. Слияние через merge (для команды, полная история коммитов) 
+git checkout feature перейти в ветку в которую будет проводится слияние
+git merge main feature вливаем main => featur git commit коммит слияния 
+
+2.Слияние через rebase (для одного,краткая история коммитов) 
+git checkout feature
+git rebase main помещаем feature вперёд main
+git checkout main
+git merge experiment сливаем в одну
+```
+### Конфликты
+```
  > CONFLICT: конфликт одного файла - вручную проверить и выбрать эталонную версию. Удалить маркеры конфликта <<<<<<
  > Fast-forward: состояние где одна ветка стала продолжением другой влив в себя коммиты прошлой. Отлючить: `--no-ff`
  > Non-fast-forward: состония где хронология коммитов разошлась
@@ -55,12 +65,12 @@ git branch -в <branch_new> удаление ветки <branch_new>
 # Получение данных из репозитория
 ```
 git fetch <shortname> скачивает разницу но не сливает информацию
-git pull <shortname> скачивает разницу
+git pull <shortname> скачивает разницу и делает merge
 git clone <url> скачивает весь проект целиком
 ```
 # История работы git
 ```
-git log --oneline
+git log --oneline --decorate --graph --all
   > HEAD указывает на коммит, который сделан последним
 ```
 # Проверить изменения
@@ -94,4 +104,16 @@ git restore <file>
 ```
 git reset --hard <commit hash>
   * commit hash можно найти в 'git log'
+```
+# Псевдонимы и конфигурации
+```
+config --global user.name "John Doe"
+git config --global user.email johndoe@example.com
+git config --global core.editor nano
+git config --global alias.co checkout 
+git config --global alias.br branch
+git config --global alias.ci commit
+git config --global alias.stat status
+git config --global alias.lol 'log --oneline --decorate --graph --all`
+git config --list проверить конфигурации
 ```

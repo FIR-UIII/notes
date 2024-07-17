@@ -1,5 +1,5 @@
 # Основные команды
-<img src="https://mma.prnewswire.com/media/1513369/Educative_Logo.jpg](https://cloudstudio.com.au/wp-content/uploads/2021/06/GitWorkflow-4.png"  width="auth" height="300">
+<img src="https://cloudstudio.com.au/wp-content/uploads/2021/06/GitWorkflow-4.png"  width="auth" height="300">
 
 ```BASH
 git init

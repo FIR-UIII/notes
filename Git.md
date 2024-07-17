@@ -46,13 +46,13 @@ git branch {feature/new} создать новую ветку
 git checkout main > переключает на ветку main. в то состояние перейдут и файлы в директории. 
 ```
 ### Слияние
-![merge](https://wac-cdn.atlassian.com/dam/jcr:4639eeb8-e417-434a-a3f8-a972277fc66a/02%20Merging%20main%20into%20the%20feature%20branh.svg?cdnVersion=1968) 
+![merge](https://wac-cdn.atlassian.com/dam/jcr:4639eeb8-e417-434a-a3f8-a972277fc66a/02%20Merging%20main%20into%20the%20feature%20branh.svg?cdnVersion=1968 | width=100) 
 ```
 1. Слияние через merge (для команды, полная история коммитов) 
 git checkout feature перейти в ветку в которую будет проводится слияние
 git merge main feature вливаем main => featur git commit коммит слияния 
 ```
-![rebase]https://wac-cdn.atlassian.com/dam/jcr:3bafddf5-fd55-4320-9310-3d28f4fca3af/03%20Rebasing%20the%20feature%20branch%20into%20main.svg?cdnVersion=1968)
+![rebase](https://wac-cdn.atlassian.com/dam/jcr:3bafddf5-fd55-4320-9310-3d28f4fca3af/03%20Rebasing%20the%20feature%20branch%20into%20main.svg?cdnVersion=1968 | width=100)
 ```
 2.Слияние через rebase (для одного,краткая история коммитов) 
 git checkout feature

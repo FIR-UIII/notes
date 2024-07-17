@@ -1,5 +1,7 @@
 # Основные команды
 ![main commands](https://cloudstudio.com.au/wp-content/uploads/2021/06/GitWorkflow-4.png)
+<img src="https://mma.prnewswire.com/media/1513369/Educative_Logo.jpg"  width="600" height="300">
+
 ```BASH
 git init
 touch .gitignore

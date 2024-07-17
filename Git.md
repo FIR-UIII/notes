@@ -8,7 +8,7 @@ git add <file or .>
 git commit -m "1.0"
 git checkout -b feature
 
-git remote add origin {URL} && git remote -v
+git remote add [origin_name] {URL} && git remote -v
 
 git status 
   * 'Untracked files' ='untracked' новый файл который не добавили к индексации через 'add'

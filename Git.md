@@ -43,7 +43,7 @@ code rewie:
 # Ветвление и слияние
 ```
 git branch -v -a > выводит список веток с указанием * текущей
-git branch {feature/new} создать новую ветку
+git branch DEV | git checkout -b DEV создать новую ветку DEV
 git checkout main > переключает на ветку main. в то состояние перейдут и файлы в директории. 
 ```
 ### Слияние

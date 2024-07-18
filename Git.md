@@ -94,10 +94,11 @@ git tag -a v1.0 -m "version 1.0" | git tag -d v1.0
 ```
 ### Изменить состояние репозитория
 ```
-git restore --staged <file or .>
-git restore <file>
+# После MODIFIED до ADD
+git restore <file> удалить изменения в файле
 
 # После ADD до COMMIT
+git restore --staged <file or .>
 git checkout [Branch SHA] переключается между ветками
 git checkout -f отменить все локальные незакоммиченные изменения
 git checkout -- [имя файла] отменить отдельный незакоммиченный файл

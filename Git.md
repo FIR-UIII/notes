@@ -97,6 +97,7 @@ git tag -a v1.0 -m "version 1.0" | git tag -d v1.0
 git restore --staged <file or .>
 git restore <file>
 
+# После ADD до COMMIT
 git checkout [Branch SHA] переключается между ветками
 git checkout -f отменить все локальные незакоммиченные изменения
 git checkout -- [имя файла] отменить отдельный незакоммиченный файл

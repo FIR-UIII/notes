@@ -1,3 +1,5 @@
+### https://docs.projectdiscovery.io/templates/structure
+
 id: git-config
 info:
   name: Git Config File Detection Template

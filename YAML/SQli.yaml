@@ -1,11 +1,14 @@
 id: sqli
 
 info:
-  name: Basic SQLi
-  author: pdteam
+  name: SQL Injection Detection
+  description: Detects potential SQL injection vulnerabilities based on common patterns.
+  author: Your Name <your.email@example.com>
   severity: medium
+  tags:
+    - sql-injection
   
-  http:
+http:
     # pre-condition to determine if the template should be executed
   - pre-condition:
       - type: dsl

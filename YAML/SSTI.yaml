@@ -1,0 +1,34 @@
+id: fuzz-reflection-ssti
+
+info:
+  name: Basic Reflection Potential SSTI Detection
+  author: pdteam
+  severity: low
+
+variables:
+  first: "{{rand_int(10000, 99999)}}"
+  second: "{{rand_int(10000, 99999)}}"
+  result: "{{to_number(first)*to_number(second)}}"
+
+http:
+  - pre-condition:
+      - type: dsl
+        dsl:
+          - 'method == "GET"'       # only run on GET URLs
+
+    payloads:
+      reflection:
+        - '{{concat("{{", "§first§*§second§", "}}")}}'
+
+    fuzzing:
+      - part: query
+        type: postfix
+        mode: multiple
+        fuzz:
+          - "{{reflection}}"
+
+    matchers:
+      - type: word
+        part: body
+        words:
+          - "{{result}}"

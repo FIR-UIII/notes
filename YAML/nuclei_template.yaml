@@ -1,0 +1,29 @@
+id: git-config
+info:
+  name: Git Config File Detection Template
+  author: Ice3man
+  severity: medium
+  description: Searches for the pattern /.git/config on passed URLs.
+  reference: https://www.acunetix.com/vulnerabilities/web/git-repository-found/
+  tags: git,config
+  metadata:
+    shodan-query: 'vuln:CVE-2021-26855'
+
+### HTTP
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/login.php"
+    redirects: true
+    max-redirects: 3
+    headers:
+      # Custom user-agent header
+      User-Agent: Some-Random-User-Agent
+      # Custom request origin
+      Origin: https://google.com
+    # Body is a string sent along with the request
+    body: "admin=test"
+    matchers:
+      - type: word
+        words:
+          - "[core]"

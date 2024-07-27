@@ -97,6 +97,7 @@ git tag -a v1.0 -m "version 1.0" | git tag -d v1.0
 ```
 # После MODIFIED до ADD
 git restore <file> удалить изменения в файле
+git ch -- . вернуть в изначальное состояние ветки
 
 # После ADD до COMMIT
 git restore --staged <file or .>

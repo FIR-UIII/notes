@@ -1,4 +1,5 @@
 ### OWAST Threat Dragon
+Визуализирует угрозы. Нет автоматизации, подсказок после выстраивания
 At windows via docker
 [Quickstart](https://owasp.org/www-project-threat-dragon/docs-2/install-environment/)
 
@@ -13,3 +14,12 @@ SERVER_API_PROTOCOL='http'
 docker pull owasp/threat-dragon:stable
 docker run -d -p 8080:3000 -v C:\..\env.json:/app/.env owasp/threat-dragon:stable
 ```
+
+
+### Threagile
+Моделирует угрозы на основании ранее приготовленного [yaml файла](https://github.com/Threagile/github-integration-example/blob/main/threagile.yaml). 
+Минус: 
+- нет визуализации при построении модели. Только по итогу
+https://github.com/Threagile/threagile
+
+### Windows threat tool

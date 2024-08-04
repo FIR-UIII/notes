@@ -21,5 +21,12 @@ docker run -d -p 8080:3000 -v C:\..\env.json:/app/.env owasp/threat-dragon:stabl
 Минус: 
 - нет визуализации при построении модели. Только по итогу
 https://github.com/Threagile/threagile
+```
+### create template model
+docker run --rm -it -v "$(pwd)":/app/work threagile/threagile --create-example-model --output /app/work
+### based on that change all that needs for your app and save it
+### execute Threagile to perform threat modeling
+docker run --rm -it -v "$(pwd)":/app/work threagile/threagile --verbose --model /app/work/threagile.yaml --output /app/work
+```
 
 ### Windows threat tool

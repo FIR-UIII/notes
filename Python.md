@@ -29,7 +29,7 @@ Exaple stucture
 ```py
 # __init__.py marking the directory as a Python package
 # file can be empty or contain initialization code
-
+import package.module1
 from . import module1, module2
 from module1 import *
 ```

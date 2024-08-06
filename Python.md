@@ -24,8 +24,8 @@ Exaple stucture
     ├── module1.py
     ├── module2.py
     └── sub_pack
-        ├── submod1.py
-        └── submod2.py
+        ├── __init__.py
+        └── submod1.py
 ```
 
 ### __init__.py

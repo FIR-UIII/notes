@@ -29,8 +29,10 @@ Exaple stucture
 ```py
 # __init__.py marking the directory as a Python package
 # file can be empty or contain initialization code
-import package.module1
-from package.module1 import *
 from .module1 import *
 from . import module1, module2
+
+# main.py
+import package
+print(dir(package)) 
 ```

@@ -22,7 +22,10 @@ Exaple stucture
 └── package
     ├── __init__.py
     ├── module1.py
-    └── module2.py
+    ├── module2.py
+    └── sub_pack
+        ├── submod1.py
+        └── submod2.py
 ```
 
 ### __init__.py
@@ -34,5 +37,9 @@ from . import module1, module2
 
 # main.py
 import package
-print(dir(package)) 
+print(dir(package))
+
+# submid1.py
+import ..module1
+
 ```

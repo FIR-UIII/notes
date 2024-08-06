@@ -1,4 +1,4 @@
-# requests
+hook# requests
 ```
 GET
 
@@ -32,4 +32,5 @@ Exaple stucture
 import package.module1
 from package.module1 import *
 from .module1 import *
+from . import module1, module2
 ```

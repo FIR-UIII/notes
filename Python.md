@@ -14,3 +14,22 @@ response = requests.post('http://httpbin.org/post', data=payload)
 
 
 ```
+
+# modules, package, `__init__.py`
+Exaple stucture
+```
+├── main.py
+└── package
+    ├── __init__.py
+    ├── module1.py
+    └── module2.py
+```
+
+### __init__.py
+```py
+# __init__.py marking the directory as a Python package
+# file can be empty or contain initialization code
+
+from . import module1, module2
+from module1 import *
+```

@@ -31,4 +31,5 @@ Exaple stucture
 # file can be empty or contain initialization code
 import package.module1
 from package.module1 import *
+from .module1 import *
 ```

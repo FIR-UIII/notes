@@ -37,9 +37,11 @@ from . import module1, module2
 
 # main.py
 import package
+from package import module2
 print(dir(package))
 
-# submid1.py
+# submod1.py
 import ..module1
+from ..module1 import *
 
 ```

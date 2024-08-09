@@ -28,3 +28,24 @@ docker compose down #=> Stops and removes your application’s services and netw
 docker compose ps #=> Lists the containers and their current status, including volume-related information.
 docker compose config #=> Validates and displays the effective configuration generated from the docker-compose.yml
 ```
+
+### Network
+1. Create your net like `docker network create --gateway 10.5.0.1 --subnet 10.5.0.0/16 mynet`
+```
+version: "3.5"
+services:
+  nginx:
+    networks:
+      nw_containers:
+        ipv4_address: 10.5.0.2
+    <...>
+  django:
+    networks:
+      nw_containers:
+        ipv4_address: 10.5.0.3
+    <...>
+networks:
+  nw_containers:
+    external:
+      name: mynet
+```

@@ -46,6 +46,6 @@ services:
     <...>
 networks:
   nw_containers:
-    external:
       name: mynet
+      external: true
 ```

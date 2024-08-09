@@ -7,6 +7,7 @@ touch .gitignore
 git init
 git add README.md
 git commit -m "1.0"
+git tag -a <tag_name> -m "Message for tag"
 git branch -M main
 git remote add origin https://github.com/FIR-UIII/Vault_FastAPI.git
 git push -u origin main
@@ -23,6 +24,18 @@ git push (-u origin main)* сохранить в удаленный репози
   *** git pull --rebase origin main
   > rejected (non-fast-forward):
     >> push --force: удалит коммиты отличные от fast-forward и перезатрет посление отличия
+```
+# Моя быстрая конфигурация для работы
+```
+git config --global user.name "FIR_UIII"
+git config --global user.email @gmail.com
+git config --global core.editor nano
+git config --global alias.ch checkout 
+git config --global alias.br branch
+git config --global alias.com commit
+git config --global alias.st status
+git config --global alias.lol 'log --oneline --decorate --graph --all'
+git config --list
 ```
 # Начало работы и обновление локального репозитория
 ```
@@ -118,18 +131,6 @@ git revert HEAD~[num-of-commits-back] аналогично по количест
 
 git clean -n очистка неотслеживаемых файлов из репозитория
 ```
-# Псевдонимы и конфигурации
-```
-git config --global user.name "John Doe"
-git config --global user.email johndoe@example.com
-git config --global core.editor nano
-git config --global alias.ch checkout 
-git config --global alias.br branch
-git config --global alias.com commit
-git config --global alias.st status
-git config --global alias.lol 'log --oneline --decorate --graph --all'
-git config --list проверить конфигурации
-```
 # Проверить изменения
 ```
 git diff {--staged} <hash_commitA> <hash_commitB> сравнение комиитов и файлоа
@@ -141,4 +142,12 @@ git diff {--staged} <hash_commitA> <hash_commitB> сравнение комии�
 
 git diff <branch1>{~1} <branch2> сравнение веток
   {~1} версия N коммитов назад
+```
+# Тегирование коммитов
+```
+git tag <tag_name> <commit_hash or None>
+git show <tag>
+git tag -a <tag_name> -m 'Message for tag'
+git push origin <tag_name> отправить метку в удаленный репозиторий
+git push origin --tags     отправить все метки в удаленный репозиторий
 ```

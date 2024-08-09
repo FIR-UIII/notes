@@ -21,12 +21,18 @@ volumes:
       o: bind
 ```
 
-2. Quickstart
+2. Основные команды
 ```
 docker compose up -f docker-compose-custom.yml -p custom_project_name up -d #=>Creates and starts your application.
 docker compose down #=> Stops and removes your application’s services and networks. By default, it doesn’t remove named volumes unless you use the --volumes or -v flag.
 docker compose ps #=> Lists the containers and their current status, including volume-related information.
 docker compose config #=> Validates and displays the effective configuration generated from the docker-compose.yml
+
+# Edit container during run
+docker-compose stop <container_name> #=> stop container by name
+>>> Make changes to the container's configuration or Dockerfile
+docker-compose build <service_name> #=> if needed
+docker-compose up -d #=> restart
 ```
 
 ### Network

@@ -7,7 +7,7 @@
 | Information disclosure | Confidentiality   | Someone obtaining information they are not authorized to access|
 | Denial of service      | Availability      | Exhausting resources needed to provide service |
 | Elevation of privilege | Authorization     | Allowing someone to do something they are not authorized to do | 
-|Lateral Movement| Segmentation & Least Privilege| Persistance and pivoting |
+|Lateral Movement        | Segmentation & Least Privilege| Persistance and pivoting |
 
 ### OWAST Threat Dragon
 Визуализирует угрозы. Нет автоматизации, подсказок после выстраивания

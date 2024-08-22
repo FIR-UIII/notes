@@ -1,19 +1,16 @@
-hook# requests
-```
-GET
-
+# Requests
+```python
+# GET
 payload = {'key1': 'value1', 'key2': 'value2'}
 response = requests.get('http://.com', params=payload)
 print(response.text)
 
-
-POST
+# POST
 payload = {'key1': 'value1', 'key2': 'value2'}
 response = requests.post('http://httpbin.org/post', data=payload)
-
-
-
 ```
+
+
 
 # modules, package, `__init__.py`
 Exaple stucture
@@ -44,4 +41,34 @@ print(dir(package))
 import ..module1
 from ..module1 import *
 
+```
+
+
+# Crypto
+```py
+from hashlib import sha256
+message = b'message'
+print(hash_function = sha256(message))
+
+# Функции контрольного суммирования. Контрольное суммирование происходит быстрее, но в ущерб криптографической стойкости.
+import zlib
+message = b'this is repetitious' * 42
+checksum = zlib.crc32(message)
+compressed = zlib.compress(message)
+decompressed = zlib.decompress(compressed)
+zlib.crc32(decompressed) == checksum
+
+# Генерация случайных чисел
+import random # небезопасен
+import os.urandom # источник этих байтов – сама операционная система аналог /dev/urandom
+import secrets # специальный модуль для генерации криптобезопасных случайных чисел 
+    token_bytes(16) # генерация 16 случайных байт
+    token_hex(16) # генерация 16 случайных байт в виде шестнадцатеричного текста
+    token_urlsafe(16) # генерация 16 случайных байт для URL 
+
+# Хеширование с ключом / HMAC с
+import hashlib
+import hmac
+hmac_sha256 = hmac.new(b'key', msg=b'message', digestmod=hashlib.sha256)
+print(hmac_sha256.hexdigest()) # Хеш в виде шестнадцатеричного текста
 ```

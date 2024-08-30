@@ -10,7 +10,18 @@ payload = {'key1': 'value1', 'key2': 'value2'}
 response = requests.post('http://httpbin.org/post', data=payload)
 ```
 
-
+# Basics
+### Find, Regex
+```python
+import re
+text = "My phone number is 123-456-7890" # Sample text
+pattern = r"\d{3}-\d{3}-\d{4}" # Pattern to match a phone number
+match = re.search(pattern, text) # Search for the pattern in the text
+if match:
+    print(f"Phone number found: {match.group()}")
+else:
+    print("No phone number found")
+```
 
 # modules, package, `__init__.py`
 Exaple stucture

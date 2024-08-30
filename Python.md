@@ -13,6 +13,7 @@ response = requests.post('http://httpbin.org/post', data=payload)
 # Basics
 ### Find, Regex
 ```python
+### Sample 1
 import re
 text = "My phone number is 123-456-7890" # Sample text
 pattern = r"\d{3}-\d{3}-\d{4}" # Pattern to match a phone number
@@ -21,6 +22,10 @@ if match:
     print(f"Phone number found: {match.group()}")
 else:
     print("No phone number found")
+
+### Sample 2
+script_tags = [elem.tag for elem in root.iter() if re.search(r'script', elem.tag, re.IGNORECASE)]
+print(f"[+] Potential XSS vulnerability detected in element: {script_tags}")
 ```
 
 # modules, package, `__init__.py`

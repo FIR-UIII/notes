@@ -11,6 +11,9 @@ response = requests.post('http://httpbin.org/post', data=payload)
 ```
 
 # Basics
+### Banner
+https://www.youtube.com/watch?v=Xh7bEIvUQfM
+
 ### Find, Regex
 ```python
 ### Sample 1

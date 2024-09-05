@@ -18,7 +18,6 @@ docker run -e SEMGREP_APP_TOKEN=... --rm -v "${PWD}:/src" returntocorp/semgrep s
 ```
 # Testing rules
 semgrep --config rule.yaml rule.fixed.py --autofix
-
 ```
 
 `FUNC(...)` выбрать все внутри функции
@@ -26,13 +25,21 @@ semgrep --config rule.yaml rule.fixed.py --autofix
 `...` выбрать все
 `$X` обозначает любую переменную
 
-`pattern` единичный паттерн ||
-`pattern-either` логическое ИЛИ после нужно указать единичные паттерны
-`pattern-not` исключение
-`pattern-inside` 
-`metavariable-regex` обязательно указать metavariable: '$F' И regex: '.*(fee|salary).*'
-`pattern-sinks`
-`mode: taint`
+```
+rules:
+  - id: untitled_rule
+    pattern: print("...") # единичный паттерн
+    pattern-either логическое ИЛИ после нужно указать единичные паттерны
+    pattern-not исключение
+    pattern-inside 
+    metavariable-regex обязательно указать metavariable: '$F' И regex: '.*(fee|salary).*'
+    pattern-sinks
+    mode: taint
+    message: Semgrep found a match
+    languages: 
+        - python
+    severity: WARNING
+```
 
 # Use cases
 

@@ -9,18 +9,16 @@ Docker:
 ```
 # https://semgrep.dev/onboarding/scan
 docker pull semgrep/semgrep
-docker run -e SEMGREP_APP_TOKEN=$ --rm -v "${PWD}:/src" semgrep/semgrep semgrep ci
+docker run -it -v "${PWD}:/src" returntocorp/semgrep semgrep login
+docker run -e SEMGREP_APP_TOKEN=... --rm -v "${PWD}:/src" returntocorp/semgrep semgrep ci
+docker run -e SEMGREP_APP_TOKEN=... --rm -v "${PWD}:/src" returntocorp/semgrep semgrep ci --output scan_results.txt --text
 ```
 
 ### Rules
 ```
-rules:
-  - id: rule-writing-fundamentals
-    languages:
-      - js
-    severity: ERROR
-    message: Semgrep matched a metavariable with the value `$FUNC` 
-    pattern: db_query(...)
+# Testing rules
+semgrep --config rule.yaml rule.fixed.py --autofix
+
 ```
 
 `FUNC(...)` выбрать все внутри функции
@@ -33,6 +31,8 @@ rules:
 `pattern-not` исключение
 `pattern-inside` 
 `metavariable-regex` обязательно указать metavariable: '$F' И regex: '.*(fee|salary).*'
+`pattern-sinks`
+`mode: taint`
 
 # Use cases
 

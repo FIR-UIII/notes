@@ -1,4 +1,8 @@
-Learn: https://academy.semgrep.dev/courses/take/custom-rules/lessons/55446939-how-to-get-started
+При выборе SAST важно два отличительных фактора:
+- широта поддержки ЯП, и библиотека правил
+- гибкость и удобство языка для написания собственных правил
+
+Learn: https://semgrep.dev/playground/
 
 ### Basics
 Syntax: https://semgrep.dev/docs/writing-rules/rule-syntax
@@ -15,6 +19,11 @@ docker run -e SEMGREP_APP_TOKEN=... --rm -v "${PWD}:/src" returntocorp/semgrep s
 ```
 
 ### Rules
+Общий концепт:
+1. Составить список "уязвимого" и "правильного" кода для тестирования правила
+2. Скопировать кусок "уязвимого кода" и начать обрубать лишние
+3. 
+
 ```
 # Testing rules
 semgrep --config rule.yaml rule.fixed.py --autofix
@@ -27,18 +36,40 @@ semgrep --config rule.yaml rule.fixed.py --autofix
 
 ```
 rules:
-  - id: untitled_rule
-    pattern: print("...") # единичный паттерн
-    pattern-either логическое ИЛИ после нужно указать единичные паттерны
-    pattern-not исключение
-    pattern-inside 
-    metavariable-regex обязательно указать metavariable: '$F' И regex: '.*(fee|salary).*'
-    pattern-sinks
-    mode: taint
+  - id: untitled_rule # название правила
+    
+    # применение нескольких правил одновременно 
+    patterns: # логическое И. Все правила должны быть выполнены
+      - pattern: TODO # ищет точно совпадение
+      - pattern-not: TODO # исключение 
+      - pattern-inside: class $CLASS: ...  # будет искать внутри класса, функции
+      - pattern-regex: \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3} # регулярное выражение
+      - pattern-not-regex: -foo # исключение регулярное выражение
+
+    pattern-either: # логическое ИЛИ. Хотя бы одно из правил должно быть выполнено.
+      - pattern: hashlib.sha1(...)
+      - pattern: hashlib.md5(...)
+
+    # Единичные правила
+    pattern: print("...") # функция с одним входным параметром str
+    pattern: print(...) # функция с любым кол-вом входных параметров
+    pattern: | # для многострочного правила поиска
+      $FUNC(...) {
+        ...
+        make_transaction($PARAM);
+        ...
+      }
+
+    metavariable-regex: #обязательно указать metavariable: '$F' И regex: '.*(fee|salary).*'
+    pattern-sinks: #
+    
+    
     message: Semgrep found a match
     languages: 
-        - python
+        - python # описание ЯП для валидации
     severity: WARNING
+
+    mode: taint
 ```
 
 # Use cases

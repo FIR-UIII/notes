@@ -21,9 +21,16 @@ docker run -e SEMGREP_APP_TOKEN=... --rm -v "${PWD}:/src" returntocorp/semgrep s
 ### Rules
 Общий концепт:
 1. Составить список "уязвимого" и "правильного" кода для тестирования правила
-2. Скопировать кусок "уязвимого кода" и начать обрубать лишние
-3. 
-
+2. Стратегия обрубания: Скопировать кусок "уязвимого кода" в pattern и начать "обрубать" фолсы выявляя общий паттерн через добавление pattern-not. https://semgrep.dev/docs/writing-rules/generic-pattern-matching
+3. Стратегия регулярное выражение: Если уязвимость можно найти по регулярному выражению - regex101.com
+4. Стратегия добавления мета: для дополнительной фильтрации переменных $X как тонкая настройка правила
+  поиск переменных которые `><=` какого-то значения > `metavariable-comparison`
+  поиск конкретной переменной > `focus-metavariable`
+  поиск по доп.правилу > `metavariable-pattern`
+  поиск по рег.выражению > `metavariable-regex` metavariable: $METHOD regex: (insecure)
+  поиск по типу > `metavariable-type` metavariable: $Y type: String или java.util.logging.LogRecord
+  поиск по анализаторам энтропия > `metavariable-analysis` analyzer: entropy metavariable: $VARIABLE
+ 
 ```
 # Testing rules
 semgrep --config rule.yaml rule.fixed.py --autofix
@@ -39,14 +46,15 @@ rules:
   - id: untitled_rule # название правила
     
     # применение нескольких правил одновременно 
-    patterns: # логическое И. Все правила должны быть выполнены
+    patterns: # логическое И. Все правила должны быть выполнены. Найдет только совпадения обоих правил
       - pattern: TODO # ищет точно совпадение
-      - pattern-not: TODO # исключение 
+      - pattern-not: TODO # исключение
+      - pattern-not-inside: TODO # исключает внутри класса
       - pattern-inside: class $CLASS: ...  # будет искать внутри класса, функции
       - pattern-regex: \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3} # регулярное выражение
       - pattern-not-regex: -foo # исключение регулярное выражение
 
-    pattern-either: # логическое ИЛИ. Хотя бы одно из правил должно быть выполнено.
+    pattern-either: # логическое ИЛИ. A+B. Будет искать все совпадения.
       - pattern: hashlib.sha1(...)
       - pattern: hashlib.md5(...)
 
@@ -92,4 +100,31 @@ pattern: new AcmeCorpHTTP.ProxyAgent(...);
 ``` 
 pattern: def get_user(): ...
 pattern: requests.get("...", timeout=$X, verify=True)
+```
+
+### Find secret
+```
+rules:
+  - id: generic-entropy-assignment
+    patterns:
+      - pattern: string $A = "$B";
+      - metavariable-analysis:
+          analyzer: entropy
+          metavariable: $B
+```
+
+### Find key < 2048
+```
+# найти pvk, err := rsa.GenerateKey(rand.Reader, 1024)
+rules:
+  - id: use-of-weak-rsa-key
+    languages:
+      - go
+    severity: ERROR
+    message: RSA < 2048
+    patterns:
+      - pattern: rsa.GenerateKey($X, $KEYSIZE)
+      - metavariable-comparison:
+          comparison: $KEYSIZE < 2048 and $KEYSIZE != 0
+          metavariable: $KEYSIZE
 ```

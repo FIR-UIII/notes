@@ -78,7 +78,7 @@ rules:
 ```
 
 ### Mode TAINT
-![mode taint](Media/image.png)
+![mode taint](../Media/image.png)
 Используется для data-flow анализа. Где появляется цепочка Источник данных > Санитизация > Вывод (Sink)
 ```
 rules:

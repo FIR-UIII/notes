@@ -36,10 +36,23 @@ docker run -e SEMGREP_APP_TOKEN=... --rm -v "${PWD}:/src" returntocorp/semgrep s
 semgrep --config rule.yaml rule.fixed.py --autofix
 ```
 
-`FUNC(...)` выбрать все внутри функции
-`"..."` выбрать любое значение str 
-`...` выбрать все
-`$X` обозначает любую переменную
+|Директива|Описание|
+|--------:|:-------|
+|`FUNC(...)`| выбрать все внутри функции|
+|`"..."`    |выбрать любое значение str |
+|`...`      |выбрать все|
+|`\|`| ставится перед паттерном для указания многострочного паттерна|
+|`$X`       |обозначает любую переменную. Писать только с заглавной буквы|
+|`fix: <U>` |хорошая практика использовать эту директиву чтобы подсказывать в <U> при триаже как это можно устранить или корректно написать|
+|`pattern:` |ищет точно совпадение|
+|`patterns:`|логическое И. Все правила должны быть выполнены. Найдет только совпадения обоих правил|
+|`pattern-either:`|логическое ИЛИ. A+B. Будет искать все совпадения.|
+|`pattern-not:`|исключение|
+|`pattern-not-inside`|исключает внутри класса|
+|`pattern-inside`|будет искать внутри класса, функции|
+|`pattern-regex`|паттерн в виде регулярного выражения|
+|`metavariable-regex`|использование метаинформации для ранее определенных переменных $X|
+|`mode: taint`|использование |
 
 ```
 rules:
@@ -47,36 +60,43 @@ rules:
     
     # применение нескольких правил одновременно 
     patterns: # логическое И. Все правила должны быть выполнены. Найдет только совпадения обоих правил
-      - pattern: TODO # ищет точно совпадение
-      - pattern-not: TODO # исключение
-      - pattern-not-inside: TODO # исключает внутри класса
-      - pattern-inside: class $CLASS: ...  # будет искать внутри класса, функции
-      - pattern-regex: \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3} # регулярное выражение
-      - pattern-not-regex: -foo # исключение регулярное выражение
+      - pattern: TODO # 
+      - pattern-not: TODO # 
+      - pattern-not-inside: TODO # 
 
     pattern-either: # логическое ИЛИ. A+B. Будет искать все совпадения.
       - pattern: hashlib.sha1(...)
       - pattern: hashlib.md5(...)
 
-    # Единичные правила
-    pattern: print("...") # функция с одним входным параметром str
-    pattern: print(...) # функция с любым кол-вом входных параметров
-    pattern: | # для многострочного правила поиска
-      $FUNC(...) {
-        ...
-        make_transaction($PARAM);
-        ...
-      }
-
     metavariable-regex: #обязательно указать metavariable: '$F' И regex: '.*(fee|salary).*'
     pattern-sinks: #
-    
-    
+  
     message: Semgrep found a match
     languages: 
         - python # описание ЯП для валидации
     severity: WARNING
+```
 
+### Mode TAINT
+![mode taint](Media/image.png)
+Используется для data-flow анализа. Где появляется цепочка Источник данных > Санитизация > Вывод (Sink)
+```
+rules:
+  - id: taint-demo-copy
+    languages:
+      - python
+    severity: ERROR
+    message: Taint reaches the sink!
+    pattern-sources: # обязательно. функция получающая данные на входе
+      - pattern: source()
+    pattern-sinks:  # обязательно. Указывается функции выводящие во вне данные
+      - pattern: sink(...)
+    pattern-sanitizers: # опционально. функция проводящая санитизацию данных
+      - pattern: sanitize(...)
+    pattern-propagators: # опционально. функция проводящая обработку (изменение данных)
+      - pattern: $TO.add($FROM)
+        from: $TO
+        to: $FROM
     mode: taint
 ```
 

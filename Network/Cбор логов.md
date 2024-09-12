@@ -54,6 +54,5 @@ Router(config-archive-log-cfg)#logging enable /включаем логирова
 Router(config-archive-log-cfg)#logging size 200 /задаем количество строк
 Router(config-archive-log-cfg)#hidekeys /”прячем” пароли
 Router(config-archive-log-cfg)#notify syslog /отправляем на syslog-сервер
-
 Router#show archive log config all
 ```

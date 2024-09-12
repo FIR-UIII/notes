@@ -3,6 +3,7 @@
 - гибкость и удобство языка для написания собственных правил
 
 Learn: https://semgrep.dev/playground/
+https://semgrep.dev/docs/cheat-sheets/overview
 
 ### Basics
 Syntax: https://semgrep.dev/docs/writing-rules/rule-syntax
@@ -36,8 +37,8 @@ docker run -e SEMGREP_APP_TOKEN=... --rm -v "${PWD}:/src" returntocorp/semgrep s
 semgrep --config rule.yaml rule.fixed.py --autofix
 ```
 
-|Директива|Описание|
-|--------:|:-------|
+|Директива  |Описание|
+|----------:|:-------|
 |`FUNC(...)`| выбрать все внутри функции|
 |`"..."`    |выбрать любое значение str |
 |`...`      |выбрать все|
@@ -52,7 +53,7 @@ semgrep --config rule.yaml rule.fixed.py --autofix
 |`pattern-inside`|будет искать внутри класса, функции|
 |`pattern-regex`|паттерн в виде регулярного выражения|
 |`metavariable-regex`|использование метаинформации для ранее определенных переменных $X|
-|`mode: taint`|использование |
+|`mode: taint`|использование DFD для определения потока данных внутри кода|
 
 ```
 rules:
@@ -76,10 +77,40 @@ rules:
         - python # описание ЯП для валидации
     severity: WARNING
 ```
+### Metavariables
+При определении параметров поиска если дается определение $VAR $FUNC и тп можно дополнить информацию:
+
+##### metavariable-regex. Уточнить $X путем его посика по регулярному выражению
+```
+    patterns:
+      - pattern: module.$METHOD(...)
+      - metavariable-regex:
+          metavariable: $METHOD
+          regex: (insecure)
+```
+
+##### metavariable-pattern. Доп.фильтрация результатов pattern
+    patterns:
+      - pattern: '"$STRING"'
+      - metavariable-pattern:
+          language: generic
+          metavariable: $STRING
+          pattern: "literal string contents"
+
+##### metavariable-comparison. Уточнение с функцией сравнения $X и конвертацией
+Удобство в том что $X можно изменять по типу str > int, сравнивать > < =, применять математические операции +, -, *, /,  %
+```
+    patterns:
+      - pattern: set_port($ARG)
+      - metavariable-comparison:
+          comparison: $ARG < 1024 and $ARG % 2 == 0
+          metavariable: $ARG
+```
 
 ### Mode TAINT
 ![mode taint](../Media/image.png)
-Используется для data-flow анализа. Где появляется цепочка Источник данных > Санитизация > Вывод (Sink)
+Используется для data-flow анализа. Где появляется цепочка Источник данных > Санитизация > Вывод (Sink).
+Полезно использовать для анализа угроз инъекций (XSS, SQLi, PathTravers, CommandInjection)
 ```
 rules:
   - id: taint-demo-copy
@@ -148,3 +179,5 @@ rules:
           comparison: $KEYSIZE < 2048 and $KEYSIZE != 0
           metavariable: $KEYSIZE
 ```
+
+### Parsing

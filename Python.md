@@ -11,6 +11,19 @@ response = requests.post('http://httpbin.org/post', data=payload)
 ```
 
 # Basics
+```
+name: str = "Ivan" # добавляй тип данных и контекст
+age: list[int] = [20,  50, 30] # аналогично для списка и проч
+
+def greet(greeting: str, people: list[str]) -> None: # return  None
+    """add how func works here"""
+    # or use comments
+def greet(greeting: str, people: list[str]) -> str: # return some string
+
+if __name__ == `__main__`:
+    main_function()
+```
+
 ### Banner
 https://www.youtube.com/watch?v=Xh7bEIvUQfM
 

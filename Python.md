@@ -11,7 +11,7 @@ response = requests.post('http://httpbin.org/post', data=payload)
 ```
 
 # Basics
-```
+```python
 name: str = "Ivan" # добавляй тип данных и контекст
 age: list[int] = [20,  50, 30] # аналогично для списка и проч
 

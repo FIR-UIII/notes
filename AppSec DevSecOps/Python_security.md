@@ -41,5 +41,5 @@ from sys import * # not secure
       except AssertionError:
       print(f"\nNot a Super User!!!\n")
     ```
-    - Tarfile and zipfile. Programmers should avoid using tarfile when extracting from untrusted sources > Use module tarsafe instead. Programmers can defend by setting and checking the maximum size of decompressed data and the maximum number of files
-    - Buffer overflow
+   - Tarfile and zipfile. Programmers should avoid using tarfile when extracting from untrusted sources > Use module tarsafe instead. Programmers can defend by setting and checking the maximum size of decompressed data and the maximum number of files
+   - Buffer overflow

@@ -15,7 +15,12 @@ from sys import * # not secure
    - blacklist: bad practice
 *  Try-except vs. if-else
   - it is safer to use the try-except block when we are unsure about possible errors or when there is little possibility of some error/exception. In the other cases, it is recommended to use the if-else block
-*  Check library, framework vulnerabilities / Open Source Security
+*  Check library, framework vulnerabilities / Open Source Security<br>
+Check offsites and CWE:
+  - https://docs.python.org/3/library/security_warnings.html
+  - https://codeql.github.com/codeql-query-help/python/
+  - https://fastapi.tiangolo.com/tutorial/security/
+  - https://docs.djangoproject.com/en/dev/howto/deployment/checklist/
 *  Know vulnerable function
   - Function mktemp() has been deprecated since Python 2.3, but it is still in the module
   - do not use pickle module (using for serializing or de-serializing data), use JSON. do not pickle or unpickle data from untrusted sources. use HMAC or other algorithms for ensuring integrity of data

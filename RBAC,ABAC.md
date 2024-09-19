@@ -4,7 +4,7 @@ User2 > Permissions (write) > Resource<br>
 User3 > Permissions (none) > Resource<br>
 
 # RBAC
-User1 \<br>
+User1 \ <br>
 User2  -> Role (customer) > Permissions (read, write) > Resource<br>
 User3 /<br>
 

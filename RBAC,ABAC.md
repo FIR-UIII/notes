@@ -16,9 +16,9 @@ User3 /<br>
 # ABAC
 Resource = Attribute<br>
 
-User1 = Attribute \<br>
+User1 = Attribute \ <br>
 User2 = Attribute  -> Policy (permit "customer" IF "12PM" OR "read_data" to Resource1) > Action (read, write) > Resource<br>
-User3 = Attribute /<br>
+User3 = Attribute / <br>
 
 Attribute:<br>
 - IP<br>

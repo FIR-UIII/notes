@@ -1,45 +1,38 @@
 RBAC vs. ABAC
 
-
 # DAC
-User1 > Permissions (read, write) > Resource
-User2 > Permissions (write) > Resource
-User3 > Permissions (none) > Resource
+User1 > Permissions (read, write) > Resource<br>
+User2 > Permissions (write) > Resource<br>
+User3 > Permissions (none) > Resource<br>
 
 # RBAC
-User1 \
-User2  -> Role (customer) > Permissions (read, write) > Resource
-User3 /
+User1 \e<br>
+User2  -> Role (customer) > Permissions (read, write) > Resource<br>
+User3 /<br>
 
-+
-Опираются на текущий процесс, в котором можно выделить общую роль для группы пользователей. Мы создает абстакцию над процессом.
--
-Если нет процесса или пользователей нельзя группировать - возникает множество ролей
+`+` Опираются на текущий процесс, в котором можно выделить общую роль для группы пользователей. Мы создает абстакцию над процессом.
+`-` Если нет процесса или пользователей нельзя группировать - возникает множество ролей
 Нет кастомизации по параметрам
 
 
 # ABAC
-Resource = Attribute
+Resource = Attribute<br>
 
-User1 = Attribute \
-User2 = Attribute  -> Policy (permit "customer" IF "12PM" OR "read_data" to Resource1) > Action (read, write) > Resource
-User3 = Attribute /
+User1 = Attribute \<br>
+User2 = Attribute  -> Policy (permit "customer" IF "12PM" OR "read_data" to Resource1) > Action (read, write) > Resource<br>
+User3 = Attribute /<br>
 
-Attribute:
-- IP
-- Position
-- Departament
-- Access level to confidential info (L1, L2, L3)
-- Time access
+Attribute:<br>
+- IP<br>
+- Position<br>
+- Departament<br>
+- Access level to confidential info (L1, L2, L3)<br>
+- Time access<br>
 
-+ 
-Более гибкая система 
-Зависит от аттрибутов, которые можно гибко настраивать при изменении процесса
-Может работать вместе с RBAC
-- 
-Сложна для реализации
+`+` Более гибкая система. Зависит от аттрибутов, которые можно гибко настраивать при изменении процесса. Может работать вместе с RBAC<br>
+`-` Сложна для реализации<br>
 
-Frameworks ABAC: XACML, ALFA 
+Frameworks ABAC: XACML, ALFA <br>
 
 ```
 class User:

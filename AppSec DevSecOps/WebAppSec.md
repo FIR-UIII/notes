@@ -7,6 +7,10 @@
 Проверить угадываемость / сложность формирования session ID, cookie, JWT
 Использование HTTPS для передачи критичных аутентификаторов
 
+##### Authentication Bypass
+Insecure "Remember Me" Functionality
+CAPTCHA Bypass
+
 # Авторизация
 
 ##### Insecure Direct Object References (IDOR)
@@ -34,6 +38,10 @@
 Выставлена Content Security Policy (CSP)
 X-XSS-Protection header
 Cookie > Secure; HttpOnly
+
+##### MIME Sniffing
+MIME type validation
+Content-Type должен быть конко определен + указана кодировка charset UTF-8
 
 ##### RCE / Command Injection
 Определить где приложение вызывает системные API, функции, десериализация объектов в бинарный формат

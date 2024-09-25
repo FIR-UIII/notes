@@ -11,6 +11,19 @@ response = requests.post('http://httpbin.org/post', data=payload)
 ```
 
 # Basics
+```python
+name: str = "Ivan" # добавляй тип данных и контекст
+age: list[int] = [20,  50, 30] # аналогично для списка и проч
+
+def greet(greeting: str, people: list[str]) -> None: # return  None
+    """add how func works here"""
+    # or use comments
+def greet(greeting: str, people: list[str]) -> str: # return some string
+
+if __name__ == `__main__`:
+    main_function()
+```
+
 ### Banner
 https://www.youtube.com/watch?v=Xh7bEIvUQfM
 
@@ -62,6 +75,22 @@ from ..module1 import *
 
 ```
 
+# OOP
+```
+class BlueCar:
+    def __init__(self, brand: str) -> None:
+    '''Функция определяющее по поведение класса по умолчанию'''
+        self.brand = brand
+        self.drive: bool = False
+
+    def drive(self) -> None:
+        if self.drive:
+            print(f'The Car ({self.brand}) is already driving')
+        else:
+            self.drive = True
+            print(f'The Car ({self.brand}) is now driving')
+tesla = BlueCar('Tesla') # the same as tesla: BlueCar = BlueCar()
+```
 
 # Crypto
 ```py

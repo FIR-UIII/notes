@@ -24,6 +24,8 @@ git push (-u origin main)* сохранить в удаленный репози
   *** git pull --rebase origin main
   > rejected (non-fast-forward):
     >> push --force: удалит коммиты отличные от fast-forward и перезатрет посление отличия
+  > You have divergent branches
+    >> git pull --no-rebase
 ```
 # Моя быстрая конфигурация для работы
 ```

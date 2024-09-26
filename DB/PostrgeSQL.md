@@ -10,7 +10,8 @@ sudo -i -u postgres
 psql
 
 # and create a new user. 
-CREATE ROLE "user" WITH SUPERUSER LOGIN ENCRYPTED PASSWORD 'pass'
+mydatabase=# CREATE ROLE "user" WITH SUPERUSER LOGIN ENCRYPTED PASSWORD 'pass';
+mydatabase=# \q # exit
 
 # open conections
 /etc/postgresql/14/main/postgresql.conf

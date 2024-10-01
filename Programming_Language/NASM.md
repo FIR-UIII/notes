@@ -1,4 +1,5 @@
 https://rextester.com/l/nasm_online_compiler > LINUX
+https://ideone.com/
 
 
 ```ASM hello.asm
@@ -10,11 +11,12 @@ _start:                 ; объявление метки _start - точки в
     mov rdi, 22         ; произвольный код возврата - 22 работы (число выбрано случайно)
     syscall             ; выполняем системный вызов exit
 ```
+```bash
 root@Eugene:~/asm# nasm -f elf64 hello.asm -o hello.o
 root@Eugene:~/asm# ld -o hello hello.o
 root@Eugene:~/asm# ./hello
 root@Eugene:~/asm# echo $?
-
+```
 
 ### Инструкция MOV. Копирование данных
 ```

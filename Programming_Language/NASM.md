@@ -2,6 +2,8 @@ https://rextester.com/l/nasm_online_compiler > LINUX
 https://ideone.com/
 
 
+Learn path https://asmtutor.com/#lesson2 
+
 ```ASM hello.asm
 global _start           ; делаем метку метку _start видимой извне
  
@@ -31,4 +33,9 @@ add operand1, operand2  ; operand1 = operand1 + operand2
 mov rdi, 22
 mov rsi, 11
 add rdi, rsi    ; rdi = rdi + rsi = 22 + 11 = 33
+```
+
+```
+
+
 ```

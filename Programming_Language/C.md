@@ -18,7 +18,7 @@ int main()
 ```
 
 ```
-lea     rdx, QWORD PTR x$[rsp]      ; адрес x помещается в регистр EAX.
+lea     rdx, QWORD PTR x$[rsp]      ; помещает в регистр EAX результат суммы значения в регистре EBP и макроса x$.
 lea     rcx, OFFSET FLAT:$SG7823    ; адрес переменной x.
 call    scanf
 ```

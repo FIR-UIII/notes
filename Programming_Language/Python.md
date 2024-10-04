@@ -72,7 +72,6 @@ print(dir(package))
 # submod1.py
 import ..module1
 from ..module1 import *
-
 ```
 
 # OOP

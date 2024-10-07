@@ -19,64 +19,15 @@ Online: https://www.tutorialspoint.com/compile_assembly_online.php
 Есть два синтаксиса AT&T - UNIX, Intel - MASM Windows
 Для каждой архитектуры процессовров свой асм. Нет кроссплатформенность но есть обратная совместимость для семейства архитектуры
 
-##### GAS \ GCC
-GNU Assembler или сокращенно GAS. Он поставляется как компонент набора компиляторов GCC.
-GAS использует синтаксис, отличный от синтаксиса Intel (а именно синтаксис AT&T)
-https://metanit.com/assembler/gas/1.4.php 
-https://www.onlinegdb.com/online_gcc_assembler
-https://godbolt.org/
-https://www.jdoodle.com/compile-assembler-gcc-online
 
-/usr/bin/as
-```
-.data
-.globl greet
-greet:
-.string "Hello world!"
-.text
-.global main
-main:
-    pushq   %rbp
-    movq    %rsp,       %rbp
-```
 
-##### MASM
-Преимуществом MASM является то, что MASM использует для своих инструкций синтаксис Intel. Недостатком MASM является наличие официальной поддержки только для ОС Windows.
-No online
-```
-.686
-.model small
-.stack 100h
-.data
-msg	db	'Hello world!$'
-.code
-start:
-	mov	ah, 09h   ; Display the message
-	lea	dx, msg
-	int	21h
-```
+Address: 0xffff0000
+Word: \xAA\xBB\xCC\xDD
 
-##### NASM
-Netwide Assembler или NASM развивается как opensource-проект и использует синтаксис, который похож на синтаксис Intel. Является кросс-платформенным и работает почти на любой платформе.
-https://www.mycompiler.io/new/asm-x86_64 
-https://onecompiler.com/assembly/ 
-```
-section .data
-    msg db "Hello world!", 0ah
-section .text
-    global _start
-_start:
-    mov rax, 1
-```
-
-### ARM64
-iOS и Android, Raspberry Pi.
-```
-.global _start          // устанавливаем стартовый адрес программы
-_start: mov X0, #1          // 1 = StdOut - поток вывода
- ldr X1, =hello             // строка для вывода на экран
- mov X2, #19                // длина строки
-```
+| GAS \\ GCC | MASM  | NASM | ARM64 |
+| --------- | ---------- | ------- | ----------- |
+| .data<br>.globl greet<br>greet:<br>.string "Hello world!"<br>.text<br>.global main<br>main:<br>pushq %rbp<br>movq %rsp, %rbp| .686<br>.model small<br>.stack 100h<br>.data<br>msg db 'Hello world!$'<br>.code<br>start:<br>mov ah, 09h ; Display the message<br>lea dx, msg<br>int 21h | section .data<br>msg db "Hello world!", 0ah<br>section .text<br>global \_start<br>_start:<br>mov rax, 1  | .global \_start // устанавливаем стартовый адрес программы<br>_start: mov X0, #1 // 1 = StdOut - поток вывода<br>ldr X1, =hello // строка для вывода на экран<br>mov X2, #19 // длина строки |
+| GNU Assembler или сокращенно GAS. Он поставляется как компонент набора компиляторов GCC.<br>GAS использует синтаксис, отличный от синтаксиса Intel (а именно синтаксис AT&T)<br>https://metanit.com/assembler/gas/1.4.php<br>https://www.onlinegdb.com/online_gcc_assembler<br>https://godbolt.org/<br>[https://www.jdoodle.com/compile-assembler-gcc-online](https://www.jdoodle.com/compile-assembler-gcc-online) | Преимуществом MASM является то, что MASM использует для своих инструкций синтаксис Intel. Недостатком MASM является наличие официальной поддержки только для ОС Windows. | Netwide Assembler или NASM развивается как opensource-проект и использует синтаксис, который похож на синтаксис Intel. Является кросс-платформенным и работает почти на любой платформе.<br>https://www.mycompiler.io/new/asm-x86_64<br>https://onecompiler.com/assembly/ | iOS и Android, Raspberry Pi. |
 
 ### Архитектуры
 x86. Процессоры 8086 и 8088 были 16-битными, несмотря на 8-битную шину данных в 8088. Регистры в этих процессорах имели разрядность 16 бит, а набор инструкций работал с 16-битными данными. <br>
@@ -106,8 +57,10 @@ ECX / CX / CH / CL (counter register) – счётчик;<br>
 EDX / DX / DH / DL (data register) – регистр данных;<br>
 ESI / SI (source index register) – индекс источника;<br>
 EDI / DI (destination index register) – индекс приёмника (получателя);<br>
+
+EIP / IP Instruction Pointer stores the offset address of the next instruction to be executed;<br>
 ESP / SP (stack pointer register) – регистр указателя стека;<br>
-EBP / BP (base pointer register) – регистр указателя базы кадра стека.<br>
+EBP / BP (stack base pointer or frame pointer) – регистр указателя базы кадра стека.<br>
 
 При выборе регистра важно учитывать размер принимаемых значений!<br>
 Так, CL - 8-разрядный и может принимать только 8-разрядные числа. Максимальное 8-разрядное положительное число - 255. Т.е. 256 в регистр не войдет и возникнет ошибка warning: byte data exceeds bounds [-w+number-overflow]<br>
@@ -123,25 +76,17 @@ EBP / BP (base pointer register) – регистр указателя базы 
 ### СТЭК RAM
 Участок оперативной памяти для быстрой передачи данных. Используется паттерны - LIFO \ FIFO. Принцип хранения данных - обойма магазина.
 Реализован как блок памяти ОЗУ / RAM + регистр-указатель SP (ESP, RSP), который указывает на адрес в ячейке памяти.
+Стэк формируется от большего адреса в памяти к меньшему.
 PUSH уменьшает регистр-указатель, а POP — увеличивает.
+Стэк в асме формируется в сегменте .data
 ```
-.data ; формирование стека
-Stack Bottom  dd 0
-              ...
-              dd 0
-StackTop      dd 0 ; вершина стека по принципу LIFO
-StackPointer  dd offset StackTop ; определение укателя стека для дальнейшей работы с ним
-
-_start:
-  mov ebp,StackPointer
-
-  ; имитация команды PUSH наполнение
-  sub ebp,4 ; резервируем память для добавления данных
-  mov dword ptr[ebp],1 ; добавляем данные в стек
-
-  ; ИЛИ тоже самое вместо sub и mov
-  push 1
-  pop 1
+   0x0000054d <+0>:	    push   ebp       # <---- 1. Stores previous EBP
+   0x0000054e <+1>:	    mov    ebp,esp   # <---- 2. Creates new Stack Frame
+   0x00000550 <+3>:	    push   ebx
+   0x00000551 <+4>:	    sub    esp,0x404 # <---- 3. Moves ESP to the top
+   <...SNIP...>
+   0x00000580 <+51>:	leave  # <----------------------
+   0x00000581 <+52>:	ret    # <--- Leave stack frame
 ```
 Зачем нужен стэк: "долгосрочное" хранение данных на протяжении выполнении кода. Передача аргументов между функциями
 

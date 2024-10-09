@@ -148,8 +148,8 @@ git diff <branch1>{~1} <branch2> сравнение веток
 # Тегирование коммитов
 ```
 git tag <tag_name> <commit_hash or None>
-git show <tag>
-git tag -a <tag_name> -m 'Message for tag'
+git show <tag_name> display detailed information about a specific Git tag.
+git tag -a v1.0 -m "Initial release of MyProject v1.0"
 git push origin <tag_name> отправить метку в удаленный репозиторий
 git push origin --tags     отправить все метки в удаленный репозиторий
 ```

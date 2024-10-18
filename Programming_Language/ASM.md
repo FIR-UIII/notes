@@ -58,7 +58,7 @@ EDX / DX / DH / DL (data register) – регистр данных;<br>
 ESI / SI (source index register) – индекс источника;<br>
 EDI / DI (destination index register) – индекс приёмника (получателя);<br>
 
-EIP / IP Instruction Pointer stores the offset address of the next instruction to be executed;<br>
+EIP / IP Instruction Pointer stores указавает на адрес следующей инструкции для выполнения;<br>
 ESP / SP (stack pointer register) – регистр указателя стека;<br>
 EBP / BP (stack base pointer or frame pointer) – регистр указателя базы кадра стека.<br>
 

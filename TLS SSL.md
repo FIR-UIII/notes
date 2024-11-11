@@ -38,13 +38,13 @@ ClientHello (01)
 ```
 
 *Важные моменты обмена:*<br>
-ClientHello (01) cостоит из: Version + ClientRandom (32 bytes \ 256 bits) + SessionID + Cipher Suites + Compression Methods + Extensions
-ServerHello (02) cостоит из:  выбранный Version + ServerRandom + SessionID + выбранный Cipher Suites + выбранный Compression Methods + Extensions
-После ClientHello и ServerHello обе стороны обменялись ClientRandom ServerRandom и согласовали версию TLS и шифронаборы (Version Cipher Suites) и знают SessionID<br>
-После отправки Certificate сервером - клиент узнает pub_key и цепочку сертификатов. На этом этапе клиент может проверить - доверяет ли он корневому центру выдавшем сертификат серверу или нет.<br>
-В момент отправки ClientKeyExchange - клиент генерирует и включает в него PreMasterSecret (48 bytes) зашифрованный pub_key сервера<br> 
-До Finished обе стороны вычисляют MasterSecret. Master_secret = Pseudo-Random Function(pre_master_secret, "master secret", ClientRandom + ServerRandom)<br> 
-До Finished обе стороны вычисляют 4 сессионых ключа. Формируется в несколько операций:<br>
+1. ClientHello (01) cостоит из: Version + ClientRandom (32 bytes \ 256 bits) + SessionID + Cipher Suites + Compression Methods + Extensions<br>
+2. ServerHello (02) cостоит из:  выбранный Version + ServerRandom + SessionID + выбранный Cipher Suites + выбранный Compression Methods + Extensions<br>
+3. После ClientHello и ServerHello обе стороны обменялись ClientRandom ServerRandom и согласовали версию TLS и шифронаборы (Version Cipher Suites) и знают SessionID<br>
+4. После отправки Certificate сервером - клиент узнает pub_key и цепочку сертификатов. На этом этапе клиент может проверить - доверяет ли он корневому центру выдавшем сертификат серверу или нет.<br>
+5. В момент отправки ClientKeyExchange - клиент генерирует и включает в него PreMasterSecret (48 bytes) зашифрованный pub_key сервера<br> 
+6. До Finished обе стороны вычисляют MasterSecret. Master_secret = Pseudo-Random Function(pre_master_secret, "master secret", ClientRandom + ServerRandom)<br> 
+7. До Finished обе стороны вычисляют 4 сессионых ключа. Формируется в несколько операций:<br>
 ```
 1. Расчитывается key_block = Pseudo-Random Function(master_secret, "key expansion", ClientRandom + ServerRandom)
 2. На основе key_block формируются симметричные ключи шифрования:

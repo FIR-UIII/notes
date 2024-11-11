@@ -17,11 +17,11 @@ Client				                Server (Certificate | Pub_key | Priv_key)<br>
 *----------------------------------*<br>
 | ClientHello (01):= Version + ClientRandom (32 bytes \ 256 bits) + SessionID + Cipher Suites + Compression Methods + Extensions<br>
 |--------------------------------->|<br>
-|	    			                ServerHello (02):= выбранный Version + ServerRandom + SessionID + выбранный Cipher Suites + |выбранный Compression Methods + Extensions<br>
-|				                    Certificate + Pub_key<br>
-|		 		                    ServerKeyExchange (optional)<br>
-|				                    CertificateRequest (optional)<br>
-|			                	    ServerHelloDone<br>
+	    			                ServerHello (02):= выбранный Version + ServerRandom + SessionID + выбранный Cipher Suites + |выбранный Compression Methods + Extensions
+				                    Certificate + Pub_key
+		 		                    ServerKeyExchange (optional)
+				                    CertificateRequest (optional)
+			                	    ServerHelloDone
 |<---------------------------------|<br>
 | Certificate (optional mTLS)<br>
 | ClientKeyExchange (PreMasterSecret)<br>

@@ -12,30 +12,31 @@ $ openssl x509 -in cert.pem -noout -text # read certificate from file
 # Basics
 
 ### TLS 1.2 RFC 5246<br>
-
+```
 Client				                Server (Certificate | Pub_key | Priv_key)<br>
-*----------------------------------*<br>
-| ClientHello (01):= Version + ClientRandom (32 bytes \ 256 bits) + SessionID + Cipher Suites + Compression Methods + Extensions<br>
-|--------------------------------->|<br>
-	    			                ServerHello (02):= выбранный Version + ServerRandom + SessionID + выбранный Cipher Suites + |выбранный Compression Methods + Extensions
-				                    Certificate + Pub_key
-		 		                    ServerKeyExchange (optional)
-				                    CertificateRequest (optional)
-			                	    ServerHelloDone
-|<---------------------------------|<br>
-| Certificate (optional mTLS)<br>
-| ClientKeyExchange (PreMasterSecret)<br>
-| CertificateVerify <br>
-| ChangeCipherSpec<br>
-| Finished    <br>
-|--------------------------------->|<br>
-|				                    ChangeCipherSpec<br>
-|				                    Finished<br>
-|<---------------------------------|<br>
-|     ENCRYPTED DATA EXCHANGE      |<br>
-|--------------------------------->|<br>
-|<---------------------------------|<br>
-<br>
+*----------------------------------*
+| ClientHello (01):= Version + ClientRandom (32 bytes \ 256 bits) + SessionID + Cipher Suites + Compression Methods + Extensions
+|--------------------------------->|
+|	    			                ServerHello (02):= выбранный Version + ServerRandom + SessionID + выбранный Cipher Suites + |выбранный Compression Methods + Extensions
+|				                    Certificate + Pub_key
+|		 		                    ServerKeyExchange (optional)
+|				                    CertificateRequest (optional)
+|			                	    ServerHelloDone
+|<---------------------------------|
+| Certificate (optional mTLS)
+| ClientKeyExchange (PreMasterSecret)
+| CertificateVerify 
+| ChangeCipherSpec
+| Finished   
+|--------------------------------->|
+|				                    ChangeCipherSpec
+|				                    Finished
+|<---------------------------------|
+|     ENCRYPTED DATA EXCHANGE      |
+|--------------------------------->|
+|<---------------------------------|
+```
+
 *Важные моменты обмена:*<br>
 После ClientHello и ServerHello обе стороны обменялись ClientRandom ServerRandom и согласовали версию TLS и шифронаборы (Version Cipher Suites) и знают SessionID<br>
 После отправки Certificate сервером - клиент узнает pub_key и цепочку сертификатов. На этом этапе клиент может проверить - доверяет ли он корневому центру выдавшем сертификат серверу или нет.<br>

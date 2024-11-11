@@ -11,30 +11,30 @@ $ openssl x509 -in cert.pem -noout -text # read certificate from file
 
 # Basics
 
-### TLS 1.2 RFC 5246<br>
+### TLS 1.2 RFC 5246
 ```
-Client				                Server (Certificate | Pub_key | Priv_key)<br>
-*----------------------------------*
-| ClientHello (01):= Version + ClientRandom (32 bytes \ 256 bits) + SessionID + Cipher Suites + Compression Methods + Extensions
-|--------------------------------->|
-|	    			                ServerHello (02):= выбранный Version + ServerRandom + SessionID + выбранный Cipher Suites + |выбранный Compression Methods + Extensions
-|				                    Certificate + Pub_key
-|		 		                    ServerKeyExchange (optional)
-|				                    CertificateRequest (optional)
-|			                	    ServerHelloDone
-|<---------------------------------|
+Client				Server (Certificate | Pub_key | Priv_key)
+*------------------------------*
+ClientHello (01):= Version + ClientRandom (32 bytes \ 256 bits) + SessionID + Cipher Suites + Compression Methods + Extensions
+|----------------------------->|
+	    			ServerHello (02):= выбранный Version + ServerRandom + SessionID + выбранный Cipher Suites + выбранный Compression Methods + Extensions
+				Certificate + Pub_key
+		 		ServerKeyExchange (optional)
+				CertificateRequest (optional)
+				ServerHelloDone
+|<-----------------------------|
 | Certificate (optional mTLS)
 | ClientKeyExchange (PreMasterSecret)
-| CertificateVerify 
+| CertificateVerify
 | ChangeCipherSpec
-| Finished   
-|--------------------------------->|
-|				                    ChangeCipherSpec
-|				                    Finished
-|<---------------------------------|
-|     ENCRYPTED DATA EXCHANGE      |
-|--------------------------------->|
-|<---------------------------------|
+| Finished  
+|----------------------------->|
+				ChangeCipherSpec
+				Finished
+|<-----------------------------|
+     ENCRYPTED DATA EXCHANGE
+|----------------------------->|
+|<-----------------------------|
 ```
 
 *Важные моменты обмена:*<br>

@@ -15,9 +15,9 @@ $ openssl x509 -in cert.pem -noout -text # read certificate from file
 ```
 Client				Server (Certificate | Pub_key | Priv_key)
 *------------------------------*
-ClientHello (01):= Version + ClientRandom (32 bytes \ 256 bits) + SessionID + Cipher Suites + Compression Methods + Extensions
+ClientHello (01)
 |----------------------------->|
-	    			ServerHello (02):= выбранный Version + ServerRandom + SessionID + выбранный Cipher Suites + выбранный Compression Methods + Extensions
+	    			ServerHello (02)
 				Certificate + Pub_key
 		 		ServerKeyExchange (optional)
 				CertificateRequest (optional)
@@ -38,6 +38,8 @@ ClientHello (01):= Version + ClientRandom (32 bytes \ 256 bits) + SessionID + Ci
 ```
 
 *Важные моменты обмена:*<br>
+ClientHello (01) cостоит из: Version + ClientRandom (32 bytes \ 256 bits) + SessionID + Cipher Suites + Compression Methods + Extensions
+ServerHello (02) cостоит из:  выбранный Version + ServerRandom + SessionID + выбранный Cipher Suites + выбранный Compression Methods + Extensions
 После ClientHello и ServerHello обе стороны обменялись ClientRandom ServerRandom и согласовали версию TLS и шифронаборы (Version Cipher Suites) и знают SessionID<br>
 После отправки Certificate сервером - клиент узнает pub_key и цепочку сертификатов. На этом этапе клиент может проверить - доверяет ли он корневому центру выдавшем сертификат серверу или нет.<br>
 В момент отправки ClientKeyExchange - клиент генерирует и включает в него PreMasterSecret (48 bytes) зашифрованный pub_key сервера<br> 

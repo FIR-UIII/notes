@@ -10,7 +10,7 @@ nuclei -u https://my.target.site
 ```sh
 git clone https://github.com/projectdiscovery/nuclei.git
 cd nuclei/cmd/nuclei
-go build .
+go build .git
 cp nuclei /usr/local/bin/
 nuclei -version
 

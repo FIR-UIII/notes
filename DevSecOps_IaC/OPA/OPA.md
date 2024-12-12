@@ -1,8 +1,12 @@
 # Docs
 https://www.openpolicyagent.org/docs/latest/policy-reference/#assignment-and-equality
+https://sangkeon.github.io/opaguide/chap2/installandusage.html
 https://play.openpolicyagent.org/
 https://academy.styra.com/courses/take/opa-rego/
 https://docs.styra.com/opa/rego-cheat-sheet 
+
+# Getting started
+https://sangkeon.github.io/opaguide/chap2/installandusage.html
 
 # Architecture
 ```

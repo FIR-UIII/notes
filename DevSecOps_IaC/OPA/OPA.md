@@ -7,6 +7,8 @@ https://docs.styra.com/opa/rego-cheat-sheet
 
 # Getting started
 https://sangkeon.github.io/opaguide/chap2/installandusage.html
+Ctrl+Shift+P > OPA: Evaluate Package
+Ctrl+Shift+P > OPA: Test Workspace 
 
 # Architecture
 ```
@@ -42,7 +44,7 @@ request_quota := 1000 if input.user.internal
 request_quota := 50 if input.user.plan.trial
 ```
 
-# Syntax
+# General Syntax
 ```Go
 // Работа с переменными
 1. allow := false 
@@ -96,11 +98,14 @@ allow {
 }
 function { user_is_aithenticated } // Helper 1
 function { path_is_root } // Helper 2
+```
 
-// Циклы, итерации, проверки - декларативный синтаксис
+# Циклы, итерации, проверки
+
+```Go
 1. input.user == admins[i] // способ 1 проверка наличия в input.user
-2.  some i
-      input.user == admins[i] // способ 2
+2.  some i in my_set
+      endswith(i, "group-admin")
     some index; value := arr[index]
     some key; value := obj[key]
     some value; set[value]
@@ -148,6 +153,37 @@ check_groups {
     input.request.groups[i].volumes[j] == true
 }
 
+// Для каждого условия
+output4__every_num_is_above_50_below_250 if {  # fail: no assignment to output var
+  every num in nums {             # every-condition fails
+    num > 50                        # condition succeeds for every num
+    num < 250                       # condition fails for 300
+  }
+}
+
+```
+
+# Functions
+```Go
+import future.keywords
+
+// port finding
+port_number(addr_str) := port if {      # 80
+  glob.match("*.*.*.*:*", [".", ":"], addr_str)  # validate IPv4:port format
+  strings := split(addr_str, ":")                # ["10.0.0.1", "80"]
+  port := to_number(strings[1])                  # 80
+}
+
+// https request
+response_1 := http.send({
+  "url": "https://httpbin.org/anything/anything",
+  "method": "GET",
+  "raise_error": true,
+  "headers": {
+    "accept": "application/json",
+    "Authorization": "Bearer <token>",
+  },
+})
 ```
 
 # Common Errors
@@ -169,4 +205,58 @@ package api.ruleset.dev // определяет что код ниже буде�
 import api.ruleset.dev // dev становиться alias к которому можно обращаться
 
 allow { dev.utils }
+```
+
+# Unit tests
+### Via CLI
+```
+$ tree rules_and_data 
+rules_and_data
+├── main
+│   └── rules.rego
+├── policy
+│   └── role
+│       └── rules.rego
+└── test
+    └── test.rego
+$ opa test rules_and_data
+PASS: 1/1
+$ opa test rules_and_data -v
+data.test.test_allow_medium_reputation_customer_to_review: PASS (415.266µs)
+```
+
+### Via VS code
+```Go
+package test  # use a separate package to separate the tests from the functional policy (optional)
+
+import data.main  # import the package we want to test to shorten the references below (optional)
+import rego.v1  # use OPA 1.0 standard (optional)
+
+# test case that a medium reputation customer is allowed to review
+# to indicate this rule is a test case, use an output variable that begins with "test_"
+test_allow_medium_reputation_customer_to_review if {
+  # specify the input data for this test case
+  testing_input := {
+    "role": "customer",
+    "reputation": 10
+  }
+
+  # the success condition is that `main.allow_review` evaluates to `true`
+  main.allow_review == true
+    with input as testing_input   # when the `input` root document is mocked with our test case input
+}
+
+# test case that a negative reputation customer is not allowed to review
+# to indicate this rule is a test case, use an output variable that begins with "test_"
+test_disallow_negative_reputation_customer_to_review if {
+  # specify the input data for this test case
+  testing_input := {
+    "role": "customer",
+    "reputation": -10
+  }
+
+  # the success condition is that `main.allow_review` does not evaluate to `true`
+  not main.allow_review
+    with input as testing_input  # when the `input` root document is mocked with our test case input
+}
 ```

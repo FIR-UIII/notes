@@ -1,13 +1,8 @@
-package hello
+package OPA
+import rego.v1
 
-default allow_hello = false
+default output := false
 
-default allow_world = false
-
-allow_hello {
-    "hello" != ""
-}
-
-allow_world {
-    "world" != "world"
+output := true if {
+    100 > 0
 }

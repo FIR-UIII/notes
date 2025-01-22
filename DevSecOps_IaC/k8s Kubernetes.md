@@ -1,4 +1,14 @@
 Зачем: масштабируемость, отказоустойчивость, разные варианты развертывания приложений и их обновление
+![kuber](../Media/kuber.png)
+
+```
+Claster
+|_ Namespace
+  |_ Node
+    |_ Pod
+	  |_ App
+	  |_ Volume
+```
 
 **Master Node:** ВМ, или сервер. Имеет IP
 	- API Server - перехват всех запросов и их обработка. Взаимодействует с KV data storage для получения информации  сохранения информации в него
@@ -28,3 +38,28 @@ etcd
 cubelet
 
 Cloud Native обозначает концепцию создания и запуска приложений для использования распределенных вычислений, доступных в облачной модели доставки.
+
+### Pod
+```sh
+# create yaml file
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+spec:
+  containers:
+  - name: nginx-pod
+    image: nginx:1.22.1
+    ports:
+    - containerPort: 80
+
+#  CLI
+kubectl create -f def-pod.yaml
+kubectl run nginx-pod --image=nginx:1.22.1 --port=80
+
+kubectl apply -f nginx-pod.yaml
+kubectl get pods
+kubectl get pod nginx-pod -o yaml
+kubectl describe pod nginx-pod
+kubectl delete pod nginx-pod
+```

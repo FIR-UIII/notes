@@ -1,0 +1,12 @@
+{
+    "user": {
+      "id": "e456",
+      "role": "employee"
+    },
+    "context": {
+      "location": "office",
+      "time": "09:00"
+    },
+    "action": "update",
+    "resource": "document"
+}

@@ -1,262 +1,237 @@
-# Docs
-https://www.openpolicyagent.org/docs/latest/policy-reference/#assignment-and-equality
-https://sangkeon.github.io/opaguide/chap2/installandusage.html
-https://play.openpolicyagent.org/
-https://academy.styra.com/courses/take/opa-rego/
-https://docs.styra.com/opa/rego-cheat-sheet 
+### Установить OPA
 
-# Getting started
-https://sangkeon.github.io/opaguide/chap2/installandusage.html
-Ctrl+Shift+P > OPA: Evaluate Package
-Ctrl+Shift+P > OPA: Test Workspace 
-
-# Architecture
+**Shortcuts**
 ```
-+---+              +---------------+                    +----------+
-| O | --request--> |   AS   [proxy]| --request input--> | OPA      | <----> data
-|/|\|              |      [sidecar]| <--decision------- |          | <----> REGO policy / rules
-|/ \|              |               |                    |          |
-+---+              +---------------+                    +----------+
-```
-
-# Rules
-Всегда проверять правила unit тестами
-90% правил составляют IF условия
-
-```Go
-// Input 
+@command:opa.eval.package
 {
-  "user": {
-    "role": "admin",
-    "internal": true
-  }
+  "key": "ctrl+e",
+  "command": "opa.eval.package",
+  "when": "editorLangId == 'rego'"
 }
-
-// Rule
-default allow := false
-
-allow if {
-	input.user.role == "admin"
-	input.user.internal
+@command:opa.eval.selection
+{
+  "key": "ctrl+d",
+  "command": "opa.eval.selection",
+  "when": "editorLangId == 'rego'"
 }
-default request_quota := 100
-request_quota := 1000 if input.user.internal
-request_quota := 50 if input.user.plan.trial
 ```
 
-# General Syntax
-```Go
-// Работа с переменными
-1. allow := false 
-2. set := {"user", "admin", "auditor"}                         // set["user"] => true
-3. dict_obj := {"role": "user", "actions": ["read", "write"]}  // dict_obj["role"] => user
-    dict_obj["role"] := "auditor" // add {"role": "auditor"}
-    dict_obj["user is unauthenticated"] = true { true } // add {"user is unauthenticated": true}
-    dict_obj[x] = y {x := "abc"; y := "def" } // add {"abc": "def"}
-    dict_obj[y] = "pqr" { y := "mno" } // add {"mno": "pqr"}
-4. array := ["user", "admin", "auditor"]                       // array[1] => user
-    deny["Unsafe image"] { 
-      check_unsafe_image // если хелпер вернет true то в deny добавитсяW значение в [...]
-      msg := sprintf("%v has unsafe image", [input.request.name]) // выводим сообщение в консоль
-    } 
-5. function("a_parameter") := "a_return_value" // присвоение вывода для функции
-    function(param) := parts { image_version := split(param, ":"); path := split(image_version[0], "/") }
+### Памятки и документация
+https://www.openpolicyagent.org/docs/latest/
 
-// присвоение с условием AND
-allow := true { 
-    // allow будет true, если input.request.method равен GET AND input.request.token равен admin
-    input.request.method == "GET"
-    input.request.token == "admin"}
-allow { ... } // тоже самое что и выше только без := true
+### Оптимизация правил
+* `1-100 ms` средний показатель
+* `>1 ms` высокий показатель, высоконагруженные системы
+Рекомендации: https://academy.styra.com/courses/opa-performance
+1. Не плодить лишних локальных переменных и повторы кода  - оптимизировать и обьединять.
+2. Использовать индексацию правил для построения дерева инструкций
+    `<ref> = scalar | array | var`
+    `input.x` > хорошо
+    `input.x[i]` > плохо 
+    `input.x[input.y]`> плохо nested
+3. Используй {dictionary:1} для поиска по ключу
+4. Используй реже [Array] для поиска по индексу
+5. Используй чаще {set} для поиска совпадений
+6. Используй воронку условий Early Exit от общего к частному
+7. Снижение кол-ва итерации 
+    - (до 1000 знач.) > ок, больше лучше изменить список на obj/dict или set
+        A := [1,2]; is_1 { A[1] == 1 } - две итерации
+        A := {1,2}; is_1 { A[1] } - одна итерация
+    - nested iteration > плохо нужно снизить сложность перебора
+        some a in X
+        some b in Y - если в X и Y будет по 3 значения = 9 итераций.
+		Лучше заменить Y на set [ a | some number in input.B; a := abs(number) ]
+    - ресурсозатраные функции например http.send убрать в отдельное правило
 
-// присвоение с условием OR
-is_read { input.request.method == "GET" } // is_read будет true если input.request.method равен GET OR input.request.method равен POST
-is_read { input.request.method == "POST" }
-
-// присвоение значения по умолчанию
-default is_read = false
-
-// присвоение переменной значения при предварительном условии 
-code := 200 { allow } // code будет присвоено значение 200 если переменная allow равна true
-code := 403 { not allow }
-
-// Построение правил
-// Option 1. action_is_read AND user_is_aithenticated OR action_is_read AND path_is_root
-allow {
-    action_is_read
-    user_is_aithenticated
-}
-allow {
-    action_is_read
-    path_is_root
-}
-
-// Option 2. Через вызов функций помошников. action_is_read AND user_is_aithenticated OR path_is_root
-allow {
-    action_is_read
-    function
-}
-function { user_is_aithenticated } // Helper 1
-function { path_is_root } // Helper 2
+### Поиск ошибок
+```bash
+opa test . --var-values # визуализирует в терминале данные при обработке
+opa check --strict path/to/polices # проверка синтаксиса, типичных ошибок, неиспользуемых переменных и проч.
 ```
 
-# Циклы, итерации, проверки
+### Тесты и сбор метрик производительности
+Название правил для теста должны начинаться `test_`. А название файла с тестами заканчиваться на `_test.rego`
 
-```Go
-1. input.user == admins[i] // способ 1 проверка наличия в input.user
-2.  some i in my_set
-      endswith(i, "group-admin")
-    some index; value := arr[index]
-    some key; value := obj[key]
-    some value; set[value]
+```bash
+### Unit тест
+opa test . -v # запустить все тесты
+opa test -v --bench {path_rule.rego} {path_test.rego} # конкретный тест с бенчмарком
 
-3. Проверка в Arrays [массив]
-admins := ["alice", "bob"] // базовые данные
-admins2 := [{"user":"alice", "level":1},{"user":"bob", "level":2}] // базовые данные 2
+### Профилирование. Выявление проблем в конкретной политике (профиле)
+opa eval data.lab.test_rule -d .\task_4\task_4.rego -i input.json --profile --count=10 --format=pretty  # count определяет кол-во запусков теста
 
-is_admin { // is_admin будет true, если
-  some i // есть такое некое значение i ...
-    admins[i] == user.input // где i из admins равно user.input
-    admins2[i].level == 1 // и где i из admins2 равно 1
-}
++------------------------------+---------+
+|            METRIC            |  VALUE  |
++------------------------------+---------+ # все показатели в наносекундах https://www.unitconverters.net/time/nanosecond-to-second.htm
+| timer_rego_data_parse_ns     | 0       | # время на парсинг файлов
+| timer_rego_load_files_ns     | 4227800 | # время на загрузку файлов
+| timer_rego_module_compile_ns | 1217900 | # время на компилирование файлов 
+| timer_rego_module_parse_ns   | 0       | # время на парсинг политики .rego
+| timer_rego_query_compile_ns  | 0       | # время на компилирование политик .rego
+| timer_rego_query_eval_ns     | 0       | # время на исполнение правил в политике
+| timer_rego_query_parse_ns    | 0       | # время на парсинг правил в политике
++------------------------------+---------+
 
-4. Проверка в Set {список}
-admins := {"alice", "bob"} // базовые данные
-is_admin { admins[user.input] } // true
-is_admin { // is_admin будет true, если
-  some name // есть такое некое значение name ...
-    admins[name] // из set admins с ключом name
-    lower(name) == lower(user.input) // где name равно user.input
-}
+# TIME - время на выполнение данной строки LOCATION. Внимание > 100
+# NUM EVAL - кол-во вызовов этой строки в политике. Внимание > 1000
+# NUM REDO - кол-во операций внутри этой строки зафиксировано. Внимание > 1000
+# NUM GEN EXPR - кол-во выражений созданной этой строкой
++------+----------+----------+--------------+------------------------+
+| TIME | NUM EVAL | NUM REDO | NUM GEN EXPR |        LOCATION        | 
++------+----------+----------+--------------+------------------------+
+| 0s   | 1        | 1        | 1            | .\task_4\task_4.rego:8 | 
++------+----------+----------+--------------+------------------------+
 
-5. Проверка в Objects {dict: словарь}
-admins := {"alice": true, "bob": true} // базовые данные
-admins2 := {"alice": {"level": 1}, "bob": {"level": 2}} // базовые данные 2
+### Полноценный тест (симулиция)
+opa bench -d {path_rule.rego} -i input.json 'data.task_1.result' # тест правила
+opa bench -b ./policy-bundle -i input.json 'data.task_1.result' # тест bundle и input 
 
-is_admin { admins[input.user] == true } // если input.user := alice
-is_admin { // is_admin будет true, если
-  some i // есть некий ключ i ...
-    v := admins2[i] // и существует такое значение v, где у словаря admins2 есть ключ i
-    lower(i) == lower(input.user) // и где значение ключа i равно input.user
-}
++-------------------------------------------+------------+
+| samples                                   |     134761 | # кол-во симуляций
+| ns/op                                     |       9229 | # среднее время на выполнение
+| B/op                                      |       6401 | # среднее кол-во byte RAM
+| allocs/op                                 |        106 | #
+| histogram_timer_rego_query_eval_ns_75%    |          0 | #
+| histogram_timer_rego_query_eval_ns_90%    |          0 | #
+| histogram_timer_rego_query_eval_ns_95%    |          0 | #
+| histogram_timer_rego_query_eval_ns_99%    |     506842 | #
+| histogram_timer_rego_query_eval_ns_99.9%  |     508880 | #
+| histogram_timer_rego_query_eval_ns_99.99% |     508900 | #
+| histogram_timer_rego_query_eval_ns_count  |     134761 | #
+| histogram_timer_rego_query_eval_ns_max    |     508900 | #
+| histogram_timer_rego_query_eval_ns_mean   |       8213 | #
+| histogram_timer_rego_query_eval_ns_median |          0 | #
+| histogram_timer_rego_query_eval_ns_min    |          0 | #
+| histogram_timer_rego_query_eval_ns_stddev |      61427 | #
++-------------------------------------------+------------+
 
-6. Сложные проверки
-// Есть два массива где нужно сравнить и найти общее значение
-is_admin { // is_admin будет true,
-  some i, j // где некие значения j И i 
-    input.groups.[i] == admins[j] // имеют совпадение
-}
-
-// Nested iteration
-check_groups {
-  some i, j
-    input.request.groups[i].volumes[j] == true
-}
-
-// Для каждого условия
-output4__every_num_is_above_50_below_250 if {  # fail: no assignment to output var
-  every num in nums {             # every-condition fails
-    num > 50                        # condition succeeds for every num
-    num < 250                       # condition fails for 300
-  }
-}
-
+### HTTP запррос с метриками
+POST /v1/data/example?metrics=true HTTP/1.1 # добавление в запрос ?metrics для получение информации
 ```
 
-# Functions
-```Go
-import future.keywords
+### Системные оптимизации (развертывание агента)
+Localhost := Деплой на одной машине - как служба - процесс (общение через UNIX socket localhost)
+Sidecar   := Деплой внутри одного пода (трафик внутри пода)
+Proxy     := Деплой через проксирование (nginx, envoy)
+Расчет нагрузки (примерно):
+    100 правил -> 1Mb RAM
+    10k правил -> 100Mb RAM
+    100k правил -> 1Gb RAM
 
-// port finding
-port_number(addr_str) := port if {      # 80
-  glob.match("*.*.*.*:*", [".", ":"], addr_str)  # validate IPv4:port format
-  strings := split(addr_str, ":")                # ["10.0.0.1", "80"]
-  port := to_number(strings[1])                  # 80
+### Сборка без подписания
+```bash
+opa build -b .
+opa build example.rego # создание бандла из одной политики
+```
+
+### Запустить сервер:
+```bash
+opa run bundle.tar.gz
+> data # проверить что вошло в бандл
+
+# Запуск с указанием условиев в конфигурационном файле
+https://www.openpolicyagent.org/docs/latest/configuration/setting-configuration-via-cli-arguments
+# Сами конфигурации - https://www.openpolicyagent.org/docs/latest/configuration/
+opa run -s -c opa-conf.yaml --addr 127.0.0.1:8181
+
+# Запуск с указанием условиев в терминале
+opa run -s --log-level debug --addr 127.0.0.1:8181
+    
+tty1$ opa run -s \
+    --set bundles.example.resource=bundle.tar.gz \
+    --set services.example.url=http://localhost:8080
+tty2$ python3 -m http.server 9000 --bind localhost
+
+opa run -s .\task_1\task_1.rego .\data.json --log-level debug --addr 127.0.0.1:8181
+opa run --verification-key secret --signing-alg HS256 --bundle bundle.tar.gz
+```
+
+### Обращение к серверу API
+ВАЖНО! через web UI opa не отрабатывает корректно. Лучше обращаться через API
+Docs: https://www.openpolicyagent.org/docs/latest/rest-api/
+
+```sh
+# POST http://127.0.0.1:8181/v1/data/<package_name>/<rule> --data-raw '{"input": {"name": "John","age": 25}}'
+
+fetch("http://127.0.0.1:8181/v1/data/task_1/result", {
+  "body": '{"input": {"name": "John","age": 25}}',
+  "method": "POST"
+});
+ИЛИ
+curl http://localhost:8181/v1/data/task_1/result -X POST --data "{\"input\": {\"name\": \"John\",\"age\": 25}}"
+
+curl http://127.0.0.1:8181/v1/data # получить файл data.json
+curl http://127.0.0.1:8181/v1/policies # получить политику rego в формате json
+```
+
+### Безопасность
+##### Аутентификация и авторизация
+Через CLI > https://www.openpolicyagent.org/docs/latest/security/#authentication-and-authorization
+Через conf.yaml > https://www.openpolicyagent.org/docs/latest/configuration/#bearer-token 
+```sh
+$ opa run -c .\opa-conf.yaml -s .\task_1\task_1.rego .\data.json .\auth.rego --log-level debug --addr 127.0.0.1:8181 --authentication=token --authorization=basic
+
+### auth.rego
+package system.authz
+default allow := false          # Reject requests by default.
+allow {                         # Allow request if...
+    input.identity == "secret"  # Identity is the secret root key.
 }
-
-// https request
-response_1 := http.send({
-  "url": "https://httpbin.org/anything/anything",
-  "method": "GET",
-  "raise_error": true,
-  "headers": {
-    "accept": "application/json",
-    "Authorization": "Bearer <token>",
-  },
-})
+### end
 ```
 
-# Common Errors
-```Go
-// Присвоение одной переменной разных значений при одинаковых условиях rez => undefined
-foo = true { true } // AND
-foo = false { true }
-
-// Итерации с рекурсией или бесконечным перебором (нет лимита) => ERROR: unsafe expression
-foo[x] { some x; x > 1 } // больше 1 может быть любое кол-во
-foo { some x; not in_array[x]} // не в списке может быть любое кол-во
+Запрос
+```sh
+curl http://localhost:8181/v1/data -H "Authorization: Bearer secret"
+> OK 200
 ```
 
-# Policy
-Организация набора правил в одну политику `package` 
-https://www.openpolicyagent.org/docs/latest/policy-language/#modules 
-```Go
-package api.ruleset.dev // определяет что код ниже будет является пакетом для обращения
-import api.ruleset.dev // dev становиться alias к которому можно обращаться
+##### TLS
+```sh
+openssl genrsa -out https_private.key 2048
+openssl req -new -x509 -sha256 -key https_private.key -out https_public.crt -days 365
 
-allow { dev.utils }
+opa run -s .\task_1\task_1.rego .\data.json --log-level debug --addr 127.0.0.1:8181 --tls-cert-file .\certs\https_public.crt --tls-private-key-file .\certs\https_private.key
+
+### test
+curl http://localhost:8181/v1/data 
+  > Error Client sent an HTTP request to an HTTPS server.
+curl -k https://localhost:8181/v1/data
+  > 200 OK
 ```
 
-# Unit tests
-### Via CLI
-```
-$ tree rules_and_data 
-rules_and_data
-├── main
-│   └── rules.rego
-├── policy
-│   └── role
-│       └── rules.rego
-└── test
-    └── test.rego
-$ opa test rules_and_data
-PASS: 1/1
-$ opa test rules_and_data -v
-data.test.test_allow_medium_reputation_customer_to_review: PASS (415.266µs)
-```
+##### Подписание образов bundle (см. выше)
+Через conf.yaml > https://www.openpolicyagent.org/docs/latest/configuration/#bundles
+https://www.openpolicyagent.org/docs/latest/management-bundles/#signing
 
-### Via VS code
-```Go
-package test  # use a separate package to separate the tests from the functional policy (optional)
+```sh
+# создание ключевой пары
+openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:2048
+openssl rsa -pubout -in private_key.pem -out public_key.pem
+  > private_key.pem + public_key.pem
 
-import data.main  # import the package we want to test to shorten the references below (optional)
-import rego.v1  # use OPA 1.0 standard (optional)
+# создание подписи .signatures.json для бандла с политиками в каталоге task_1
+opa sign --signing-key .\certs\private_key.pem --bundle .\task_1\
+  > .signatures.json
+mv .signatures.json .\task_1\
 
-# test case that a medium reputation customer is allowed to review
-# to indicate this rule is a test case, use an output variable that begins with "test_"
-test_allow_medium_reputation_customer_to_review if {
-  # specify the input data for this test case
-  testing_input := {
-    "role": "customer",
-    "reputation": 10
-  }
+# сборка бандла и подписание с политиками в каталоге task_1
+opa build -b .\task_1\ --verification-key .\certs\public_key.pem --signing-key .\certs\private_key.pem
+  > bundle.tar.gz
 
-  # the success condition is that `main.allow_review` evaluates to `true`
-  main.allow_review == true
-    with input as testing_input   # when the `input` root document is mocked with our test case input
-}
+$ tar tzf bundle.tar.gz
+  .manifest
+  .signatures.json
+  [...]
 
-# test case that a negative reputation customer is not allowed to review
-# to indicate this rule is a test case, use an output variable that begins with "test_"
-test_disallow_negative_reputation_customer_to_review if {
-  # specify the input data for this test case
-  testing_input := {
-    "role": "customer",
-    "reputation": -10
-  }
+### cong.yaml
+bundles:
+  policy:
+    service: acmecorp # имя сервиса для скачивания бандл
+    resource: bundle.tar.gz # имя ресурса для скачивания бандл http://localhost:9000/bundle.tar.gz
+    signing:
+      keyid: verifier
+### end
 
-  # the success condition is that `main.allow_review` does not evaluate to `true`
-  not main.allow_review
-    with input as testing_input  # when the `input` root document is mocked with our test case input
-}
+$ opa run --server --config-file=opa-conf.yaml
 ```

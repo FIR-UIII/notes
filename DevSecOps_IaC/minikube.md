@@ -63,6 +63,7 @@ curl http://localhost:8001/
 
 ### Namespace
 ```sh
+kubectl cluster-info
 kubectl get namespaces
 kubectl create namespace new-namespace-nam
 ```

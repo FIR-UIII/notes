@@ -12,8 +12,7 @@ bandit -r path/to/your/code
 
 ### Linter
 pip install pylint
-pip install pylint[spelling]
-
+pylint my_file.py
 ```
 
 # Requests

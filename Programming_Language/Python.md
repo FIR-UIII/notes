@@ -1,3 +1,21 @@
+# Code review
+```
+# checks Python dependencies for known security vulnerabilities 
+pip install safety
+safety scan
+
+# checks common security issues in Python code.
+pip install bandit
+virtualenv bandit-env
+source bandit-env/bin/activate
+bandit -r path/to/your/code
+
+### Linter
+pip install pylint
+pip install pylint[spelling]
+
+```
+
 # Requests
 ```python
 # GET

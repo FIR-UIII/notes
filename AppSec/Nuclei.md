@@ -1,6 +1,7 @@
 ### Usage
 ```
-nuclei -l [targets_list.txt] -t [template_name OR directory/] -u https[:]//[target]
+nuclei -l [targets_list.txt] -t [template_name OR directory/] -u https[:]//[target] -rl 20 -c 5
+# 20 requests per second and uses up to 5 concurrent threads
 
 ### For Burp extension
 In settings (windows) Path to nuclei - NULL

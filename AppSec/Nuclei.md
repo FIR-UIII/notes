@@ -1,6 +1,6 @@
 ### Usage
 ```
-nuclei -u https://my.target.site
+nuclei -l [targets_list.txt] -t [template_name OR directory/] -u https[:]//[target]
 
 ### For Burp extension
 In settings (windows) Path to nuclei - NULL

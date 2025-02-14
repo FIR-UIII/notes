@@ -1,10 +1,16 @@
 ### Usage
 ```
 nuclei -u https://my.target.site
+
+### For Burp extension
+In settings (windows) Path to nuclei - NULL
+In template tab change
+nuclei.exe -v -t C:\Users\artpa\AppData\Local\Temp\ [nucleiID].yaml -u [HOST] >>>
+D:/nuclei/nuclei.exe -v -t C:/Users/artpa/AppData/Local/Temp/ [nucleiID].yaml -u [HOST]
 ```
 
 ### Templates
-
+https://docs.projectdiscovery.io/templates
 
 ### Install
 ```sh

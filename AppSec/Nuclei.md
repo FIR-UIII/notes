@@ -25,6 +25,9 @@ nuclei -debug -svd -proxy http://127.0.0.1:8080 -stats
   -stats # show stats like [0:00:01] | Templates: 1 | Hosts: 1 | RPS: 1 | Matched: 1 | Errors: 0 | Requests: 1/1 (100%)
 ```
 
+### Xpath
+Chrome / Ctrl+I / Elements / Ctrl+F / SelectElement by element / Right click / Copy / Xopy full Xpath / Paste it in Find by Xpath in order to verify
+
 ### Install
 ```bash
 git clone https://github.com/projectdiscovery/nuclei.git

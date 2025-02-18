@@ -10,7 +10,7 @@ info:
   description: Stored XSS into HTML context with nothing encoded
   tags: XSS,portswigger,csrf
 
-requests:
+http:
   - raw:
     - |
       GET {{Path}}/post?postId=1 HTTP/1.1

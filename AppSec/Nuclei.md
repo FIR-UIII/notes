@@ -16,6 +16,7 @@ nuclei -u [url_target] -ai "Extract page titles"
 
 ### Templates
 https://docs.projectdiscovery.io/templates
+https://github.com/projectdiscovery/nuclei/blob/dev/SYNTAX-REFERENCE.md 
 ```bash
 ### Debugging
 nuclei -debug -svd -proxy http://127.0.0.1:8080 -stats

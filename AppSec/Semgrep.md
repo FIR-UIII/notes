@@ -1,22 +1,26 @@
-При выборе SAST важно два отличительных фактора:
-- широта поддержки ЯП, и библиотека правил
-- гибкость и удобство языка для написания собственных правил
-
-Learn: https://semgrep.dev/playground/
-https://semgrep.dev/docs/cheat-sheets/overview
-
 ### Basics
+https://semgrep.dev/playground/
+https://semgrep.dev/docs/cheat-sheets/overview
 Syntax: https://semgrep.dev/docs/writing-rules/rule-syntax
-semgrep --validate --config [filename]
 
-### Run
-Docker: 
-```
+### Run 
+```bash
+# Docker:
 # https://semgrep.dev/onboarding/scan
 docker pull semgrep/semgrep
 docker run -it -v "${PWD}:/src" returntocorp/semgrep semgrep login
 docker run -e SEMGREP_APP_TOKEN=... --rm -v "${PWD}:/src" returntocorp/semgrep semgrep ci
 docker run -e SEMGREP_APP_TOKEN=... --rm -v "${PWD}:/src" returntocorp/semgrep semgrep ci --output scan_results.txt --text
+
+# CLI
+python -m venv semgrep_venv
+source semgrep_venv/bin/activate # deactivate
+python3 -m pip install semgrep
+
+semgrep --version
+semgrep login # опционально
+semgrep scan --config rules.yaml DIRECTORY_NAME --debug -v
+semgrep --config dom-based-xss.yaml dom-based-xss.js
 ```
 
 ### Rules
@@ -24,7 +28,7 @@ docker run -e SEMGREP_APP_TOKEN=... --rm -v "${PWD}:/src" returntocorp/semgrep s
 1. Составить список "уязвимого" и "правильного" кода для тестирования правила
 2. Стратегия обрубания: Скопировать кусок "уязвимого кода" в pattern и начать "обрубать" фолсы выявляя общий паттерн через добавление pattern-not. https://semgrep.dev/docs/writing-rules/generic-pattern-matching
 3. Стратегия регулярное выражение: Если уязвимость можно найти по регулярному выражению - regex101.com
-4. Стратегия добавления мета: для дополнительной фильтрации переменных $X как тонкая настройка правила
+4. Стратегия добавления метаинформации: для дополнительной фильтрации переменных $X как тонкая настройка правила
   поиск переменных которые `><=` какого-то значения > `metavariable-comparison`
   поиск конкретной переменной > `focus-metavariable`
   поиск по доп.правилу > `metavariable-pattern`
@@ -35,6 +39,7 @@ docker run -e SEMGREP_APP_TOKEN=... --rm -v "${PWD}:/src" returntocorp/semgrep s
 ```
 # Testing rules
 semgrep --config rule.yaml rule.fixed.py --autofix
+semgrep --validate --config [filename]
 ```
 
 |Директива  |Описание|

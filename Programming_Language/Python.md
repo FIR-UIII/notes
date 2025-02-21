@@ -1,3 +1,10 @@
+# Venv
+```bash
+python3 -m venv [name]
+$ source [name]/bin/activate # deactivate
+PS> Scripts/activate
+```
+
 # Code review
 ```
 # checks Python dependencies for known security vulnerabilities 

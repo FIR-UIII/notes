@@ -239,8 +239,9 @@ bundles:
       keyid: verifier
 keys:
   verifier:
-    key: "-----BEGIN PUBLIC KEY-----
+    key: "-----BEGIN PUBLIC KEY-----..."
 ### end
 
-$ opa run --server --config-file=opa-conf.yaml
+$ opa run --server --config-file=opa-conf.yaml --addr 127.0.0.1:8181 --log-level debug
+> {"level":"info","msg":"Bundle loaded and activated successfully.","name":"policy","plugin":"bundle","time":"2025-02-25T09:49:46+03:00"}
 ```

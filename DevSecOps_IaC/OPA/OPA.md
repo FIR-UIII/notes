@@ -224,13 +224,22 @@ $ tar tzf bundle.tar.gz
   .signatures.json
   [...]
 
+$ awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' public_key.pem > public_key.cer
+
 ### cong.yaml
+services:
+  dev:
+    url: http://localhost:9000
+
 bundles:
   policy:
-    service: acmecorp # имя сервиса для скачивания бандл
-    resource: bundle.tar.gz # имя ресурса для скачивания бандл http://localhost:9000/bundle.tar.gz
+    service: dev
+    resource: bundle.tar.gz
     signing:
       keyid: verifier
+keys:
+  verifier:
+    key: "-----BEGIN PUBLIC KEY-----
 ### end
 
 $ opa run --server --config-file=opa-conf.yaml

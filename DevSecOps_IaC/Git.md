@@ -9,7 +9,7 @@ git add README.md
 git commit -m "1.0"
 git tag -a <tag_name> -m "Message for tag"
 git branch -M main
-git remote add origin https://github.com/FIR-UIII/Vault_FastAPI.git
+git remote add origin https://github.com/FIR-UIII/Vault_FastAPI.git # Удалить: git remote remove origin
 git push -u origin main
 
 git status 

@@ -1,8 +1,10 @@
-# Venv
+# Venv and requirements
 ```bash
 python3 -m venv [name]
 $ source [name]/bin/activate # deactivate
-PS> Scripts/activate
+PS> Scripts/activate         # deactivate
+
+pip freeze > requirements.txt
 ```
 
 # Code review

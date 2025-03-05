@@ -4,7 +4,8 @@ python3 -m venv [name]
 $ source [name]/bin/activate # deactivate
 PS> Scripts/activate         # deactivate
 
-pip freeze > requirements.txt
+pip freeze > requirements.txt # create
+pip install -r /path/to/requirements.txt # install
 ```
 
 # Code review

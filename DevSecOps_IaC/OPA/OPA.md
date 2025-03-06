@@ -16,6 +16,20 @@
 }
 ```
 
+**Settings**
+```C:\Users\Admin\AppData\Roaming\Code\User\settings.json
+{
+    "opa.dependency_paths.opa": "PATH/TO/OPA.EXE",
+    "opa.bundleMode": false,
+    "opa.checkOnSave": false,
+    "opa.strictMode": true,
+    "opa.languageServers": ["regal"] # убрать если не нужен регал для дебага
+    "opa.env": {
+        "inputPath": "${workspaceFolder}/input.json"
+    }
+}
+```
+
 ### Памятки и документация
 https://www.openpolicyagent.org/docs/latest/
 

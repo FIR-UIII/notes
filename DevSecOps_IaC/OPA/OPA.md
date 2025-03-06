@@ -1,35 +1,3 @@
-### Установить OPA
-
-**Shortcuts**
-```
-@command:opa.eval.package
-{
-  "key": "ctrl+e",
-  "command": "opa.eval.package",
-  "when": "editorLangId == 'rego'"
-}
-@command:opa.eval.selection
-{
-  "key": "ctrl+d",
-  "command": "opa.eval.selection",
-  "when": "editorLangId == 'rego'"
-}
-```
-
-**Settings**
-```C:\Users\Admin\AppData\Roaming\Code\User\settings.json
-{
-    "opa.dependency_paths.opa": "PATH/TO/OPA.EXE",
-    "opa.bundleMode": false,
-    "opa.checkOnSave": false,
-    "opa.strictMode": true,
-    "opa.languageServers": ["regal"] # убрать если не нужен регал для дебага
-    "opa.env": {
-        "inputPath": "${workspaceFolder}/input.json"
-    }
-}
-```
-
 ### Памятки и документация
 https://www.openpolicyagent.org/docs/latest/
 
@@ -266,4 +234,54 @@ keys:
 
 $ opa run --server --config-file=opa-conf.yaml --addr 127.0.0.1:8181 --log-level debug
 > {"level":"info","msg":"Bundle loaded and activated successfully.","name":"policy","plugin":"bundle","time":"2025-02-25T09:49:46+03:00"}
+```
+
+### Установить OPA и настроить
+
+**Shortcuts**
+```
+@command:opa.eval.package
+{
+  "key": "ctrl+e",
+  "command": "opa.eval.package",
+  "when": "editorLangId == 'rego'"
+}
+@command:opa.eval.selection
+{
+  "key": "ctrl+d",
+  "command": "opa.eval.selection",
+  "when": "editorLangId == 'rego'"
+}
+```
+
+**Settings**
+```C:\Users\Admin\AppData\Roaming\Code\User\settings.json
+{
+    "opa.dependency_paths.opa": "PATH/TO/OPA.EXE",
+    "opa.bundleMode": false,
+    "opa.checkOnSave": false,
+    "opa.strictMode": true,
+    "opa.languageServers": ["regal"] # убрать если не нужен регал для дебага
+    "opa.env": {
+        "inputPath": "${workspaceFolder}/input.json"
+    }
+}
+```
+
+**vscode/launch.json**
+```
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Rego Workspace",
+            "request": "launch",
+            "type": "opa-debug",
+            "command": "eval",
+            "query": "data",
+            "inputPath": "${workspaceFolder}/input.json",
+            "enablePrint": true
+        }
+    ]
+}
 ```

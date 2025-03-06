@@ -46,7 +46,9 @@ https://www.openpolicyagent.org/docs/latest/
 ### Поиск ошибок
 ```bash
 opa test . --var-values # визуализирует в терминале данные при обработке
-opa check --strict path/to/polices # проверка синтаксиса, типичных ошибок, неиспользуемых переменных и проч.
+opa check --strict --v1-compatible path/to/polices # проверка синтаксиса, типичных ошибок, неиспользуемых переменных и проч.
+regal lint path/to/polices # проверка синтаксиса
+opa fmt path/to/polices # приведение к одному формату
 ```
 
 ### Тесты и сбор метрик производительности

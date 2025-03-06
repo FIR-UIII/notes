@@ -285,3 +285,39 @@ $ opa run --server --config-file=opa-conf.yaml --addr 127.0.0.1:8181 --log-level
     ]
 }
 ```
+**Regal config**
+Создать файл .regal\config.yaml
+```
+# данный конфигурационный файл используется поведения regal
+rules:
+  # отключаем правила https://docs.styra.com/regal/category/style
+  style:
+    default:
+      level: ignore
+  # отключаем правила https://docs.styra.com/regal/category/idiomatic
+  idiomatic:
+    default:
+      level: ignore
+  # отключаем 2 правила unresolved-import prefer-package-imports
+  imports:
+    prefer-package-imports:
+      level: ignore
+    unresolved-import:
+      level: ignore
+
+capabilities:
+  from:
+    # optionally configure Regal to target a specific version of OPA
+    # this will disable rules that has dependencies to e.g. built-in
+    # functions or features not supported by the given version
+    #
+    # if not provided, Regal will use the capabilities of the latest
+    # version of OPA available at the time of the Regal release
+    engine: opa
+    version: v0.58.0
+
+ignore:
+  # files can be excluded from all lint rules according to glob-patterns
+  files:
+    - "*_test.rego"
+```

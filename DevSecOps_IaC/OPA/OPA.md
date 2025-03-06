@@ -46,16 +46,15 @@ https://www.openpolicyagent.org/docs/latest/
 ### Поиск ошибок
 ```bash
 opa test . --var-values # визуализирует в терминале данные при обработке
-opa check --strict --v1-compatible path/to/polices # проверка синтаксиса, типичных ошибок, неиспользуемых переменных и проч.
-opa fmt --diff path/to/polices # проверить формат и вывести в терминал предагаемый результат
-opa fmt -w path/to/polices # проверить формат и вывести в терминал предагаемый результат
+opa check --strict path/to/polices # проверка синтаксиса, типичных ошибок, неиспользуемых переменных и проч.
 ```
 
 ### Стиль
 ```bash
 regal lint path/to/polices # проверка синтаксиса
 regal lint --disable-category style path/to/polices # c исключением правил style
-opa fmt path/to/polices # приведение к одному формату
+opa fmt --diff path/to/polices # проверить формат и вывести в терминал предагаемый результат
+opa fmt -w path/to/polices # проверить формат и вывести в терминал предагаемый результат
 ```
 
 ### Тесты и сбор метрик производительности

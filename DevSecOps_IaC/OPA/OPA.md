@@ -286,7 +286,7 @@ $ opa run --server --config-file=opa-conf.yaml --addr 127.0.0.1:8181 --log-level
 }
 ```
 **Regal config**
-Создать файл .regal\config.yaml
+Создать файл .regal\config.yaml в рабочем каталоге с политиками
 ```
 # данный конфигурационный файл используется поведения regal
 rules:

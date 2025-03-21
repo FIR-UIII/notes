@@ -59,8 +59,9 @@ code rewie:
 # Ветвление и слияние
 ```
 git branch -v -a > выводит список веток с указанием * текущей
-git branch DEV | git checkout -b DEV создать новую ветку DEV
-git checkout main > переключает на ветку main. в то состояние перейдут и файлы в директории
+git switch -c DEV создать новую ветку DEV (git branch DEV)
+git switch DEV > только перейти в ветку DEV
+git checkout main > переключает на ветку main. но с копирование файлов из прошлой (текущей ветки)
 git branch -d branch-to-delete > удалить ветку которая была успешно слита
 git push origin --delete branch-to-delete > удалить ветку из удаленного репозитория
 ```

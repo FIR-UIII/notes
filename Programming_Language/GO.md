@@ -38,26 +38,27 @@ $ file hello
 hello: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), statically linked, not stripped
 ```
 
-### Метод
-Go does not have classes. However, you can define methods on types
+### Методы и интерфейсы
+В Go нет классов и ООП. Но есть методы и интерфейсы
 ```
-func (t Type) methodName(parameter list) { ... } // создает метод methodName где будет принимать значения типа Type
+func (t Type) methodName(parameter list) { ... } // создает метод methodName для структуры Type
 
-type Creature struct {
+// Пример
+type Creature struct { // создает свой тип данных Creature
 	Name     string
 	Greeting string
 }
 
-func (c Creature) Greet() {
-	fmt.Printf("%s says %s", c.Name, c.Greeting)
+func (c Creature) Greet() { // создаем функцию которая принимает наш тип и расширяем его методом Greet() 
+	fmt.Printf("%s says %s", c.Name, c.Greeting) // который будет выводить на экран значения
 }
 
-func main() {
-	sammy := Creature{
+func main() { // применяем нам метод
+	sammy := Creature{ // создаем экземпляр sammy типа Creature
 		Name:     "Sammy",
 		Greeting: "Hello!",
 	}
-	Creature.Greet(sammy)
+	Creature.Greet(sammy) // используем метод Greet типа Creature куда передаем наш экземпляр sammy
 }
 ```
 

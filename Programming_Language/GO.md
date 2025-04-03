@@ -38,6 +38,12 @@ $ file hello
 hello: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), statically linked, not stripped
 ```
 
+### Метод
+Go does not have classes. However, you can define methods on types
+```
+func (t Type) methodName(parameter list) { ... } // создает метод methodName где будет принимать значения типа Type
+```
+
 ### Переменные
 ```go
 // способ 1. обьявление с указанием типа и присвоением

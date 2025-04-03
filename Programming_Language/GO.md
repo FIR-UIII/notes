@@ -42,6 +42,23 @@ hello: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), statically linked, n
 Go does not have classes. However, you can define methods on types
 ```
 func (t Type) methodName(parameter list) { ... } // создает метод methodName где будет принимать значения типа Type
+
+type Creature struct {
+	Name     string
+	Greeting string
+}
+
+func (c Creature) Greet() {
+	fmt.Printf("%s says %s", c.Name, c.Greeting)
+}
+
+func main() {
+	sammy := Creature{
+		Name:     "Sammy",
+		Greeting: "Hello!",
+	}
+	Creature.Greet(sammy)
+}
 ```
 
 ### Переменные

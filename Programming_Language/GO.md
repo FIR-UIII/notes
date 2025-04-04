@@ -187,15 +187,14 @@ for idx, val := range nums { // перебора среза по длине (ran
 
 ### Condition
 ```go
-// IF - ELSE
-func sqrt(x float64) string {
-	if x < 0 {
-		return sqrt(-x) + "i"
-	} else {
-	fmt.Println("X > 0")
+IF / ELSE
+if a == 1 {
+    // сценарий, если условие if выполнено
+} else if a == 2 {
+    // сценарий, если условие else if выполнено
+} else {
+    // сценарий, если условие else if не выполнено
 }
-	return fmt.Sprint(math.Sqrt(x))
-} 
 
 // SWITCH
 switch x { // инструкция switch сравнивает содержимое переменной x с различными значениями — foo и bar

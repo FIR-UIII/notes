@@ -93,6 +93,8 @@ complex64 complex128
 
 ### Типы данных
 ```go
+fmt.Println(reflect.TypeOf(42)) // вывести тип данных
+
 var stringFormattedVar string
 // следующие выражения равнозначны 
 stringFormattedVar = "Hello,\nworld!\n\n\t\t\"quote!\""

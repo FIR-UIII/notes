@@ -276,7 +276,14 @@ func main() {
 
 ### Обработка ошибок
 ```go
-// в Go нет синтаксиса для обработки ошибок try/catch/finally
+import "log"
+...
+name, err := somefunc()
+if err != nil {
+	log.Fatal("Fatal error: ", err)
+}
+
+// в Go нет паттерна обработки ошибок через try/catch/finally
 type error interface { // interface - это встроенный тип ошибок
 	Error() string
 }

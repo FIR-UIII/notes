@@ -161,5 +161,19 @@ def reset_pw(request):
 ```
 
 Обход нормализации / санитизации
+Злоумышленник может использовать нормализацию для обхода потенциальных валидаторов для атак Server-Side Request Forgery 
 ```py
+import requests
+import ipaddress
+
+def send_request(request):
+    ip = request.GET["ip"]
+    try:
+        if ip in ["127.0.0.1", "0.0.0.0"]:
+            return HttpResponse("Not allowed!")
+        ip = str(ipaddress.IPv4Address(ip)) # например 127.0.00.1 не входит в список запрещенных и после нормализации будет - 127.0.0.1 
+    except ipaddress.AddressValueError:
+        return HttpResponse("Error at validation!")
+    requests.get("https://" + ip)
+    return HttpResponse("Request send!")
 ```

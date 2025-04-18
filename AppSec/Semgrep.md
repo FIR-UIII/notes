@@ -8,12 +8,13 @@ Syntax: https://semgrep.dev/docs/writing-rules/rule-syntax
 # Docker:
 # https://semgrep.dev/onboarding/scan
 docker pull semgrep/semgrep
-docker run -it -v "${PWD}:/src" returntocorp/semgrep semgrep login
-docker run -e SEMGREP_APP_TOKEN=... --rm -v "${PWD}:/src" returntocorp/semgrep semgrep ci
-docker run -e SEMGREP_APP_TOKEN=... --rm -v "${PWD}:/src" returntocorp/semgrep semgrep ci --output scan_results.txt --text
+docker run --rm semgrep/semgrep semgrep --version
+docker run -it -v "${PWD}:/src" semgrep/semgrep semgrep login
+docker run -e SEMGREP_APP_TOKEN=... --rm -v "${PWD}:/src" semgrep/semgrep semgrep ci
+docker run -e SEMGREP_APP_TOKEN=... --rm -v "${PWD}:/src" semgrep/semgrep semgrep ci --output scan_results.txt --text
 
-# CLI
-python -m venv semgrep_venv
+# CLI WSL
+python3 -m venv semgrep_venv
 source semgrep_venv/bin/activate # deactivate
 python3 -m pip install semgrep
 

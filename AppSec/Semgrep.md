@@ -22,6 +22,7 @@ semgrep --version
 semgrep login # опционально
 semgrep scan --config rules.yaml DIRECTORY_NAME --debug -v
 semgrep --config dom-based-xss.yaml dom-based-xss.js
+semgrep ci # дефолтный скан
 ```
 
 ### Rules

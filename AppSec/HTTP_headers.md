@@ -16,3 +16,38 @@
 | [**X-XSS-Protection**](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection)| Приказывает браузеру прервать выполнение обнаруженных атак межсайтового скриптинга <br> X-XSS-Protection: 1 - включает санитизацию. Значение по умолчанию <br> X-XSS-Protection: 1; mode=block - включает блокирование исполнения <br> X-XSS-Protection: 1; report=<reporting-uri> <br> Небезопасные настройки: X-XSS-Protection: 0 - отключает | X-XSS-Protection: 1; mode=block | - |
 | [**Permissions-Policy**](https://www.w3.org/TR/permissions-policy-1/) | Управляет доступом к определенным функциям браузера `camera=(), fullscreen=*, geolocation=(self) =() — полный запрет; =* — полный доступ; (self "https://example.com") — предоставление разрешения только указанному источнику | - | - |
 |Server X-Powered-By X-Vault-Token ETag x-amz-request-id|Защита от раскрытия информации о сервере и техстеке|Рекомендуется исключить||
+
+## Тестирование
+https://securityheaders.com/
+https://github.com/rustcohlnikov/awesome-frontend-security?tab=readme-ov-file
+
+1. Получение информации о сервере через вызов ошибки
+```http
+GET %2f HTTP/2
+Host: redacted.com
+
+HTTP/2 400 Bad Request
+Server: Apache
+X-Content-Type-Options: nosniff
+Accept-Ranges: bytes
+Vary: X-Forwarded-Host,Origin # возврат этого заголовка - cache poisoning
+X-REDACTED_Session: <redacted-value>
+```
+
+2. HTTP injection
+Добавить X-Forwarded-Host -  spoofing, server-side request forgery (SSRF) и других
+Host
+X-Forwarded-For
+X-Forwarded-Host
+X-Forwarded-Proto
+X-Real-IP
+X-Envoy-External-Address
+X-Envoy-Internal
+X-Envoy-Original-Dst-Host
+
+```
+GET / HTTP/1.1
+Host: test.com 
+X-Forwarded-Host: test.com 
+
+```

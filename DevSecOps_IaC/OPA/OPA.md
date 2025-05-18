@@ -132,6 +132,7 @@ opa run -s -c opa-conf.yaml --addr 127.0.0.1:8181
 
 # Запуск с указанием условиев в терминале
 opa run -s --log-level debug --addr 127.0.0.1:8181
+opa run -s -b .\bundle.tar.gz --addr 127.0.0.1:8181 # запуск с бандл
     
 tty1$ opa run -s \
     --set bundles.example.resource=bundle.tar.gz \

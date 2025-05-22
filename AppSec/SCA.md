@@ -11,3 +11,9 @@ SCA have the following capabilities:
 
 ### Transitive reachability analysis
 indirect dependency, is a dependency of a dependency
+
+### Go
+https://github.com/ondrajz/go-callvis
+
+### Java, JS, PHP
+https://depscan.readthedocs.io/reachability-analysis/

@@ -1,19 +1,123 @@
-SCA have the following capabilities:
-* Manifest analysis: Analyzes the application's manifest file to identify used open-source components, offering a basic view of dependencies but has no insight into how the application utilizes them.
-* Lockfile analysis: Examines the lockfile for a detailed snapshot of specific versions of dependencies used, providing accurate version tracking but not insight into their actual execution or reachability in the application.
-* Static analysis: Reviews the source code without execution to determine how dependencies are integrated, revealing which parts of third-party libraries are referenced and potentially vulnerable.
-* Dynamic analysis: Observes the application during runtime to capture real-time data on dependency interaction and usage, offering the most precise insights into reachability and runtime vulnerabilities.
-
-### Reachability
-- наличие в package.json версии в поле dependencies (не dev)
--  наличие вызова уязвимой функции
-
-
-### Transitive reachability analysis
-indirect dependency, is a dependency of a dependency
-
 ### Go
 https://github.com/ondrajz/go-callvis
 
 ### Java, JS, PHP
 https://depscan.readthedocs.io/reachability-analysis/
+
+## **Методология анализа (триажа) уязвимостей SCA сканера для зависимостей и транзитивных зависимостей**  
+*(без поддержки Reachability Analysis в сканере)*  
+
+### **1. Подготовка данных**  
+
+#### **Java (Maven/Gradle)**
+```bash
+# Maven
+mvn dependency:tree > deps.txt
+
+# Gradle
+gradle dependencies > deps.txt
+```
+
+#### **JavaScript/Node.js (npm/yarn)**
+```bash
+# npm
+npm list --all > deps.txt
+
+# yarn
+yarn list --all > deps.txt
+```
+
+#### **Python (pip)**
+```bash
+pipdeptree --json > deps.json
+```
+
+#### **.NET (NuGet)**
+```bash
+dotnet list package --include-transitive > deps.txt
+```
+
+#### **Go**
+```bash
+go list -m all > deps.txt
+```
+
+### **Сопоставление зависимостей с уязвимостями**:  
+  - Запуск сканера уязвимостей и выгрузка отчета
+  - Создать таблицу с колонками:  
+    - Уязвимость (CVE/GHSA/идентификатор)
+    - Библиотека (имя + версия)*
+    - Тип зависимости (прямая/транзитивная) 
+    - Критичность (CVSS, EPSS, эксплоитабельность)
+    - Используется ли в коде? (да/нет/неизвестно) 
+    - Путь вызова (если удалось определить)
+    - Контекст вызова: среда разработки, продуктивная среда, тесты/билд-утилитах
+- Приоритезировать
+
+#### Определение Reachability вручную 
+Поскольку сканер не умеет определять, используется ли уязвимый код, применяем следующие методы:  
+
+##### Анализ через IDE
+- **IntelliJ IDEA / VS Code / Eclipse**:  
+  - Поиск использования (`Find Usages`) уязвимой библиотеки в проекте.  
+  - Анализ импортов (`import` в Java/Go/Python, `require` в JS и т. д.).  
+  - Проверка, вызываются ли методы из уязвимых классов.  
+
+- **Пример для Java (Maven/Gradle)**:  
+  ```java
+  // Если есть CVE в `commons-collections:3.1`
+  // Ищем в проекте:
+  import org.apache.commons.collections.*;
+  // Или вызовы:
+  new Transformer() {...}
+  ```
+
+##### Статический анализ кода (если IDE недостаточно)
+- **Semgrep**:  
+  - Написать правила для поиска вызовов уязвимых методов.  
+  - Пример для поиска `yaml.load()` (десериализация в Python):  
+    ```yaml
+    rules:
+      - id: unsafe-yaml-load
+        pattern: yaml.load(...)
+        message: "Unsafe YAML deserialization (CVE-XXXX-XXXX)"
+        languages: [python]
+        severity: ERROR
+    ```  
+- **CodeQL (GitHub)**:  
+  - Создать запрос для поиска вызовов уязвимых функций.  
+
+##### Динамический анализ (если статического недостаточно)
+- **Прокси (Burp/ZAP)**:  
+  - Запустить приложение и отслеживать вызовы уязвимых библиотек.  
+- **Логирование (strace/dtrace)**:  
+  - На Linux: `strace -f -e trace=open,execve -o log.txt ./app`  
+  - Проверить, загружается ли уязвимая библиотека.  
+
+
+#### **4. Рекомендации по исправлению**  
+- **Прямые зависимости**:  
+  - Обновить до безопасной версии (`npm update`, `mvn versions:use-latest-versions`).  
+  - Если обновление невозможно — искать альтернативные библиотеки.  
+- **Транзитивные зависимости**:  
+  - Добавить явное исключение (`exclude` в Maven/Gradle, `overrides` в npm).  
+  - Использовать `dependency locking` (например, `pipenv`, `yarn.lock`).  
+
+#### **3. Приоритизация уязвимостей**  
+| **Критерий**               | **Высокий риск**                     | **Низкий риск**                     |  
+|----------------------------|---------------------------------------|--------------------------------------|  
+| **Reachability**           | Вызывается в коде                     | Не вызывается                        |  
+| **Критичность (CVSS ≥ 7.0)** | Критичные RCE/десериализация          | Low/Medium (XSS, DoS в dev-среде)    |  
+| **Эксплоитабельность**     | Есть публичный эксплойт (PoC)         | Нет известных эксплойтов             |  
+| **Контекст использования** | В продакшене, интернет-доступ         | В тестах/билд-утилитах               |  
+
+#### **5. Автоматизация (опционально)**  
+- **Скрипты для анализа reachability**:  
+  - Парсинг вызовов методов через `grep`/`ast-grep`.  
+  - Интеграция с SCA-сканерами через API (например, Snyk → Jira).  
+- **Мониторинг новых уязвимостей**:  
+  - GitHub Dependabot + ручная проверка reachability.  
+  - Регулярный запуск OWASP Dependency-Check.  
+
+Анализ транзитивных зависимостей (когда уязвимость скрыта не в прямой зависимости, а в библиотеке, от которой зависит ваша библиотека) — сложная задача, особенно без встроенного `reachability analysis`. Вот пошаговая методология и инструменты для ручного и автоматизированного анализа.
+

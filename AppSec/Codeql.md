@@ -47,6 +47,11 @@ $ codeql pack install codeql/python-all # установить конретны�
   "command": "codeQL.runLocalQueryFromFileTab",
   "when": "\"resourceFilename == '*.ql\"'"
 }
+
+9. Recon
+Найти sink, sources
+
+10. Vulnerability reseach
 ```
 
 https://github.com/github/codeql/tree/main

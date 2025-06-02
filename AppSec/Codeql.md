@@ -19,7 +19,12 @@ GitHub.vscode-codeql
 4. Скачать код и создать базу данных для анализа
 git clone <you-repo-with-code>
 cd <you-repo-with-code>
-> codeql database create <database> --language=<language-identifier>
+$ codeql database create /codeql-dbs/example-repo --language=javascript \    --source-root /checkouts/example-repo
+
+$ codeql database create /codeql-dbs/example-repo-multi \
+    --db-cluster --language python,cpp \
+    --command make --no-run-unnecessary-builds \
+    --source-root /checkouts/example-repo-multi
   Successfully created database at ...
 
 5. При необходимости установить недостающие библиотеки/модули (если есть ошибка could not resolve module javascript)
@@ -58,19 +63,56 @@ https://github.com/github/codeql/tree/main
 https://codeql.github.com/codeql-standard-libraries/python/
 https://codeql.github.com/docs/codeql-language-guides/codeql-for-go/
 https://github.com/GeekMasher/security-codeql
+
+### CodeQL qeury and pack
+1. Создать qlpack.yml
+```yaml
+name: codeql/java-queries
+version: 0.0.6-dev
+groups: java
+suites: codeql-suites
+extractor: java
+defaultSuiteFile: codeql-suites/java-code-scanning.qls
+dependencies:
+    codeql/java-all: "*"
+    codeql/suite-helpers: "*"
 ```
+
+2. Написать запрос query.ql в том же каталоге
+```sql
 /**
 https://codeql.github.com/docs/writing-codeql-queries/metadata-for-codeql-queries/
-//.
+**/
 import <module>
-
 from IfStmt a # декларация переменных из модуля и присваивание ей названия a
 where a = "Hello" # условие где a равно "Hello"
 select a, "I found" # что вывести на экран
-
 predicate name(ARG arg_name) {  } - как функции
-
-
 class EmptyBlock extend Block { ... }
 
+import python
+from Call c
+where c.getLocation().getFile().getRelativePath().regexpMatch("2/challenge-1/.*")
+select c, "This is a function call"
 ```
+
+3. Общая логика написания 
+“Show me all function calls”
+“Show me all function calls to functions called eval”
+“Show me all function definitions”
+“Show me all function definitions for functions called eval”
+“Show me all method calls to methods called ‘execute’” (Ding dong. Does this remind you of a certain vulnerability?)
+“Show me all method calls to methods called ‘execute’ defined within the django.db library”
+“Show me all method calls to methods called ‘execute’ defined within the django.db library that do not take a string literal as input”
+
+### Java
+Expr - expressions 
+Stmt - statements 
+
+### JS
+
+
+### Go
+
+
+### Python

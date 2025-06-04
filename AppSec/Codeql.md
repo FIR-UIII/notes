@@ -6,7 +6,8 @@ export PATH=$PATH:/path/to/codeql
 > codeql --version
 
 Провести тест
-> codeql resolve langluages
+> codeql resolve languages
+    python (C:\codeql\python)
 > codeql resolve packs
 
 2. Скачать workspace
@@ -105,6 +106,11 @@ select c, "This is a function call"
 “Show me all method calls to methods called ‘execute’ defined within the django.db library”
 “Show me all method calls to methods called ‘execute’ defined within the django.db library that do not take a string literal as input”
 
+### Сценарии использования
+1. SAST - использование как обычного сканера в pipeline по набору правил (query packs)
+2. Аудит системы, построение модели угроз и поверхности атаки, выявление sink, source
+3. Доизучение системы, например SCA выявлил библиотеку и нужно провести анализ достижимости
+
 ### Java
 Expr - expressions 
 Stmt - statements 
@@ -113,6 +119,53 @@ Stmt - statements
 
 
 ### Go
+Function calls
+```
+from Function osOpen, CallExpr call
+where
+  osOpen.hasQualifiedName("os", "Open") and
+  call.getTarget() = osOpen
+select call.getArgument(0)
+```
 
+Local data flow - в рамках одной функции/метода
+```
+from Function osOpen, CallExpr call, Parameter p
+where
+  osOpen.hasQualifiedName("os", "Open") and
+  call.getTarget() = osOpen and
+  DataFlow::localFlow(DataFlow::parameterNode(p), DataFlow::exprNode(call.getArgument(0)))
+select p
+```
+ 
+TaintTracking
+```
+from Function osOpen, CallExpr call, Parameter p
+where
+  osOpen.hasQualifiedName("os", "Open") and
+  call.getTarget() = osOpen and
+  TaintTracking::localTaint(DataFlow::parameterNode(p), DataFlow::exprNode(call.getArgument(0)))
+select p
+```
+     
+Global data flow
+```
+module MyFlowConfiguration implements DataFlow::ConfigSig {
+predicate isSource(DataFlow::Node source) { // defines where data may flow from
+    ...
+    }
+
+predicate isSink(DataFlow::Node sink) { // defines where data may flow to
+    ...
+    }
+}
+module MyFlow = DataFlow::Global<MyFlowConfiguration>;
+
+from DataFlow::Node source, DataFlow::Node sink
+where MyFlow::flow(source, sink)
+select source, "Data flow to $@.", sink, sink.toString()
+
+module MyFlow = DataFlow::Global<MyFlowConfiguration>;
+```
 
 ### Python

@@ -15,6 +15,17 @@ nuclei -u [url_target] -ai "Extract page titles"
 ```
 
 ### Templates
+
+<span style="color:red">!!! WARNING</span>
+Важно проверить шаблон на безопасность перед использованием 
+https://github.com/projectdiscovery/nuclei-templates/issues/11635 <br>
+
+Примеры: 
+* удаление информации 
+* изменение конфигурации сервера
+* загрузка веб-шелла
+* дозагрузка в шаблон информации со сторонних ресурсов для тестирования
+
 https://docs.projectdiscovery.io/templates
 https://github.com/projectdiscovery/nuclei-docs/blob/main/docs/templating-guide/operators/matchers.md
 https://github.com/projectdiscovery/nuclei/blob/dev/SYNTAX-REFERENCE.md 

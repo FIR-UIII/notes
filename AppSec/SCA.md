@@ -1,11 +1,5 @@
-### Go
-https://github.com/ondrajz/go-callvis
-
-### Java, JS, PHP
-https://depscan.readthedocs.io/reachability-analysis/
-
 ## **Методология анализа (триажа) уязвимостей SCA сканера для зависимостей и транзитивных зависимостей**  
-*(без поддержки Reachability Analysis в сканере)*  
+![alt text](Media/sca_methodology.png)
 
 ### **1. Подготовка данных**  
 
@@ -121,3 +115,8 @@ go list -m all > deps.txt
 
 Анализ транзитивных зависимостей (когда уязвимость скрыта не в прямой зависимости, а в библиотеке, от которой зависит ваша библиотека) — сложная задача, особенно без встроенного `reachability analysis`. Вот пошаговая методология и инструменты для ручного и автоматизированного анализа.
 
+### Go
+https://github.com/ondrajz/go-callvis
+
+### Java, JS, PHP
+https://depscan.readthedocs.io/reachability-analysis/

@@ -21,20 +21,55 @@ stateDiagram-v2
 ```
 
 ### **1. Подготовка данных**  
+клонировать репозиторий создать локальную ветку triage_<number>
+выгрузить сводку по уязвимостям из системы оркестрации DD
+нормализовать, догрузить фиды (ПЕЧСИМВ ($A1) - удалить символы, Данные > Текст по столбцам)
+добавить колонки
+  Проверить на дубликаты #если в findings нет версии - вероятно есть дубликат где сканер смог найти
+  Версия с исправлением
+  Последствия
+  Наличие PoC exploit
+  Проверить историю прошлых разметок (новая, ссылка)	
+  Используется ли в коде? (да/нет/неизвестно)	
+  Уязвимая функция из описания CVE
+  Путь вызова (если удалось определить)	
+  Контекст вызова: среда разработки, продуктивная среда, тесты/билд-утилитах
+  Первичная оценка после разметки
+  Приоритет для устранения
+  Комментарий от разработки
+  Комментарий от сопровождения и DEVOPS
+  
+Выводы: 
+TN - анализатор верно не нашел проблему, ее нет на самом деле
+FP - анализатор нашел проблему, но ее нет на самом деле
+  FP: в проекте используется 2 версии 4.23.2 и 4.29.2, уязвимость затрагивает до 4.8.0
+FN - анализатор не нашел проблему, но она была в коде на самом деле
+TP - анализатор верно нашел проблему, она была в коде на самом деле
 
 #### **Java (Maven/Gradle)**
 ```bash
-# Maven
-mvn dependency:tree > deps.txt
+# Maven составить дерево зависимостей
+mvn dependency:tree > mvn_deps.txt
+# Локально проверить валидность результатов depscan с аналиом достижимости
+depscan --profile research -t java -i . --reports-dir .\reports\reachebility --explain # с анализом достижимости
+depscan --src $PWD --reports-dir $PWD/reports # простой анализ
+
+https://www.baeldung.com/maven-dependency-scopes
+https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html
+https://for-each.dev/lessons/b/-maven-dependency-scopes
+
+    <version>4.12</version> проверить используемую версию
+    <scope>test</scope> проверить скоуп
+    <type>pom</type>
 
 # Gradle
-gradle dependencies > deps.txt
+gradle dependencies > gradle_deps.txt
 ```
 
 #### **JavaScript/Node.js (npm/yarn)**
 ```bash
 # npm
-npm list --all > deps.txt
+npm list --all > npm_deps.txt
 
 # yarn
 yarn list --all > deps.txt

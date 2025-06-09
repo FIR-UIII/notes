@@ -68,10 +68,10 @@ gradle dependencies > gradle_deps.txt
 
 #### **JavaScript/Node.js (npm/yarn)**
 ```bash
-# npm
+# npm составить дерево зависимостей
 npm list --all > npm_deps.txt
 
-# yarn
+# yarn составить дерево зависимостей
 yarn list --all > deps.txt
 ```
 

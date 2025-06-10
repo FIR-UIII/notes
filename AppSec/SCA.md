@@ -42,34 +42,53 @@ stateDiagram-v2
 Выводы: 
 TN - анализатор верно не нашел проблему, ее нет на самом деле
 FP - анализатор нашел проблему, но ее нет на самом деле
-  FP: в проекте используется 2 версии 4.23.2 и 4.29.2, уязвимость затрагивает до 4.8.0
+  FP: в проекте используется версия 4.23.2 и 4.29.2, уязвимость затрагивает до 4.8.0
 FN - анализатор не нашел проблему, но она была в коде на самом деле
 TP - анализатор верно нашел проблему, она была в коде на самом деле
+
+# Локально проверить валидность результатов depscan с аналиом достижимости
+```
+depscan --profile research -t java -i . --reports-dir .\reports\reachebility --explain # с анализом достижимости
+depscan --src $PWD --reports-dir $PWD/reports # простой анализ
+```
 
 #### **Java (Maven/Gradle)**
 ```bash
 # Maven составить дерево зависимостей
 mvn dependency:tree > mvn_deps.txt
-# Локально проверить валидность результатов depscan с аналиом достижимости
-depscan --profile research -t java -i . --reports-dir .\reports\reachebility --explain # с анализом достижимости
-depscan --src $PWD --reports-dir $PWD/reports # простой анализ
+```
 
-https://www.baeldung.com/maven-dependency-scopes
-https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html
-https://for-each.dev/lessons/b/-maven-dependency-scopes
-
-    <version>4.12</version> проверить используемую версию
-    <scope>test</scope> проверить скоуп
-    <type>pom</type>
+```xml
+<version>4.12</version> проверить используемую версию
+<scope>test</scope> проверить скоуп - контекст вызова
+  compile или не указан - зависимости с этой областью доступны в пути к классам проекта во всех задачах сборки
+  provided - как compile, но JDK или контейнер предоставит зависимость во время выполнения
+  runtime -  зависимость не требуется для компиляции, но требуется при выполнении
+  system - зависимость необходима для компиляции и выполнения
+  test - зависимость не требуется в стандартной среде выполнения приложения, а используется только в целях тестирования.
+  import - в зависимости типа pom в секции `<dependencyManagement>` указывает, что указанный pom должен быть заменён зависимостями из pom'a, который указан в dependencyManagement
+<type>pom</type>
+```
 
 # Gradle
+```sh
 gradle dependencies > gradle_deps.txt
 ```
 
 #### **JavaScript/Node.js (npm/yarn)**
 ```bash
-# npm составить дерево зависимостей
-npm list --all > npm_deps.txt
+# установить зависимости для анализа
+npm install
+npm audit # удобно для выявления FP и анализа где испозуется
+npm list --all > npm_deps.txt # npm составить дерево зависимостей
+npm why <package> # для понимания точечного импорта пакета, и построения его графа
+
+# pnpm установить зависимости для анализа (pnpm-lock.yaml)
+pnpm install # pnpm init -y при наличии ошибок
+pnpm audit
+pnpm list > pnpm_deps.txt
+pnpm list --depth Infinity > pnpm_deps_all.txt # выводит все дерево
+pnpm why <package> # для понимания точечного импорта пакета, и построения его графа 
 
 # yarn составить дерево зависимостей
 yarn list --all > deps.txt

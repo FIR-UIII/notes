@@ -5,6 +5,7 @@
 - наличие гостевого доступа (анонимного)
 - функционал делегирования полномочий
   1.	Описание подходов делегирования:
+    * всем ли можно делегировать или есть роли кому нельзя? или требуется подтверждение
     * как реализовано сейчас/как предполагается (с приложением схем процессов)
     * как различаются запросы пользователя в режиме делегирования от обычных запросов
     * как выполняется проверка прав при делегировании (для делегата)
@@ -19,8 +20,6 @@
 
 Паттерны реализации:
 [Схема drawio](Арх.паттерны.drawio)
-
-### Модели контроля доступа
 
 ### ACL
 Список управления доступом (Access Control List - ACL) представляет собой список пользователей, имеющих доступ к определенному ресурсу, а также разрешения которые каждый пользователь имеет по отношению к этому ресурсу (только чтение, чтение-запись и т. д.).
@@ -86,7 +85,7 @@ https://www.osohq.com/learn/what-is-attribute-based-access-control-abac
 |Действие|название (read, write, execute)|
 |Среда|сеть, IP, время, устройство|
 
-## 2. Сформировать бизнес правила для написания политик:
+## 2. Сформировать бизнес правила для написания политик
 Делаем совместно, либо Ваш системный аналитик.
 
 Не обязательно все, но лучше описать более сложные сценарии. Например:
@@ -106,7 +105,7 @@ https://www.osohq.com/learn/what-is-attribute-based-access-control-abac
 2.	…
 3.	
 
-## 3. Определить режим работы PEP и логика исполнения решений
+## 3. Определить режим работы PEP и логику исполнения решений
 ![alt text](Media/auth_flow.png)
 Выбрать, где приложение будет реализовывать логику авторизации.
 
@@ -150,32 +149,37 @@ client_name := "sps-as-web-c"
 ```
 
 ## 4. Сформировать структуру ролевой модели для бизнес правила
-Здесь только Важная оговорка – актуальность информации в зоне ответственности ИС. ATOM ID отвечает за разработку структуры и техническую интеграцию. 
+! Здесь только Важная оговорка – актуальность информации в зоне ответственности ИС. ATOM ID отвечает за разработку структуры и техническую интеграцию. 
 
 Паттерны проектирования ролевой модели
 Простая модель RBAC
 ```json
 "Administrator": {
-      "api/v1/sourcing/accounts": { "GET": ["ReadUserOnly"]},
-      "api/v1/sourcing/integrator/accounts": { "GET": [ "WriteUserOnly" ]
+  "api/v1/sourcing/accounts": 
+    { "GET": ["ReadUserOnly"]},
+  "api/v1/sourcing/integrator/accounts": 
+    { "GET": [ "WriteUserOnly" ]}
+  }
 ```
 
 ReBAC для графа должностей
 ```json
 "roles_graph": {
-        "admin": [ "tech-manager"],
-        "tech-manager": ["tech-lead"],
-        "tech-lead": ["developer", "devops", "platform-engineer"]}
+  "admin": [ "tech-manager"],
+  "tech-manager": ["tech-lead"],
+  "tech-lead": ["developer", "devops", "platform-engineer"]}
 ```
 
 Простая модель ABAC
 ```json
 "user_attributes": {
-       "alice": { "tenure": 20, "title": "owner" },
-        "bob": { "tenure": 15, "title": "employee" },
- "pet_attributes": {
-        "dog123": { "adopted": true, "age": 2, "breed": "terrier",  "name": "toto"},
-        "dog456": { "adopted": false, "age": 3,"breed": "german-shepherd",  "name": "rintintin" }
+  "alice": { "tenure": 20, "title": "owner" },
+  "bob": { "tenure": 15, "title": "employee" },
+  }
+"pet_attributes": {
+  "dog123": { "adopted": true, "age": 2, "breed": "terrier",  "name": "toto"},
+  "dog456": { "adopted": false, "age": 3,"breed": "german-shepherd",  "name": "rintintin" }
+  }
 ```
 
 ## 5. Определить, будет ли использовать подход с PIP 

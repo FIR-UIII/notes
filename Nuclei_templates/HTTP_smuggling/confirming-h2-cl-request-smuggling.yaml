@@ -1,0 +1,29 @@
+id: confirming-h2-cl-request-smuggling
+
+info:
+  name: confirming H2.CL request smuggling
+  author: FIR_UIII
+  severity: info
+  reference: https://portswigger.net/web-security/request-smuggling/advanced/lab-request-smuggling-h2-cl-request-smuggling
+
+http:
+  - raw:
+    - |+
+      POST / HTTP/2
+      Host: {{Hostname}}
+      Content-Length: 0
+
+      SMUGGLED
+
+    - |+
+      POST / HTTP/2
+      Host: {{Hostname}}
+      Content-Length: 0
+
+      SMUGGLED
+      
+    unsafe: true
+    matchers:
+      - type: dsl
+        dsl:
+          - 'status_code==404'

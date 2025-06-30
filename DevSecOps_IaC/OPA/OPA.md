@@ -49,11 +49,11 @@ test_1_check_wrong_role {
 
 
 ```bash
-### Unit тест
+### Шаг первый - Unit тест
 opa test . -v # запустить все тесты
 opa test -v --bench {path_rule.rego} {path_test.rego} # конкретный тест с бенчмарком
 
-### Профилирование. Выявление проблем в конкретной политике (профиле)
+### Шаг второй - Профилирование. Выявление проблем в конкретной политике (профиле)
 opa eval data.lab.test_rule -d .\task_4\task_4.rego -i input.json --profile --count=10 --format=pretty  # count определяет кол-во запусков теста
 
 +------------------------------+---------+
@@ -78,27 +78,27 @@ opa eval data.lab.test_rule -d .\task_4\task_4.rego -i input.json --profile --co
 | 0s   | 1        | 1        | 1            | .\task_4\task_4.rego:8 | 
 +------+----------+----------+--------------+------------------------+
 
-### Полноценный тест (симулиция)
+### шаг третий - Полноценный тест (симулиция)
 opa bench -d {path_rule.rego} -i input.json 'data.task_1.result' # тест правила
 opa bench -b ./policy-bundle -i input.json 'data.task_1.result' # тест bundle и input 
 
 +-------------------------------------------+------------+
-| samples                                   |     134761 | # кол-во симуляций
-| ns/op                                     |       9229 | # среднее время на выполнение
-| B/op                                      |       6401 | # среднее кол-во byte RAM
-| allocs/op                                 |        106 | #
-| histogram_timer_rego_query_eval_ns_75%    |          0 | #
-| histogram_timer_rego_query_eval_ns_90%    |          0 | #
-| histogram_timer_rego_query_eval_ns_95%    |          0 | #
-| histogram_timer_rego_query_eval_ns_99%    |     506842 | #
-| histogram_timer_rego_query_eval_ns_99.9%  |     508880 | #
-| histogram_timer_rego_query_eval_ns_99.99% |     508900 | #
-| histogram_timer_rego_query_eval_ns_count  |     134761 | #
-| histogram_timer_rego_query_eval_ns_max    |     508900 | #
-| histogram_timer_rego_query_eval_ns_mean   |       8213 | #
-| histogram_timer_rego_query_eval_ns_median |          0 | #
-| histogram_timer_rego_query_eval_ns_min    |          0 | #
-| histogram_timer_rego_query_eval_ns_stddev |      61427 | #
+| samples                                   |     134761 | # Кол-во симуляций
+| ns/op                                     |       9229 | # Среднее время выполнения одного вызова политики в наносекундах. 
+| B/op                                      |       6401 | # Сколько байт аллоцировано в памяти за один вызов политики. Порог 7000
+| allocs/op                                 |        106 | # Количество аллокаций памяти на один вызов политики. Порог 300
+| histogram_timer_rego_query_eval_ns_count  |     134761 | # Общее количество замеренных событий (совпадает с samples)
+| histogram_timer_rego_query_eval_ns_75%    |          0 | # 75% всех запросов выполнились за столько наносекунд или быстрее
+| histogram_timer_rego_query_eval_ns_90%    |          0 | # 90% всех запросов выполнились за столько наносекунд или быстрее
+| histogram_timer_rego_query_eval_ns_95%    |          0 | # 95% всех запросов выполнились за столько наносекунд или быстрее
+| histogram_timer_rego_query_eval_ns_99%    |     506842 | # 99% всех запросов выполнились за столько наносекунд или быстрее
+| histogram_timer_rego_query_eval_ns_99.9%  |     508880 | # 99.9% всех запросов выполнились за столько наносекунд или быстрее
+| histogram_timer_rego_query_eval_ns_99.99% |     508900 | # 99.99% всех запросов выполнились за столько наносекунд или быстрее
+| histogram_timer_rego_query_eval_ns_min    |          0 | # Минимальное время выполнения.
+| histogram_timer_rego_query_eval_ns_max    |     508900 | # Максимальное время выполнения.
+| histogram_timer_rego_query_eval_ns_mean   |       8213 | # Среднее время выполнения одного запроса.
+| histogram_timer_rego_query_eval_ns_median |          0 | # Медиана — половина запросов выполнялась быстрее этого значения.
+| histogram_timer_rego_query_eval_ns_stddev |      61427 | # Стандартное отклонение — насколько разбросаны результаты относительно среднего. Большое отклонение говорит о непостоянстве задержек.
 +-------------------------------------------+------------+
 
 ### HTTP запррос с метриками

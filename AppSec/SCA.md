@@ -116,6 +116,7 @@ dotnet list package --include-transitive > deps.txt
 #### **Go**
 ```bash
 go list -m all > deps.txt
+go mod graph 
 ```
 
 ### **Сопоставление зависимостей с уязвимостями**:  

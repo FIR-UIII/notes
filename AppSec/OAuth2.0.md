@@ -72,6 +72,64 @@ Host: oauth-authorization-server.com
 4. Ошибки на сервере клиента (resource server)
 - проверка токенов по клейму aud (что к ним пришел access token от их клиента, а не используется чужой access token)
 
+### Механизм обмена токенов (Token exchange):
+
+Пример запроса на обмен токена:
+```
+POST /token-exhacnge HTTP/1.1
+Host: https://iam.local
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic <base64-encoded-clientId:clientSecret>
+
+grant_type=urn:ietf:params:oauth:grant-type:token-exchange
+&subject_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... # токен для обмена
+&subject_token_type=urn:ietf:params:oauth:token-type:access_token
+&resource=https://resource-server.com/api/resource
+&scope=read write
+```
+
+Пример ответа:
+```
+HTTP/1.1 200 OK
+ Content-Type: application/json
+ Cache-Control: no-cache, no-store
+
+ {
+  "access_token":"eyJhbGciOiJFUzI1NiIsImtpZCI6IjllciJ9.eyJhdWQiOiJo
+    dHRwczovL2JhY2tlbmQuZXhhbXBsZS5jb20iLCJpc3MiOiJodHRwczovL2FzLmV
+    4YW1wbGUuY29tIiwiZXhwIjoxNDQxOTE3NTkzLCJpYXQiOjE0NDE5MTc1MzMsIn
+    N1YiI6ImJkY0BleGFtcGxlLmNvbSIsInNjb3BlIjoiYXBpIn0.40y3ZgQedw6rx
+    f59WlwHDD9jryFOr0_Wh3CGozQBihNBhnXEQgU85AI9x3KmsPottVMLPIWvmDCM
+    y5-kdXjwhw",
+  "issued_token_type":
+      "urn:ietf:params:oauth:token-type:access_token",
+  "token_type":"Bearer",
+  "expires_in":60
+ }
+```
+
+Условие использования:
+ИС должна использовать конфиденциальный клиент IAM (если клиент публичный, то в случае утечки токена есть риск увеличения поверхности атаки на другое приложение через обмен токена)
+Полномочия должны быть точечными, как минимум не превышать scope оригинального токена, а лучше иметь один конкретный гранулярный запрос
+
+Сценарии использования:
+Использование в суперапп smartapp (приложение - платформа) для доступа к информации других приложений.
+Сценарий делегирования критичный действий или конфиденциальной информации другим. Например внутренним микросервисам или ТУЗу выполнять действия от имени пользователя без раскрытия полных учетных данных. Дополнительно рекомендуется получение согласия от пользователя на такое действие
+Интеграция с другими IdP / IAM провайдерами. Если нужно применить аналог SSO, где происходит обмен токена одного IAM на токен другого IAM.
+Миграция с одного IAM на другой. Временный период 
+
+Преимущества:
+Используется эфемерный временный токен доступа для совершения операции. 
+IdP (IAM) может контролировать взаимодействия ИС<->ИС с данными пользователя через политику обмена.
+Пользователь явно может видеть какому приложения были даны права и отозвать при наличии функционала в ИС.
+Соблюдение принципа "наименьших привилегий", сами права не полные - а точечные, их можно настраивать.
+Сокращается время на использование токена. Если пользователь аутентифицирован - вне сессии пользователя нельзя произвести обмен токена.
+
+Риски:
+Сложность реализации для ИС
+Зависимость от сервера IAM - как точка отказа
+Если злоумышленник перехватит оригинальный токен ИС и будет знать куда обратиться для обмена, он может получить целевой токен другой ИС. Однако это можно смягчить с помощью ограничения TTL и ограничений по аудитории aud claim, а также внедрения механизма проверки использования токена (кол-ва его использования)
+
 ### Best Current Practice for OAuth 2.0 Security (RFC 9700)
 https://datatracker.ietf.org/doc/rfc9700/
 

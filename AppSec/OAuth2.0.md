@@ -1,3 +1,40 @@
+### RFC reference
+```
+OAuth 2.0 Authorization Framework https://www.rfc-editor.org/rfc/rfc6749
+OAuth 2.0 Authorization Framework: Bearer Token Usage https://www.rfc-editor.org/rfc/rfc6750
+JSON Web Token (JWT) https://www.rfc-editor.org/rfc/rfc7519
+JSON Web Token (JWT) Profile for OAuth 2.0 Access Tokens https://www.rfc-editor.org/rfc/rfc9068 
+OAuth 2.0 Dynamic Client Registration Protocol https://www.rfc-editor.org/rfc/rfc7591
+OAuth 2.0 PKCE https://www.rfc-editor.org/rfc/rfc7636
+OAuth 2.0 Token Revocation https://www.rfc-editor.org/rfc/rfc7009
+OAuth 2.0 Token Introspection https://www.rfc-editor.org/rfc/rfc7662
+OAuth 2.0 Device Authorization Grant https://www.rfc-editor.org/rfc/rfc8628
+
+# Расширения OAuth 2.0
+OAuth 2.0 Step Up Authentication Challenge Protocol https://www.rfc-editor.org/rfc/rfc9470
+OAuth 2.0 Demonstrating Proof of Possession (DPoP) https://www.rfc-editor.org/rfc/rfc9449
+OAuth 2.0 Rich Authorization Requests https://www.rfc-editor.org/rfc/rfc9396
+OAuth 2.0 Authorization Server Issuer Identification https://www.rfc-editor.org/rfc/rfc9207
+OAuth 2.0 Pushed Authorization Requests https://www.rfc-editor.org/rfc/rfc9126
+The OAuth 2.0 Authorization Framework: JWT-Secured Authorization Request (JAR) https://www.rfc-editor.org/rfc/rfc9101
+Resource Indicators for OAuth 2.0 https://www.rfc-editor.org/rfc/rfc8707
+OAuth 2.0 Mutual-TLS Client Authentication and Certificate-Bound Access Tokens https://www.rfc-editor.org/rfc/rfc8705
+OAuth 2.0 Token Exchange https://www.rfc-editor.org/rfc/rfc8693
+Proof-of-Possession Key Semantics for JSON Web Tokens (JWTs) https://www.rfc-editor.org/rfc/rfc7800
+Authentication Method Reference Values https://www.rfc-editor.org/rfc/rfc8176
+JSON Web Token (JWT) Profile for OAuth 2.0 https://www.rfc-editor.org/rfc/rfc7523
+Assertion Framework for OAuth 2.0 https://www.rfc-editor.org/rfc/rfc7521
+Security Assertion Markup Language (SAML) 2.0 Profile for OAuth 2.0 https://www.rfc-editor.org/rfc/rfc7522
+OAuth 2.0 Authorization Server Metadata https://www.rfc-editor.org/rfc/rfc8414
+
+# Best practice
+Best Current Practice for OAuth 2.0 Security (Best Current Practice) https://www.rfc-editor.org/rfc/rfc9700
+JSON Web Token Best Current Practices (Best Current Practice) https://www.rfc-editor.org/rfc/rfc8725
+OAuth 2.0 Threat Model and Security Considerations https://www.rfc-editor.org/rfc/rfc6819
+OAuth 2.0 for Native Apps (Best Current Practice) https://www.rfc-editor.org/rfc/rfc8252
+```
+
+
 Authorization code grant type
 ```bash
 # Protocol Flow

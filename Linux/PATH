@@ -1,0 +1,4 @@
+```
+# add binary in folder to path
+PATH=$PATH:/bin/vault
+```

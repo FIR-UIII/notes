@@ -9,8 +9,12 @@ $ ssh-copy-id username@remote_host
 # аналог если cody-id нет 
 $ cat ~/.ssh/id_rsa.pub | ssh username@remote_host "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
 
-
 remote_host$ cat /root/.ssh/authorized_keys
+# если authorized_keys не создан
+remote_host$ mkdir ~/.ssh
+remote_host$ chmod 700 ~/.ssh
+remote_host$ touch ~/.ssh/authorized_keys
+remote_host$ chmod 600 ~/.ssh/authorized_keys
 ```
 
 ### SCP

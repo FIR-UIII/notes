@@ -2,7 +2,7 @@
 # add binary in folder to path
 PATH=$PATH:/bin/vault
 nano ~/.bashrc
-> export PATH="$HOME/bin:$PATH"
+> export PATH=$PATH:/bin/vault
 source ~/.bashrc
 echo $PATH
 ```

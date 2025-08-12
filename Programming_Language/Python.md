@@ -6,6 +6,33 @@ PS> Scripts/activate         # deactivate
 
 pip freeze > requirements.txt # create
 pip install -r /path/to/requirements.txt # install
+
+#!/bin/bash
+```
+
+# Self-contained
+```bash
+# Установить зависимости в отдельную папку
+# Переходим в папку со скриптом
+cd C:\path\to\myproject
+# Ставим hvac и зависимости в подпапку "libs"
+pip install --target .\libs hvac
+# После этого в C:\path\to\myproject\libs появятся все зависимости (hvac, requests, urllib3, и т.д.).
+
+# Подключить папку libs в скрипте
+# В начале твоего script.py вставь:
+import sys
+import os
+
+# Добавляем папку libs в sys.path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'libs'))
+
+import hvac
+# Теперь Python будет искать модули сначала в libs, потом в системных путях.
+
+# Перенести на целевой хост
+script.py
+libs\  (вся папка)
 ```
 
 # Code review
@@ -146,3 +173,4 @@ import hmac
 hmac_sha256 = hmac.new(b'key', msg=b'message', digestmod=hashlib.sha256)
 print(hmac_sha256.hexdigest()) # Хеш в виде шестнадцатеричного текста
 ```
+

@@ -2,8 +2,8 @@
 # подключение
 psql -U postgres # под рутовой УЗ
 psql -U vault -d vault # под пользователем vault в БД vault
-
 ```
+
 Some interesting flags (to see all, use `-h` or `--help` depending on your psql version):
 - `-E`: will describe the underlaying queries of the `\` commands (cool for learning!)
 - `-l`: psql will list all databases and then exit (useful if the user you connect with doesn't has a default database, like at AWS RDS)
@@ -39,6 +39,23 @@ User Related:
 - `set role __test__;`: Change role for current session to `__test__`.
 - `grant __test2__ to __test1__;`: Allow `__test1__` to set its role as `__test2__`.
 - `\deu+`: List all user mapping on server
+
+## представления (View)
+```sql
+# Вывод списка View в PostgreSQL
+SELECT table_name
+FROM information_schema.tables
+WHERE table_type = 'VIEW' AND table_schema = 'public';
+
+# создание view
+CREATE VIEW employee_view AS
+SELECT employee_id, first_name, last_name, department
+FROM employees
+WHERE department = 'IT';
+
+# Удаление представления
+DROP VIEW employee_view;
+```
 
 ## Configuration
 

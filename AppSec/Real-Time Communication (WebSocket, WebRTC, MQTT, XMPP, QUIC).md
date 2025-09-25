@@ -38,6 +38,7 @@ ws.onopen = function() {
     }));
 };
 ```
+
 Defense Implementation:
 ```
 const WebSocket = require('ws');
@@ -100,6 +101,7 @@ wss.on('connection', (ws, req) => {
     
     ws.on('close', () => clearTimeout(timeout));
 });
+```
 
 ### Cross-Site WebSocket Hijacking Attack
 ```
@@ -227,6 +229,7 @@ stunServers.forEach(server => {
     client.send(stunRequest, port, host);
 });
 ```
+
 Defense Implementation:
 ```
 // TURN server configuration with rate limiting
@@ -263,6 +266,7 @@ pc.ontrack = (event) => {
     sendToAttackerServer(mediaStream);
 };
 ```
+
 Defense Implementation:
 ```
 const jwt = require('jsonwebtoken');
@@ -318,6 +322,7 @@ client.on('message', (topic, message) => {
     sendToAttacker(topic, message.toString());
 });
 ```
+
 Defense Implementation:
 ```
 // mosquitto.conf - Secure MQTT broker configuration
@@ -390,6 +395,7 @@ client.on('connect', () => {
     });
 });
 ```
+
 Defense Implementation:
 ```
 // Secure MQTT broker setup
@@ -464,6 +470,7 @@ setTimeout(() => {
     client.stream.destroy();
 }, 5000);
 ```
+
 Defense Implementation:
 ```
 // Secure will message handling

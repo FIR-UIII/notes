@@ -1,4 +1,5 @@
 ### Insecure vs Secure Architectures
+```
 Insecure RTC Architecture (what fails under pressure)
 Long-lived connections on ws:// or plaintext MQTT, exposing traffic to MitM and downgrade.
 Signaling that accepts stale or replayed tokens; no binding between token and negotiated session parameters.
@@ -6,14 +7,17 @@ Open TURN servers allowing third-party relay; no rate limiting; no IP allowlist.
 Brokers with anonymous access, permissive wildcards, and no per-client ACLs.
 No quotas: single user can spawn thousands of connections, degrading service for all.
 Minimal telemetry: no visibility into ICE re-attempt storms, TURN spikes, or topic enumerations.
+```
 
 ### Secure-by-Design RTC Architecture (resilient by default)
+```
 Enforce TLS 1.3 everywhere (wss://, mqtts://), DTLS/SRTP for media, QUIC where available.
 Short-lived, audience-bound tokens; bind tokens to session attributes (SDP fingerprint, room id, client id), and reject replays.
 Hardened TURN: credentials rotation, realm scoping, per-IP rate limits, IP allowlist, and metering for abuse.
 Broker hardening: mTLS or strong credentials, topic-level ACLs, least-privilege publishes/subscribes, disallow anonymous.
 Connection governance: rate limiting, backpressure, per-IP and per-user caps, circuit breakers, and adaptive QoS.
 Observability first: handshake outcomes, ICE path analytics, TURN allocation failure reasons, topic subscription diffs, and anomaly baselines.
+```
 
 ### WebSocket Origin Bypass Attack 
 Attack Implementation

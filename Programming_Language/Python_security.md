@@ -40,8 +40,7 @@ try:
 *  Input validation
    - whitelist: regex
    - blacklist: bad practice
-*  Try-except vs. if-else
-  - it is safer to use the try-except block when we are unsure about possible errors or when there is little possibility of some error/exception. In the other cases, it is recommended to use the if-else block
+* 
 *  Check library, framework vulnerabilities / Open Source Security<br>
 Check offsites and CWE:
   - https://docs.python.org/3/library/security_warnings.html
@@ -84,7 +83,27 @@ def superuser_action(request, user):
     # execute action as super user
 ```
 
-Разрешения на создание каталогов
+
+### Try-except
+It is safer to use the try-except block when we are unsure about possible errors or when there is little possibility of some error/exception. In the other cases, it is recommended to use the if-else block.
+Но когда речь о функциях безопасности, то это может сыграть злую шутку - пропуск ошибок валидации, игнорирование исключений аутентификации пользователя, скрытие системных ошибок
+```python
+# Этот пример try-catch отбрасывает все исключения, включая обходы аутентификации или сбои целостности базы данных.
+try:
+authenticate_user()
+write_to_database()
+except:
+pass # silently ignores critical errors
+
+# Safe: обрабатывайте только то, что ожидаете
+try:
+authenticate_user()
+except AuthenticationError as auth_err:
+logger.error("Authentication failed: %s", auth_err)
+raise
+```
+    
+### Разрешения на создание каталогов
 ```py
 def init_directories(request):
     os.makedirs("A/B/C", mode=0o700) # Функция os.makedirs создает папки А B C, в Python > 3.6 только последняя папка C имеет разрешение 700, а остальные папки A и B создаются с разрешением по умолчанию 755

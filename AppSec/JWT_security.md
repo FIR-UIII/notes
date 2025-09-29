@@ -11,16 +11,14 @@ Buffer.from(JSON.stringify({ role: 'admin' })).toString('base64') + '.';
 jwt.verify(fakeToken, null, { algorithms: ['none'] }); // Never do this
 ```
 
-### Missing exp,  Tokens that never expire
-```js
-// vulnerable
-mport jwt
-
-payload = {"user_id": 1} # No expiration
-encoded = jwt.encode(payload, "secret", algorithm="HS256")
+### JWT payload
+```json
+   "sub": "248289761001", // subject – ID пользователя токена
+   "aud": "получатель-XXX" //  обязательная проверка аудитории: кому предназначен токен. [RFC7519] https://www.rfc-editor.org/rfc/rfc7519#section-4.1.3
+   "iss": "iam-system" // обязательная проверка поля issuer (издатель) со стороны ИС [RFC9207] https://datatracker.ietf.org/doc/html/rfc9207#name-validating-the-issuer-ident [RFC7519] https://www.rfc-editor.org/rfc/rfc7519#section-4.1.1
+   "azp": "отправитель-АВС" // авторизированная сторона, обязательная проверка поля со стороны ИС https://openid.net/specs/openid-connect-core-1_0.html 
+   "iat": 1716249600 // issued at time. обязательная проверка времени со стороны ИС, не должен быть выписан ранее запроса
+   "exp": 1716249600 // expiration time. обязательная проверка по времени после которого токен не должен быть валидным
+   "jti": // JWT ID, уникальный идентификатор JWT, можно использовать для проверки использования
 ```
 
-### Ignoring aud, Misused across apps
-The aud claim ensures the token is intended for your service. Ignoring this lets tokens be used in unintended places.
-```js
-```

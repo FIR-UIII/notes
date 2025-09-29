@@ -1,6 +1,9 @@
 https://owasp.org/www-project-top-10-ci-cd-security-risks/
 https://cheatsheetseries.owasp.org/cheatsheets/CI_CD_Security_Cheat_Sheet.html
 
+### Anchors и Aliases 
+Anchor (&): Создает "ссылку" на фрагмент данных в YAML-файле (например, &my_anchor some value).
+Alias (*): Использует ранее созданную ссылку для копирования ее значения (например, *my_anchor).
 
 CICD-SEC-1: Insufficient Flow Control Mechanisms
 Наличие QG
@@ -15,4 +18,5 @@ CICD-SEC-6: Insufficient Credential Hygiene
 CICD-SEC-7: Insecure System Configuration
 CICD-SEC-8: Ungoverned Usage of Third-Party Services
 CICD-SEC-9: Improper Artifact Integrity Validation
+
 CICD-SEC-10: Insufficient Logging and Visibility

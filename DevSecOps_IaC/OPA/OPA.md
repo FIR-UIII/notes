@@ -103,6 +103,14 @@ opa bench -b ./policy-bundle -i input.json 'data.task_1.result' # тест bundl
 
 ### HTTP запррос с метриками
 POST /v1/data/example?metrics=true HTTP/1.1 # добавление в запрос ?metrics для получение информации
+
+# go-wrk
+$ go install github.com/tsliwowicz/go-wrk@latest
+$ go-wrk -no-vr -c 30 -d 600 -T 5000 -M POST -body @large_input.json -H "Content-Type: application/json" http://localhost:8181/v1/data
+-d Duration of test in seconds
+-c Number of goroutines to use (concurrent connections)
+-T Socket/request timeout in ms
+-no-vr Skip verifying SSL certificate of the server
 ```
 
 ### Системные оптимизации (развертывание агента)
@@ -328,3 +336,4 @@ ignore:
   files:
     - "*_test.rego"
 ```
+

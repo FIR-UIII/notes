@@ -36,6 +36,9 @@ func(x, y)  {
 #7: 1 | Eval all = true (c:\Users\Admin\Desktop\Project\opa\task_8\task_8.rego:11) # проверка условия в {...}
 #6: 1 Enter data.task_8.allow (c:\Users\Admin\Desktop\Project\opa\task_8\task_8.rego:10) # вход в функцию
 
+#5: 0 | Index data.test.is_admin (matched 1 rule, early exit) (Unknown Source:1) # вот это отлично значит работает ранний выход и правило легко индексируется
+
+
 # eval
 $  opa eval -d .\task_8.rego 'data.task_8.allow' --var-values --explain=full > call_stack.txt # важно без профилирования делать --profile
 query:1              Enter data.task_8.p = _                                {}

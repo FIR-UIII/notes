@@ -101,6 +101,22 @@ opa bench -b ./policy-bundle -i input.json 'data.task_1.result' # тест bundl
 | histogram_timer_rego_query_eval_ns_stddev |      61427 | # Стандартное отклонение — насколько разбросаны результаты относительно среднего. Большое отклонение говорит о непостоянстве задержек.
 +-------------------------------------------+------------+
 
+### Проверка внутри кода
+package policy
+import future.keywords.in
+allow {
+    trace(sprintf("Starting allow check for user: %s", [input.user]))
+    # Измеряем время выполнения отдельных функций
+    start := time.now_ns()
+    has_permission
+    end := time.now_ns()
+    trace(sprintf("has_permission took %d ns", [end - start]))
+    start2 := time.now_ns()
+    validate_resource(input.resource)
+    end2 := time.now_ns()
+    trace(sprintf("validate_resource took %d ns", [end2 - start2]))
+}
+
 ### HTTP запррос с метриками
 POST /v1/data/example?metrics=true HTTP/1.1 # добавление в запрос ?metrics для получение информации
 
@@ -336,5 +352,6 @@ ignore:
   files:
     - "*_test.rego"
 ```
+
 
 

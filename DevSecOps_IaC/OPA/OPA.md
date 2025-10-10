@@ -55,7 +55,7 @@ opa test -v --bench {path_rule.rego} {path_test.rego} # конкретный т�
 
 ### Шаг второй - Профилирование. Выявление проблем в конкретной политике (профиле)
 opa eval data.lab.test_rule -d .\task_4\task_4.rego -i input.json --profile --count=10 --format=pretty  # count определяет кол-во запусков теста
-
+opa eval -d .\task_8.rego 'data.task_8.allow' --var-values --explain=full # с выводом локальных переменных
 +------------------------------+---------+
 |            METRIC            |  VALUE  |
 +------------------------------+---------+ # все показатели в наносекундах https://www.unitconverters.net/time/nanosecond-to-second.htm
@@ -352,6 +352,7 @@ ignore:
   files:
     - "*_test.rego"
 ```
+
 
 
 

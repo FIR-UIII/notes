@@ -26,14 +26,39 @@ func(x, y)  {
 ```
 
 ### Call stack
+Получить можно через regal debugger или  `opa eval -d .\task_8.rego --profile --format=pretty 'data.task_8.allow' --var-values --explain=full`
 ```
+#  regal debugger
 #14: 2 | Eval foo = data.c.objectDict.AbsenceLimitsDictionary_ALL.Copy (c:\Users\Admin\Desktop\Project\opa\task_8\task_8.rego:15) # Вот это хорошо. Так как идет обращение к конкретному объекту data без создания локальной переменной
 #13: 2 Enter data.task_8.allow (c:\Users\Admin\Desktop\Project\opa\task_8\task_8.rego:14) # вход в функцию
-
 Можно также ориентироваться по номеру #X: 1
 #9: 1 | Eval __local10__ = data.c (c:\Users\Admin\Desktop\Project\opa\task_8\task_8.rego:10) # Вот это плохо. Что происходит создается локальная переменная __local10__ куда присваивается значение всего data.c. Что по сути дублиует data.json
 #7: 1 | Eval all = true (c:\Users\Admin\Desktop\Project\opa\task_8\task_8.rego:11) # проверка условия в {...}
 #6: 1 Enter data.task_8.allow (c:\Users\Admin\Desktop\Project\opa\task_8\task_8.rego:10) # вход в функцию
+
+# eval
+$  opa eval -d .\task_8.rego 'data.task_8.allow' --var-values --explain=full > call_stack.txt # важно без профилирования делать --profile
+query:1              Enter data.task_8.p = _                                {}
+query:1              | Eval data.task_8.p = _                               {}
+query:1              | Index data.task_8.p (matched 1 rule, early exit)     {}
+.\task_8.rego:19     | Enter data.task_8.p                                  {}
+.\task_8.rego:20     | | Eval a = 1                                         {}
+.\task_8.rego:21     | | Eval b = 2                                         {}
+.\task_8.rego:22     | | Eval c = 3                                         {}
+.\task_8.rego:23     | | Eval mul(b, c, __local8__)                         {b: 2, c: 3}
+.\task_8.rego:23     | | Eval plus(a, __local8__, __local9__)               {__local8__: 6, a: 1}
+.\task_8.rego:23     | | Eval x = __local9__                                {__local9__: 7}
+.\task_8.rego:19     | | Exit data.task_8.p early                           {}
+query:1              | Exit data.task_8.p = _                               {_: true, data.task_8.p: true}
+query:1              Redo data.task_8.p = _                                 {_: true, data.task_8.p: true}
+query:1              | Redo data.task_8.p = _                               {_: true, data.task_8.p: true}
+.\task_8.rego:19     | Redo data.task_8.p                                   {}
+.\task_8.rego:23     | | Redo x = __local9__                                {__local9__: 7, x: 7}
+.\task_8.rego:23     | | Redo plus(a, __local8__, __local9__)               {__local8__: 6, __local9__: 7, a: 1}
+.\task_8.rego:23     | | Redo mul(b, c, __local8__)                         {__local8__: 6, b: 2, c: 3}
+.\task_8.rego:22     | | Redo c = 3                                         {c: 3}
+.\task_8.rego:21     | | Redo b = 2                                         {b: 2}
+.\task_8.rego:20     | | Redo a = 1                                         {a: 1}
 ```
 
 ### Eval

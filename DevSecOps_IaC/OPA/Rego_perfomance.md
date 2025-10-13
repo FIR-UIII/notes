@@ -34,7 +34,7 @@ example_2 {
 ```
 
 ### Call stack
-Получить можно через regal debugger или  `opa eval -d .\task_8.rego --profile --format=pretty 'data.task_8.allow' --var-values --explain=full`
+Получить можно через regal debugger или `opa eval --data .\task_8.rego -i .\input.json -d .\data.json --profile --format=pretty 'data.test.allow' --var-values --explain=full` 
 ```
 #  regal debugger
 #14: 2 | Eval foo = data.c.objectDict.AbsenceLimitsDictionary_ALL.Copy (c:\Users\Admin\Desktop\Project\opa\task_8\task_8.rego:15) # Вот это хорошо. Так как идет обращение к конкретному объекту data без создания локальной переменной
@@ -48,7 +48,7 @@ example_2 {
 
 
 # eval
-$  opa eval -d .\task_8.rego 'data.task_8.allow' --var-values --explain=full > call_stack.txt # важно без профилирования делать --profile
+$  opa eval --data .\task_8.rego -i .\input.json -d .\data.json --profile --format=pretty 'data.test.allow' --var-values --explain=full # обязательно передать все файлы data и input для полного расчета
 query:1              Enter data.task_8.p = _                                {}
 query:1              | Eval data.task_8.p = _                               {}
 query:1              | Index data.task_8.p (matched 1 rule, early exit)     {}

@@ -33,8 +33,8 @@ example_2 {
 # O(n!): Факториальная сложность. Это самая высокая степень роста времени выполнения алгоритма. Время выполнения алгоритма растет факториально от размера входных данных. Этот тип сложности встречается, например, при переборе всех возможных комбинаций элементов, что делает его чрезвычайно неэффективным для больших значений n
 ```
 
-### Call stack
-Получить можно через regal debugger или `opa eval --data .\task_8.rego -i .\input.json -d .\data.json --profile --format=pretty 'data.test.allow' --var-values --explain=full` 
+### Способы дебага
+# 1. Получить можно через regal debugger 
 ```
 #  regal debugger
 #14: 2 | Eval foo = data.c.objectDict.AbsenceLimitsDictionary_ALL.Copy (c:\Users\Admin\Desktop\Project\opa\task_8\task_8.rego:15) # Вот это хорошо. Так как идет обращение к конкретному объекту data без создания локальной переменной
@@ -45,47 +45,25 @@ example_2 {
 #6: 1 Enter data.task_8.allow (c:\Users\Admin\Desktop\Project\opa\task_8\task_8.rego:10) # вход в функцию
 
 #5: 0 | Index data.test.is_admin (matched 1 rule, early exit) (Unknown Source:1) # вот это отлично значит работает ранний выход и правило легко индексируется
-
+```
 
 # eval
+```
 $  opa eval --data .\task_8.rego -i .\input.json -d .\data.json --profile --format=pretty 'data.test.allow' --var-values --explain=full # обязательно передать все файлы data и input для полного расчета
-query:1              Enter data.task_8.p = _                                {}
-query:1              | Eval data.task_8.p = _                               {}
-query:1              | Index data.task_8.p (matched 1 rule, early exit)     {}
-.\task_8.rego:19     | Enter data.task_8.p                                  {}
-.\task_8.rego:20     | | Eval a = 1                                         {}
-.\task_8.rego:21     | | Eval b = 2                                         {}
-.\task_8.rego:22     | | Eval c = 3                                         {}
 .\task_8.rego:23     | | Eval mul(b, c, __local8__)                         {b: 2, c: 3}
 .\task_8.rego:23     | | Eval plus(a, __local8__, __local9__)               {__local8__: 6, a: 1}
-.\task_8.rego:23     | | Eval x = __local9__                                {__local9__: 7}
 .\task_8.rego:19     | | Exit data.task_8.p early                           {}
 query:1              | Exit data.task_8.p = _                               {_: true, data.task_8.p: true}
 query:1              Redo data.task_8.p = _                                 {_: true, data.task_8.p: true}
-query:1              | Redo data.task_8.p = _                               {_: true, data.task_8.p: true}
-.\task_8.rego:19     | Redo data.task_8.p                                   {}
-.\task_8.rego:23     | | Redo x = __local9__                                {__local9__: 7, x: 7}
-.\task_8.rego:23     | | Redo plus(a, __local8__, __local9__)               {__local8__: 6, __local9__: 7, a: 1}
-.\task_8.rego:23     | | Redo mul(b, c, __local8__)                         {__local8__: 6, b: 2, c: 3}
-.\task_8.rego:22     | | Redo c = 3                                         {c: 3}
-.\task_8.rego:21     | | Redo b = 2                                         {b: 2}
-.\task_8.rego:20     | | Redo a = 1                                         {a: 1}
 ```
 
-### Eval
-```rego
-opa eval --data rbac.rego --profile --format=pretty 'data.rbac.allow'
-
-# rego
-package test
-
-p if {
-	a := 1
-	b := 2
-	c := 3
-	x = a + (b * c)
-}
+# метрики в процессе исполнения
 ```
+POST /auth/realms/IAM/protocol/authz/atomid/skillaz/rbac?metrics=true
+Content-Type: application/json
+```
+
+### Какой способ когда использовать
 
 ### Парадигмы составления политик
 ```rego

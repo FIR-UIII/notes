@@ -90,8 +90,6 @@ p if {
 ### Парадигмы составления политик
 ```rego
 # RBAC. Использование some и contains
-default allow := false
-
 allow if {
 	some role_name
 	user_has_role[role_name]
@@ -99,42 +97,18 @@ allow if {
 }
 
 role_has_permission contains role_name if {
-	role := roles[_]
-	role_name := role.name
-	perm := role.permissions[_]
-	perm.resource == inp.resource
-	perm.action == inp.action
+	input.permission := role.name
 }
 ```
 
 ```rego
-# RBAC. Использование some и contains
-default allow := false
+# Переиспользование метода декодирования токена. Сокращение кол-ва операций
+# Файл utils
+package tools
+jwt_decoded := io.jwt.decode(input.jwt)
 
-allow if {
-	some role_name
-	user_has_role[role_name]
-	role_has_permission[role_name]
-}
-
-role_has_permission contains role_name if {
-	role := roles[_]
-	role_name := role.name
-	perm := role.permissions[_]
-	perm.resource == inp.resource
-	perm.action == inp.action
-}
-```
-
-```rego
-# RBAC. Использование some и contains
-default decision := "deny"
-
-decision := "allow" {
-    token_verify.valid
-    not wrong_client
-    token_decode := io.jwt.decode(input.user_token)[1]
-    token_roles := token_decode.resource_access[client_config.client].roles[_]
-    input.claims == rbac_policy[token_roles][input.endpoint][input.method]
-}
+# Файл рабочий test
+package test
+import data.tools.jwt_decoded
+token := jwt_decoded[1]
 ```

@@ -34,16 +34,19 @@ example_2 {
 
 ### Способы дебага
 ##### 1. Получить можно через regal debugger 
-```
-#  regal debugger
-#14: 2 | Eval foo = data.c.objectDict.AbsenceLimitsDictionary_ALL.Copy (c:\Users\Admin\Desktop\Project\opa\task_8\task_8.rego:15) # Вот это хорошо. Так как идет обращение к конкретному объекту data без создания локальной переменной
-#13: 2 Enter data.task_8.allow (c:\Users\Admin\Desktop\Project\opa\task_8\task_8.rego:14) # вход в функцию
-Можно также ориентироваться по номеру #X: 1
-#9: 1 | Eval __local10__ = data.c (c:\Users\Admin\Desktop\Project\opa\task_8\task_8.rego:10) # Вот это плохо. Что происходит создается локальная переменная `__local10__` куда присваивается значение всего data.c. Что по сути дублиует data.json
-#7: 1 | Eval all = true (c:\Users\Admin\Desktop\Project\opa\task_8\task_8.rego:11) # проверка условия в {...}
-#6: 1 Enter data.task_8.allow (c:\Users\Admin\Desktop\Project\opa\task_8\task_8.rego:10) # вход в функцию
+<img width="502" height="299" alt="image" src="https://github.com/user-attachments/assets/efd79f77-b7d3-44dd-b918-efa1d48fb152" />
 
-#5: 0 | Index data.test.is_admin (matched 1 rule, early exit) (Unknown Source:1) # вот это отлично значит работает ранний выход и правило легко индексируется
+```
+#  Примеры плохих и хороших паттернов для оценки и сравнение с оптимизированным подходом
+
+# Передача в переменную больших данных. На примере Создается локальная переменная `__local10__` куда присваивается значение всего data.rbac Что по сути дублиует data.json. Если таких операций несколько - увеличивает обьем CPU и RAM
+#9: 1 | Eval __local10__ = data.rbac (c:\Users\Admin\Desktop\Project\opa\task_8\task_8.rego:10) 
+
+# ОК. Исправленный вариант. Обращение к конкретному объекту data без создания локальной переменной
+#9: 1 | Eval foo = data.rbac.objectDict.AbsenceLimitsDictionary_ALL.Copy (c:\Users\Admin\Desktop\Project\opa\task_8\task_8.rego:15)
+
+# ОК. Использование раннего выхода, см. matched 1 rule, early exit
+#5: 0 | Index data.test.is_admin (matched 1 rule, early exit) (Unknown Source:1)
 ```
 
 ##### 2. Eval

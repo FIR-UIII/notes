@@ -166,6 +166,7 @@ User.findAll({
 Sequelize сначала сгенерирует такой запрос: SELECT * FROM users WHERE soundex("firstName") = soundex(:firstName) OR "lastName" = ':firstName'
 
 ### Атаки на operatorAliases 
+Operator Aliases функционал был иключен в 7 версии. До этого этот риск сохраняется.
 Групповая атака (Batching attack)
 ```
 POST /

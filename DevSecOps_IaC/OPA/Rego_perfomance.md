@@ -60,12 +60,16 @@ allow := true {
 - использование индексируемых операторов
 <img width="624" height="272" alt="image" src="https://github.com/user-attachments/assets/46f33906-1e89-4043-9d1c-5723d02e0f14" />
 <img width="624" height="167" alt="image" src="https://github.com/user-attachments/assets/7170eacc-d3a1-40af-acb6-950a64979d92" />
+
 - использовать ранний выход в правилах политик
  <img width="624" height="332" alt="image" src="https://github.com/user-attachments/assets/b733816d-67ed-4036-a68d-d225b9353bc0" />
+ 
 - минимизация новых переменных или дублирования кода
 <img width="624" height="262" alt="image" src="https://github.com/user-attachments/assets/985f45c0-f1e6-4ef7-8ff7-60696adbaa95" />
+
 - минимизация кол-во итераций поиска
 <img width="624" height="239" alt="image" src="https://github.com/user-attachments/assets/edb0eab1-cd96-42a6-8fb3-b883c4e16676" />
+
 - минимизация кол-ва правил внутри одной политики
 <img width="396" height="222" alt="image" src="https://github.com/user-attachments/assets/ab185de1-52f1-4eba-ae6e-b8bc1ee8f7e7" />
 

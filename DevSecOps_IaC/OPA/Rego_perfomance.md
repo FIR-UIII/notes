@@ -139,6 +139,12 @@ query:1              Redo data.task_8.p = _                                 {_: 
 ```
 POST /auth/realms/IAM/protocol/authz/atomid/skillaz/rbac?metrics=true
 Content-Type: application/json
+
+POST /auth/realms/IAM/protocol/authz/atomid/skillaz/rbac?explain=debug
+Content-Type: application/json
+
+Чтобы понять что значат значения, см. https://www.openpolicyagent.org/docs/ir
+Чтобы понять какие параметры еще можно запросить см. https://www.openpolicyagent.org/docs/rest-api#get-a-document-with-input
 ```
 
 ### Какой способ когда использовать

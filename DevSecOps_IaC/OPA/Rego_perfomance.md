@@ -137,10 +137,10 @@ query:1              Redo data.task_8.p = _                                 {_: 
 
 ##### 3. Метрики в процессе исполнения
 ```
-POST /auth/realms/IAM/protocol/authz/atomid/skillaz/rbac?metrics=true
+POST /opa?metrics=true
 Content-Type: application/json
 
-POST /auth/realms/IAM/protocol/authz/atomid/skillaz/rbac?explain=debug
+POST /opa?explain=debug
 Content-Type: application/json
 
 Чтобы понять что значат значения, см. https://www.openpolicyagent.org/docs/ir

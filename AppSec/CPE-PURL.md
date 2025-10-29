@@ -1,6 +1,6 @@
 ### CPE
+`cpe:2.3:part:vendor:product:version:update:edition:language:sw_edition:target_sw:target_hw:other`
 ```
-cpe:2.3:part:vendor:product:version:update:edition:language:sw_edition:target_sw:target_hw:other
 Part: Указание о том, что компонент относится к приложению (a), операционной системе (o), железу (h) (Обязательный пункт)
 Vendor: Название производителя продукта (Обязательный пункт)
 Product: Название продукта (Обязательный пункт)
@@ -15,8 +15,8 @@ Other: Информация о поставщике или продукте
 ```
 
 ### PURL
+`scheme:type/namespace/name@version?qualifiers#subpath`
 ```
-scheme:type/namespace/name@version?qualifiers#subpath
 Sсheme: Всегда будет 'pkg', указывающий, что это URL-адрес пакета (Обязательный пункт)
 Type: «Тип» пакета или «протокол» пакета, например maven, npm, nuget, gem, pypi и т.д. (Обязательный пункт)
 Namespace: Некоторый префикс имени, такой как идентификатор группы Maven, владелец образа Docker, пользователь или организация GitHub. Необязательный и зависит от типа.

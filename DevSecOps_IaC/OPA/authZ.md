@@ -10,18 +10,6 @@
    "req_method":"POST",
    "req_path":"/v1/data/task_1",
    "time":"2025-10-06T09:20:46+03:00"
-}{
-   "client_addr":"127.0.0.1:53231",
-   "level":"info",
-   "msg":"Sent response.",
-   "req_id":1,
-   "req_method":"POST",
-   "req_path":"/v1/data/task_1",
-   "resp_body":"{\"result\":{\"result\":\"allowed\"}}\n",
-   "resp_bytes":32,
-   "resp_duration":37.8934,
-   "resp_status":200,
-   "time":"2025-10-06T09:20:46+03:00"
 }
 ```
 
@@ -100,4 +88,5 @@ allow := true {
 	input.path == ["v1", "data", "task_1"]
 }
 ```
+
 

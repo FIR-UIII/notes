@@ -48,7 +48,7 @@ allow {                         # Allow request if...
 opa run -s -b .\bundle.tar.gz --log-level debug --addr 127.0.0.1:8181 --authentication=token --authorization=basic
 ```
 
-Запрос. Особое внимание на заголовок Authorization: Bearer $1, где $1 маппится на переменную input.identity
+Запрос. Особое внимание на заголовок Authorization: Bearer secret, где secret присваивается к переменной input.identity в политике rego
 ```
 GET /v1/data HTTP/1.1
 Host: 127.0.0.1:8181
@@ -100,3 +100,4 @@ allow := true {
 	input.path == ["v1", "data", "task_1"]
 }
 ```
+

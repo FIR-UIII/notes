@@ -277,10 +277,10 @@ $ opa run --server --config-file=opa-conf.yaml --addr 127.0.0.1:8181 --log-level
   "command": "opa.eval.package",
   "when": "editorLangId == 'rego'"
 }
-@command:opa.eval.selection
+@opa.profile.selection
 {
   "key": "ctrl+d",
-  "command": "opa.eval.selection",
+  "command": "opa.profile.selection",
   "when": "editorLangId == 'rego'"
 }
 ```
@@ -352,6 +352,7 @@ ignore:
   files:
     - "*_test.rego"
 ```
+
 
 
 

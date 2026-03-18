@@ -7,8 +7,6 @@
 - учитывается ли контекст сборки (тест, прод и проч.)
 
 ## **Методология анализа (триажа) уязвимостей SCA сканера для зависимостей и транзитивных зависимостей**  
-![alt text](Media/sca_methodology.png)
-
 ```mermaid
 stateDiagram-v2
     Начало --> Уязвимость_попадает_в_продуктивную_сборку?
@@ -94,10 +92,11 @@ npm why <package> # для понимания точечного импорта 
 
 # pnpm установить зависимости для анализа (pnpm-lock.yaml)
 pnpm install # pnpm init -y при наличии ошибок
+pnpm install --ignore-scripts # для игнорирования скриптов
 pnpm audit
 pnpm list > pnpm_deps.txt
 pnpm list --depth Infinity > pnpm_deps_all.txt # выводит все дерево
-pnpm why <package> # для понимания точечного импорта пакета, и построения его графа 
+pnpm -r why <package> # для понимания точечного импорта пакета, и построения его графа 
 
 # yarn составить дерево зависимостей
 yarn list --all > deps.txt

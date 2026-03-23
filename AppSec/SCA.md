@@ -115,7 +115,24 @@ dotnet list package --include-transitive > deps.txt
 #### **Go**
 ```bash
 go list -m all > deps.txt
-go mod graph 
+go mod graph
+
+# для транзитивных зависимостей
+go mod why -m golang.org/x/sys/unix
+go mod graph | Select-String "x/sys/unix"
+
+#  для поиска прямых импортов
+go list -mod=mod -f '{{.ImportPath}}: {{.Imports}}' ./... | Select-String "x/sys/unix"
+go list -f '{{.ImportPath}}: {{.Imports}}' ./... | Select-String "x/sys/unix" # показывает импорты
+go list -mod=mod -f '{{.GoFiles}}' golang.org/x/sys/unix # показывает, какие файлы компилируются для вашей платформы.
+
+# анализ бинарного файла - проверка вызова модуля / функции
+go tool nm .\opa.exe | Select-String "x/sys/unix"
+
+# проверка каталога vendor, который содержит копии всех пакетов, необходимых для поддержки сборки и тестирования пакетов в основном модуле.
+go mod vendor [-v] [-e] # пересоздаст vendor только с необходимыми пакетами
+-e заставляет go mod vendor попытаться продолжить, несмотря на ошибки, обнаруженные при загрузке пакетов.
+-v заставляет go mod vendor печатать имена поставленных модулей и пакетов в стандартную ошибку 
 ```
 
 ### **Сопоставление зависимостей с уязвимостями**:  

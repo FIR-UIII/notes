@@ -124,8 +124,8 @@ go mod graph | Select-String "x/sys/unix"
 #  для поиска прямых импортов
 go list -mod=mod -f '{{.ImportPath}}: {{.Imports}}' ./... | Select-String "x/sys/unix"
 go list -f '{{.ImportPath}}: {{.Imports}}' ./... | Select-String "x/sys/unix" # показывает импорты
-go list -mod=mod -f ' {{.TestGoFiles}} {{.CFiles}}' golang.org/x/sys/unix # показывает, какие тестовые или Си файлы компилируются для вашей платформы.
-go list -mod=mod -f '{{.GoFiles}}' golang.org/x/sys/unix # показывает, какие файлы компилируются для вашей платформы.
+go list -mod=mod -f '{{.GoFiles}} {{.TestGoFiles}} {{.CFiles}}'' golang.org/x/sys/unix # показывает, какие файлы компилируются для приложения, включая тестовые или Си файлы
+go list -mod=mod -f '{{.GoFiles}}' golang.org/x/sys/unix # 
 
 # анализ бинарного файла - проверка вызова модуля / функции
 go tool nm .\opa.exe | Select-String "x/sys/unix"

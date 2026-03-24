@@ -128,6 +128,16 @@ go list -mod=mod -f '{{.GoFiles}}' golang.org/x/sys/unix # показывает,
 
 # анализ бинарного файла - проверка вызова модуля / функции
 go tool nm .\opa.exe | Select-String "x/sys/unix"
+  d8f780 D golang.org/x/sys/unix.Stdin
+  d8f788 D golang.org/x/sys/unix.Stdout
+  d8f790 D golang.org/x/sys/unix.Stderr
+  9a2b40 T golang.org/x/sys/unix.Open
+  9a2d00 T golang.org/x/sys/unix.Read
+  9a2f80 T golang.org/x/sys/unix.Write
+  9a3120 T golang.org/x/sys/unix.Close
+  ...
+T означает Text (функция/код).
+D означает Data (глобальная переменная).
 
 # проверка каталога vendor, который содержит копии всех пакетов, необходимых для поддержки сборки и тестирования пакетов в основном модуле.
 go mod vendor [-v] [-e] # пересоздаст vendor только с необходимыми пакетами

@@ -45,33 +45,40 @@ module java.base {
   requires java.sql;
 }
 
-# Собираем итоговый Dokerfile
+# Итоговый Dokerfile (multistage)
+# ЭТАП 1: СБОРКА (build)
 FROM maven:3.9.16-eclipse-temurin-25 AS build
-RUN mkdir /usr/src/project
-COPY . /usr/src/project
-WORKDIR /usr/src/project
-RUN mvn package -DskipTests
-RUN jdeps --ignore-missing-deps -q \
---recursive \
---multi-release 25 \
---print-module-deps \
---class-path 'BOOT-INF/lib/*' \
-target/app.jar > deps.info
+RUN mkdir /usr/src/project # Создаем рабочую директорию внутри контейнера для исходников
+COPY . /usr/src/project # Копируем все файлы проекта (кроме того, что в .dockerignore) в контейнер
+WORKDIR /usr/src/project # Делаем созданную директорию текущей рабочей
+RUN mvn package -DskipTests # Собираем Maven-проект в JAR-файл, пропуская тесты (ускоряем сборку)
+
+# Анализируем зависимости JAR-файла, чтобы узнать, какие модули Java ему нужны сохраняем в файл deps.info
+RUN jdeps --ignore-missing-deps -q \ 
+  --recursive \ # рекурсивно анализируем все зависимости
+  --multi-release 25 \ # учитываем multi-release JAR'ы для Java 25
+  --print-module-deps \ #  выводим список необходимых модулей
+  --class-path 'BOOT-INF/lib/*' \ # указываем, где искать библиотеки (Spring Boot структура)
+  target/app.jar > deps.info # анализируемый JAR-файл app.jar
+
+# Создаем минимальную JRE (Java Runtime Environment) только с нужными модулями
 RUN jlink \
---add-modules $(cat deps.info) \
+--add-modules $(cat deps.info) \ # добавляем только те модули, которые нужны приложению
 --strip-debug \
 --compress zip-9 \
 --no-header-files \
 --no-man-pages \
 --output /myjre
-FROM axiom-linux-base:25-musl
-ENV JAVA_HOME /user/java/jdk25
-ENV PATH $JAVA_HOME/bin:$PATH
-COPY --from=build /myjre $JAVA_HOME
-RUN mkdir /app
-COPY --from=build /usr/src/project/target/app.jar /app/
-WORKDIR /app
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# ЭТАП 2: ФИНАЛЬНЫЙ ОБРАЗ
+FROM axiom-linux-base:25-musl # Используем минимальный образ Axiom Linux (мускул-версия) для запуска
+ENV JAVA_HOME /user/java/jdk25 # Указываем, где лежит наша кастомная JRE
+ENV PATH $JAVA_HOME/bin:$PATH # Добавляем Java в PATH, чтобы можно было вызывать java без полного пути
+COPY --from=build /myjre $JAVA_HOME # Копируем собранную JRE с первого этапа (build) в финальный образ
+RUN mkdir /app # Создаем директорию для приложения
+COPY --from=build /usr/src/project/target/app.jar /app/ # Копируем собранный JAR-файл с первого этапа в финальный образ
+WORKDIR /app # Переключаемся в директорию приложения
+ENTRYPOINT ["java", "-jar", "app.jar"] # Запуск приложения
 
 $ docker build -t my_app_custom:v1 .
 
@@ -104,7 +111,7 @@ $ osv-scanner --sbom=sbom.cdx.json
 Total 9 packages affected by 32 known vulnerabilities
 (10 Critical, 14 High, 5 Medium, 2 Low)
 ИЛИ
-$ trivy --vex trivy.vex.json # VEX даёт возможность явно указать, эксплуатируема ли уязвимость в конкретном контексте
+$ trivy --vex trivy.vex.json # VEX даёт возможность явно указать, эксплуатируема ли уязвимость в конкретном контексте https://trivy.dev/docs/v0.51/guide/supply-chain/vex
 
 Верификация библиотек (проверка подписи)
 $ mvn org.simplify4u.plugins:pgpverify-maven-plugin:show \

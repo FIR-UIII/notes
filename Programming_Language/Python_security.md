@@ -1,22 +1,78 @@
+Разработка: Пишите зависимости в requirements.in.
+Сборка/CI: Генерируйте requirements.txt с хэшами через pip-compile --generate-hashes.
+           добавте аудит или SAST 
+Установка: Устанавливайте пакеты с флагом --require-hashes.
 
-* SAST tools > semgrep,  SonarQube, Codacy, Pylint, Pyflakes
-* Virtual environment and network isolation > isolate dev stand
+Два варианта: pip или uv
+$ pip install pip-tools
+$ pip install uv
 
-### Использовать менеджеры управления зависимостями и виртуальными окружениями lock-файлы (pipenv, poetry, uv)
+# создаем requirements.in файл с зависимостями, но тут есть особенность наполнения
+# Unpinned: flask>=2.0 -> Risky
+# Version Pinned: flask==3.1.1 -> Medium
+# Hash Pinned: flask==3.1.1--hash=sha256:... -> Secure
 
-| Критерий | Pipenv | Poetry | uv |
-| :--- | :--- | :--- | :--- |
-| **Основная философия** | Объединить `pip` и `virtualenv`. | Единый инструмент для управления зависимостями **и сборки пакетов**. | **Скорость** и универсальность. Замена множеству существующих инструментов. |
-| **Управление зависимостями** | Использует `Pipfile` и `Pipfile.lock`. | Использует `pyproject.toml` и `poetry.lock`. | Совместим с `requirements.txt`, `pyproject.toml` (как Poetry). Имеет свой собственный `uv.lock`. |
-| **Создание пакетов** | Нет (требуется отдельный `setup.py`). | **Да**, отличная поддержка через `pyproject.toml`. | **Да** (совместим с стандартом `pyproject.toml`). |
-| **Разрешение зависимостей** | Медленное, иногда может давать неожиданные результаты. | Медленное, но очень надежное и строгое. | **Невероятно быстрое** за счет использования Rust. |
-| **Управление виртуальными окружениями** | Автоматическое создание и управление. | Автоматическое или ручное (через `poetry shell`/`poetry run`). | Автоматическое или ручное. Может работать **без виртуального окружения** (с `--system`). |
-| **Производительность** | Средняя/Низкая | Средняя/Низкая | **Экстремально высокая** (в 10-100 раз быстрее `pip`/`pipenv`/`poetry`). |
-| **Публикация в PyPI** | Нет (требуется `twine`). | **Да**, встроенная команда `poetry publish`. | **Да**, команда `uv publish`. |
-| **Экосистема** | Зрелая, но развитие замедлилось. | Очень зрелая, активное сообщество, много плагинов. | Новая, но быстро растущая (от создателей Ruff, что вселяет доверие). |
-| **Лучший для...** | Легационных проектов, которые уже его используют. | **Разработки библиотек** и приложений, где важен строгий контроль и публикация. | **Любых новых проектов**, особенно где важна **скорость** CI/CD. |
+$ pip freeze > requirements.in
+	
+# сгенерируйте requirements.txt с хэшами (--generate-hashes — это ключевой момент для безопасности)
+$ uv pip compile --generate-hashes requirements.in -o requirements.txt # From the requirements.in file 	
+$ uv export --format requirements-txt -o requirements.txt # Or from the uv project
+$ pip-compile --generate-hashes --output-file requirements.txt requirements.in # Or from pip-tools
 
-##### альтернативный вариант использование отдельно вирутального окружения
+# установка при сборке продукта
+$ pip install --require-hashes --no-deps -r requirements.txt
+--require-hashes: Эта команда заставляет pip проверять хэш каждого скачиваемого пакета. Если хэш не совпадет с тем, что указан в файле (например, из-за подмены файла на сервере или MITM-атаки), установка будет прервана.
+--no-deps: Этот флаг говорит pip не пытаться самостоятельно разрешать зависимости. Все зависимости уже перечислены в вашем requirements.txt, и их не нужно искать заново
+https://pip.pypa.io/en/stable/topics/secure-installs/
+
+$ 	
+
+
+### Audit
+pip install pip-audit
+
+pip-audit --requirement requirements.txt
+Или для CICD и формирования артефакта
+pip-audit --format json --requirements requirements.txt > report.json
+
+```gitlab
+security-scan:
+  image: ghcr.io/astral-sh/uv:python3.14
+  script:
+    - uvx pip-audit --requirement requirements.txt
+```
+
+uvx pip-audit --requirement requirements.txt
+uvx pip-audit --format json --requirements requirements.txt > report.json
+
+### Генерация SBOMs 
+$ syft requirements.txt -o cyclonedx-json
+
+### Prevent Dependency Confusion 
+# Определение в pip.conf использование внутренних / доверенных репозиториев 
+pip install --extra-index-url https://internal.corp.com/pypi mypackage
+
+# Или через pyproject.toml более гибкое определение
+[[tool.uv.index]]
+name = "internal"
+url = "https://internal.corp.com/pypi"
+explicit = true                        # only use this index for explicitly pinned packages
+
+[tool.uv.sources]
+mypackage = { index = "internal" }
+
+### Package Attestations 
+PyPI предоставляет артефакты пакетов через Sigstore согласно PEP 740. Но еще в процессе внедрения. https://docs.pypi.org/attestations/
+
+
+### Add Time-Based Defenses 
+# uv: only use packages published before a specific date
+uv pip compile --exclude-newer 2026-03-02 requirements.in -o requirements.txt
+
+# pip v26+: equivalent functionality
+pip install --uploaded-prior-to 2026-03-02T00:00:00Z -r requirements.txt
+
+### Использование отдельно вирутального окружения
 ```
 python3 -m pip install virtualenv
 python3 -m venv env

@@ -8,32 +8,37 @@ $ pip install pip-tools
 $ pip install uv
 
 # создаем requirements.in файл с зависимостями, но тут есть особенность наполнения
+```
 # Unpinned: flask>=2.0 -> Risky
 # Version Pinned: flask==3.1.1 -> Medium
 # Hash Pinned: flask==3.1.1--hash=sha256:... -> Secure
 
 $ pip freeze > requirements.in
+```
 	
 # сгенерируйте requirements.txt с хэшами (--generate-hashes — это ключевой момент для безопасности)
+```
 $ uv pip compile --generate-hashes requirements.in -o requirements.txt # From the requirements.in file 	
 $ uv export --format requirements-txt -o requirements.txt # Or from the uv project
 $ pip-compile --generate-hashes --output-file requirements.txt requirements.in # Or from pip-tools
+```
 
 # установка при сборке продукта
+```
 $ pip install --require-hashes --no-deps -r requirements.txt
 --require-hashes: Эта команда заставляет pip проверять хэш каждого скачиваемого пакета. Если хэш не совпадет с тем, что указан в файле (например, из-за подмены файла на сервере или MITM-атаки), установка будет прервана.
 --no-deps: Этот флаг говорит pip не пытаться самостоятельно разрешать зависимости. Все зависимости уже перечислены в вашем requirements.txt, и их не нужно искать заново
 https://pip.pypa.io/en/stable/topics/secure-installs/
-
-$ 	
-
+```
 
 ### Audit
+```
 pip install pip-audit
 
 pip-audit --requirement requirements.txt
 Или для CICD и формирования артефакта
 pip-audit --format json --requirements requirements.txt > report.json
+```
 
 ```gitlab
 security-scan:
@@ -42,14 +47,19 @@ security-scan:
     - uvx pip-audit --requirement requirements.txt
 ```
 
+```
 uvx pip-audit --requirement requirements.txt
 uvx pip-audit --format json --requirements requirements.txt > report.json
+```
 
 ### Генерация SBOMs 
+```
 $ syft requirements.txt -o cyclonedx-json
+```
 
 ### Prevent Dependency Confusion 
 # Определение в pip.conf использование внутренних / доверенных репозиториев 
+```
 pip install --extra-index-url https://internal.corp.com/pypi mypackage
 
 # Или через pyproject.toml более гибкое определение
@@ -60,17 +70,21 @@ explicit = true                        # only use this index for explicitly pinn
 
 [tool.uv.sources]
 mypackage = { index = "internal" }
+```
 
 ### Package Attestations 
 PyPI предоставляет артефакты пакетов через Sigstore согласно PEP 740. Но еще в процессе внедрения. https://docs.pypi.org/attestations/
 
-
 ### Add Time-Based Defenses 
 # uv: only use packages published before a specific date
+```
 uv pip compile --exclude-newer 2026-03-02 requirements.in -o requirements.txt
+```
 
 # pip v26+: equivalent functionality
+```
 pip install --uploaded-prior-to 2026-03-02T00:00:00Z -r requirements.txt
+```
 
 ### Использование отдельно вирутального окружения
 ```

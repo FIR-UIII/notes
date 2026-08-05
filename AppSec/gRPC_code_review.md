@@ -1,5 +1,3 @@
----
-
 # Security Code Review Checklist: gRPC (Go)
 
 ## 1. Аутентификация и авторизация

@@ -31,6 +31,7 @@ func (s *Server) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*em
 
 ### Transport Security
 Работа по незашифрованному каналу позволяет перехватывать токены и модифицировать трафик.
+
 ❌ Уязвимо:
 ```
 // Использование insecure credentials в production
@@ -50,6 +51,7 @@ s := grpc.NewServer(grpc.Creds(creds))
 
 ### Input Validation
 gRPC гарантирует типы данных, но не их бизнес-валидность.
+
 ❌ Уязвимо:
 ```go
 func (s *Server) CreateUser(ctx context.Context, req *pb.UserReq) (*pb.UserRes, error) {
@@ -82,6 +84,7 @@ func (s *Server) CreateUser(ctx context.Context, req *pb.UserReq) (*pb.UserRes, 
 
 ### Information Disclosure
 Случайный возврат клиенту внутренних структур БД.
+
 ❌ Уязвимо:
 ```
 // DTO совпадает с моделью БД. Утекают хэши паролей и внутренние роли.
@@ -103,6 +106,7 @@ return &pb.PublicUser{
 
 ### Field Tag Confusion
 Переиспользование номеров удаленных protobuf-полей ломает обратную совместимость и может привести к подмене типов у старых клиентов.
+
 ❌ Уязвимо:
 ```
 // proto
@@ -126,6 +130,7 @@ message UpdateProfileRequest {
 
 ### Integer Overflow
 Ошибки приведения типов (кастинге) из больших размерностей в меньшие.
+
 ❌ Уязвимо:
 ```
 // req.Size имеет тип uint64, а int в Go на 32-битных системах это int32.
@@ -172,6 +177,7 @@ rpc Upload(stream FileChunk) returns (UploadStatus);
 
 ### DoS - Max Receive Size
 Дефолтные настройки gRPC допускают размер входящего сообщения до 4 МБ, что иногда слишком много (или мало), что позволяет провести DoS.
+
 ❌ Уязвимо:
 ```
 // Используются настройки по умолчанию
@@ -189,6 +195,7 @@ s := grpc.NewServer(
 
 ### Metadata Security
 Доверие заголовкам (metadata), которые может прислать клиент.
+
 ❌ Уязвимо:
 ```
 md, _ := metadata.FromIncomingContext(ctx)
@@ -206,6 +213,7 @@ ctx = context.WithValue(ctx, roleKey, claims.Role)
 
 ### Deadlines (DoS)
 Отсутствие таймаутов приводит к зависанию горутин и соединений БД, если внешний сервис или БД тормозит.
+
 ❌ Уязвимо:
 ```
 // Запрос в БД будет висеть бесконечно
@@ -223,6 +231,7 @@ func (s *Server) GetData(ctx context.Context, req *pb.Req) (*pb.Res, error) {
 
 ### Error Handling
 Утечка stack trace или синтаксиса SQL.
+
 ❌ Уязвимо:
 ```
 if err != nil {
@@ -241,6 +250,7 @@ if err != nil {
 
 ### Reflection
 Включенная рефлексия (Server Reflection) позволяет атакующему сдампить всю схему API (эквивалент OpenAPI/Swagger).
+
 ❌ Уязвимо:
 ```
 s := grpc.NewServer()
@@ -257,6 +267,7 @@ if env == "development" {
 
 ### Exposed Interface
 Смешивание публичных и внутренних админских методов в одном сервисе.
+
 ❌ Уязвимо:
 ```
 service UserService {
@@ -278,6 +289,7 @@ service InternalAdminService {
 
 ### Rate Limiting (DoS)
 Отсутствие защиты от брутфорса и L7 DDoS.
+
 ❌ Уязвимо:
 ```
 // Сервер обрабатывает запросы с любой скоростью, пока не упадет БД
@@ -295,6 +307,7 @@ s := grpc.NewServer(
 
 ### Log poisoning / sensetive info
 Логирование чувствительных данных (PII, пароли, токены).
+
 ❌ Уязвимо:
 ```
 func (s *Server) Login(ctx context.Context, req *pb.LoginReq) (*pb.LoginRes, error) {
@@ -314,8 +327,9 @@ message LoginReq {
 
 ### Interceptors (bissness logic vuln)
 Логика безопасности размазана по бизнес-коду методов, что ведет к тому, что в новых методах про нее забудут.
-```
+
 ❌ Уязвимо:
+```
 func (s *Server) UpdateData(ctx context.Context, req *pb.Req) (*pb.Res, error) {
     if !isValidToken(ctx) { ... } // Проверка скопипащена в каждый метод
     // ...

@@ -1,8 +1,10 @@
+# Security Code Review Checklist: gRPC (Go)
 
+### 1. Аутентификация и авторизация
+Аутентификация должна устанавливать личность (например, через Keycloak), а авторизация — проверять права (например, отдельный сервис через OPA/SpiceDB/OpenFGA).
 
-1. Аутентификация и авторизация
-Аутентификация должна устанавливать личность (например, через Keycloak), а авторизация — проверять права (например, через ReBAC/SpiceDB/OpenFGA).
-Уязвимо (Доверие клиенту):
+// Уязвимо (Доверие клиенту):
+```
 message DeleteUserRequest {
     string user_id = 1; // Клиент сам говорит, кого удалить и под кем он работает
 }
@@ -11,8 +13,10 @@ func (s *Server) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*em
     // IDOR: Любой пользователь способен удалить любого пользователя
     return s.repo.Delete(req.UserId) 
 }
+```
 
-Безопасно (Context & Interceptors):
+// Безопасно (Context & Interceptors):
+```
 func (s *Server) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*emptypb.Empty, error) {
     // Идентификатор берется строго из токена, проверенного интерцептором
     actorID := auth.UserFromContext(ctx) 
@@ -23,8 +27,9 @@ func (s *Server) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*em
     }
     return s.repo.Delete(req.UserId)
 }
+```
 
-2. Transport Security
+### 2. Transport Security
 Работа по незашифрованному каналу позволяет перехватывать токены и модифицировать трафик.
 Уязвимо:
 // Использование insecure credentials в production

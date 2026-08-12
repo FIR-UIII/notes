@@ -7,7 +7,6 @@ const token = jwt.sign({ role: 'admin' }, 'mysecret', { algorithm: 'HS256' });
 // Exploit: attacker crafts token with alg: none
 const fakeToken = Buffer.from(JSON.stringify({ alg: 'none', typ: 'JWT' })).toString('base64') + '.' +
 Buffer.from(JSON.stringify({ role: 'admin' })).toString('base64') + '.';
-
 jwt.verify(fakeToken, null, { algorithms: ['none'] }); // Never do this
 ```
 

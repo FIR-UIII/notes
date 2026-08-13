@@ -34,8 +34,7 @@ OAuth 2.0 Threat Model and Security Considerations https://www.rfc-editor.org/rf
 OAuth 2.0 for Native Apps (Best Current Practice) https://www.rfc-editor.org/rfc/rfc8252
 ```
 
-
-Authorization code grant type
+### Authorization code grant type
 ```bash
 # Protocol Flow
 
@@ -84,30 +83,6 @@ Host: oauth-authorization-server.com
     grant_type=authorization_code&
     code=a1b2c3d4e5f6g7h8 # уникальный код для запроса токена
 ```
-
-Проверка на мисконфигурации
-1. Проверить доступность
-/.well-known/oauth-authorization-server
-/.well-known/openid-configuration
-
-2. Ошибки на клиентской части
-- не проверяется TLS сертификат сервера (получение токена от недоверенного сервера)
-- передача токена по незащищенному соединению (HTTP)
-- не проверяется валидность токена (client_id, подпись , TTL, "aud")
-- в запросе /auth и /token нет state или иной защиты от CSRF
-- используется implicit flow
-- набор токенов access, refresh хранятся в браузере без защиты
-- client secret доступен пользователю, или хранится небезопасно
-- рекомендуется использовать flow PKCE RFC 7636
-
-3. Ошибки на сервере аутентификации
-- не проверяется redirect_uri по белому списку для данной типа клиента, либо используются * в URL (https://*.somesite.example/*)
-- использовать конфиденциальный клиент
-- атака authorization code injection attack
-- выставляются большие значения для кеша в браузере
-
-4. Ошибки на сервере клиента (resource server)
-- проверка токенов по клейму aud (что к ним пришел access token от их клиента, а не используется чужой access token)
 
 ### Механизм обмена токенов (Token exchange):
 
@@ -167,8 +142,8 @@ IdP (IAM) может контролировать взаимодействия �
 Зависимость от сервера IAM - как точка отказа
 Если злоумышленник перехватит оригинальный токен ИС и будет знать куда обратиться для обмена, он может получить целевой токен другой ИС. Однако это можно смягчить с помощью ограничения TTL и ограничений по аудитории aud claim, а также внедрения механизма проверки использования токена (кол-ва его использования)
 
-### Best Current Practice for OAuth 2.0 Security (RFC 9700)
-https://datatracker.ietf.org/doc/rfc9700/
+### Модель угроз
+https://datatracker.ietf.org/doc/rfc9700
 
 1. Open redirection attack
 Если на сервере настроены такие правила валидации https://*.somesite.example/*. Чтобы  https://app1.somesite.example/redirect смог работать. Но атакующий может заменить адрес на
@@ -224,3 +199,6 @@ https://attacker.example/.somesite.example/
 > если есть state, nonce
 убрать, заменить на другое значение и проверить
 > если есть PKCE
+
+8. Кража client secret
+Вместо простого пароля использовать Signed JWT

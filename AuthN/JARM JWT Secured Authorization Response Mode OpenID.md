@@ -1,3 +1,5 @@
+https://openid.net/specs/oauth-v2-jarm.html
+
 JARM по логике похож на JAR, но JAR защищает первый запрос от клиента к серверу Authorization Request: Client → Authorization Server. А JARM защищает обратный запрос от сервера Authorization Response: Authorization Server → Client
 
 ```
@@ -10,8 +12,8 @@ Location: https://client.example.com/callback? # возвращается отв
     code=SplxlOBeZQQYbYS6WxSbIA
     &state=abc123
 
-# с JARM
-GET /authorize?&nonce...&state=...%client_id=...&client_secret=...
+# с JARM в запросе клиент добавляем query что ожидает ответ как jwt
+GET /authorize?&nonce...&state=...%client_id=...&client_secret=...&responce_mode=query.jwt # внимание на responce_mode=query.jwt
 | запрос идет к IAM 
 ▼
 HTTP/1.1 302 Found

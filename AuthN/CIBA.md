@@ -1,4 +1,6 @@
 ### CIBA (Client Initiated Backchannel Authentication)
+https://openid.net/specs/openid-client-initiated-backchannel-authentication-core-1_0.html
+
 это флоу OpenID Connect, где клиент (Consumption Device) запрашивает аутентификацию пользователя напрямую через backchannel без браузерного редиректа, а сам пользователь подтверждает вход на отдельном устройстве (Authenticating Device).
 
 ### Когда использовать
@@ -12,6 +14,40 @@
 Устройство потребления: устройство, на котором используется услуга (например, терминал кассира в банке, система торговых точек, приложение колл-центра). Это устройство инициирует запрос на аутентификацию.
 Устройство аутентификации (AD): Личное устройство пользователя (например, смартфон с банковским приложением), на котором он подтверждает или отклоняет запрос на аутентификацию.
 Поставщик OpenID (OP): Keycloak, который координирует взаимодействие между устройством потребления и устройством аутентификации
+
+```
+# Запрос на аутентификацию в Keycloak
+curl -X POST "https://keycloak.example.com/realms/my-realm/protocol/openid-connect/ext/ciba/auth" 
+  -H "Content-Type: application/x-www-form-urlencoded" 
+  -u "banking-teller-app:client-secret" 
+  -d "scope=openid" 
+  -d "login_hint=customer@example.com" 
+  -d "binding_message=Transaction #12345"
+
+# Ответ от Keycloak
+{
+  "auth_req_id": "eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0...",
+  "expires_in": 120,
+  "interval": 5
+}
+
+# Запрос токена от приложения в Keycloak
+curl -X POST "https://keycloak.example.com/realms/my-realm/protocol/openid-connect/token" 
+  -H "Content-Type: application/x-www-form-urlencoded" 
+  -u "banking-teller-app:client-secret" 
+  -d "grant_type=urn:openid:params:grant-type:ciba" 
+  -d "auth_req_id=eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..."
+
+# Успех или отказ если пользователь не подтвердил операцию
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIs...",
+  "token_type": "Bearer",
+  "expires_in": 300,
+  "refresh_token": "eyJhbGciOiJIUzI1NiIs...",
+  "scope": "openid",
+  "id_token": "eyJhbGciOiJSUzI1NiIs..."
+}
+```
 
 ### Режимы Poll, Ping и Push
 

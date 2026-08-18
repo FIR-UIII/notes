@@ -57,6 +57,15 @@ TP - анализатор верно нашел проблему, она был�
 ```
 depscan --profile research -t java -i . --reports-dir .\reports\reachebility --explain # с анализом достижимости
 depscan --src $PWD --reports-dir $PWD/reports # простой анализ
+
+# https://github.com/ihrishikesh0896/vulnreach
+git clone https://github.com/ihrishikesh0896/vulnreach.git
+cd vulnreach
+cp .env.example .env.local # 1. Create your local config
+$EDITOR .env.local # 2. Fill in every CHANGE_ME — generate secrets with: openssl rand -hex 32
+docker compose up --build # 3. Start the stack
+# Optional: enable dynamic runtime scans (Docker daemon access via restricted socket proxy)
+docker compose -f docker-compose.yml -f docker-compose.runtime.yml up --build
 ```
 
 #### **Java (Maven/Gradle)**

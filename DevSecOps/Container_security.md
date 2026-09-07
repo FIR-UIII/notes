@@ -1,5 +1,21 @@
 Безопасность контейнеров
 
+### Container 
+```
+# SBOM
+trivy image --format spdx-json --output sbom_report.json web-server:v1.0.0
+
+# SCAN
+trivy image --scanners vuln --format cosign-vuln --output vuln.json web-server:v1.0.0 
+
+# SLSA Provenance
+
+
+# Sign
+cosign sign --key cosign.key ${ECR_REPO}@<DIGEST>
+```
+
+
 ### Меры безопасность Linux
 * Capabilities - полномочия ОС
 ```

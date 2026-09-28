@@ -10,7 +10,7 @@ Buffer.from(JSON.stringify({ role: 'admin' })).toString('base64') + '.';
 jwt.verify(fakeToken, null, { algorithms: ['none'] }); // Never do this
 ```
 
-### JWT payload веб-токена
+### check JWT payload / claims
 JWT может быть либо подписан, либо подписан и зашифрован. Если JWT подписан и зашифрован, JSON-документ должен быть сначала подписан, затем зашифрован, а результат – структура вложенного JWT – Nested JWT.
 ```json
    "sub": "248289761001", // subject – ID пользователя токена
@@ -23,3 +23,5 @@ JWT может быть либо подписан, либо подписан и 
    "nbf": // (опциональный) время, до которого JWT не должен приниматься к обработке;
 ```
 
+### Strong secret for HMAC-signed tokens
+at least 32 bytes in length

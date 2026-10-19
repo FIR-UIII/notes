@@ -36,11 +36,14 @@ sequenceDiagram
     B->>K: OIDC Authorization Request
     K-->>B: 401 Unauthorized<br/>WWW-Authenticate: Negotiate
 
-    B->>AD: Запрос сервисного билета<br/>HTTP/sso.example.com
-    AD-->>B: Kerberos Service Ticket
+    B->>W: Запрос сервисного билета через SSPI<br/>HTTP/sso.example.com
+    W->>AD: Запрос Kerberos Service Ticket (TGS)
+    AD-->>W: Kerberos Service Ticket
+    W->>W: Преобразует TGS в spnego-token
+    W->>B: Передает spnego-token
 
-    B->>K: Повторный запрос<br/>Authorization: Negotiate
-    K->>K: Проверка Kerberos-билета
+    B->>K: Повторный запрос<br/>Authorization: Negotiate <spnego-token>
+    K->>K: Проверка spnego-token
     K->>LDAP: Поиск пользователя по principal
     LDAP->>AD: LDAP-запрос пользователя
     AD-->>LDAP: Учётная запись и атрибуты

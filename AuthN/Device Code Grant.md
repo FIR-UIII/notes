@@ -6,7 +6,6 @@ sequenceDiagram
     participant IAM
 
     User->>Device: войти в приложение
-    Device->>Device: генерация<br>code_challenge code_verifier
     Device->>IAM: POST /auth/device<br>&client_id=CLIENT-ID<br>&scope=openid profile
     IAM->>Device: {"device_code": "Ag_EE...ko1p",<br>"user_code": "QTZL-MCBW",<br>"verification_uri": "https://...",<br>"verification_uri_complete": "https://...?user_code=QTZL-MCBW",<br>"expires_in": 900,<br>"interval": 5}
     Device->>Device: формирует QR или ссылку

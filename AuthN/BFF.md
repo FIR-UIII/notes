@@ -5,7 +5,7 @@ autonumber
     participant Desktop
     participant UA as User-Agent<br>(Браузер)
     participant BFF as BFF (Backend-for-Frontend)
-    participant IAM as ATOM ID
+    participant IAM
     participant B as Backend (Бизнес-логика)
 
     %% 1. Инициация входа / проверка сессии

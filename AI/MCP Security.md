@@ -1,3 +1,51 @@
+# Безопасность MCP (Model Context Protocol)
+
+Область: MCP-серверы (локальные stdio и удалённые Streamable HTTP), MCP-клиенты и хосты (IDE, агенты), реестры серверов.
+Связанные файлы: [Agent Security](Agent%20Security.md), [Skill_security](Skill_security.md), [AI Coding Assistants](AI%20Coding%20Assistants%20Security.md).
+Спецификация авторизации: https://modelcontextprotocol.io/specification/latest/basic/authorization · Security Best Practices: https://modelcontextprotocol.io/specification/latest/basic/security_best_practices
+
+## Угрозы уровня протокола
+
+| Угроза | Суть / пример |
+|---|---|
+| Tool poisoning | скрытые инструкции в описании инструмента или схеме параметров (модель их читает, пользователь нет) — Invariant Labs, 2025 |
+| Rug pull | описание инструмента меняется после того, как пользователь одобрил сервер |
+| Tool shadowing / коллизия имён | вредоносный сервер переопределяет или влияет на поведение инструментов другого сервера |
+| Toxic flow | связка «чтение недоверенного» + «доступ к приватному» + «запись наружу» через инструменты разных серверов (GitHub MCP, 2025) |
+| Вредоносный сервер | `postmark-mcp` (2025): npm-пакет MCP-сервера тайно копировал все письма атакующему |
+| Command injection в клиенте или прокси | CVE-2025-6514 (`mcp-remote`): RCE через подставной OAuth endpoint |
+| Открытый локальный сервер / DNS rebinding | CVE-2025-49596 (MCP Inspector): bind `0.0.0.0` без аутентификации |
+| Confused deputy | MCP-прокси со статическим client_id к стороннему API позволяет получить токен без согласия пользователя |
+| Token passthrough | сервер принимает токен, выданный не для него, и пробрасывает его дальше |
+| Session hijacking | угадываемые или переиспользуемые `Mcp-Session-Id` |
+
+## Требования уровня протокола
+
+### MCP-A. Допуск серверов
+- [ ] **MCP-01** `MUST` Allowlist MCP-серверов на уровне организации. Серверы берутся из утверждённого реестра, закреплены по версии и хешу, а не через `npx -y pkg@latest` / `uvx pkg`.
+- [ ] **MCP-02** `MUST` Описания инструментов, схемы и промпты сервера проходят ревью при допуске. Хеш определений инструментов фиксируется, любое изменение блокирует сервер до повторного одобрения (защита от rug pull). Инструмент: `mcp-scan`.
+- [ ] **MCP-03** `MUST` Инструменты разных серверов разделены по namespace. Коллизии имён блокируются.
+- [ ] **MCP-04** `MUST` Клиент показывает пользователю, какой сервер и инструмент с какими параметрами вызывается. Чувствительные инструменты требуют подтверждения (см. AG-11/AG-12).
+
+### MCP-B. Авторизация (HTTP-транспорт)
+- [ ] **MCP-05** `MUST` Удалённый MCP-сервер = OAuth 2.1 resource server. Без аутентификации нельзя. Клиенты используют PKCE. Сервер публикует Protected Resource Metadata (RFC 9728).
+- [ ] **MCP-06** `MUST` Токены audience-bound: клиент передаёт `resource` (RFC 8707), сервер проверяет `aud` и отклоняет токены, выданные другому ресурсу.
+- [ ] **MCP-07** `MUST` **Token passthrough запрещён.** Для вызовов downstream API сервер получает собственный токен (token exchange / client credentials), а не пересылает клиентский.
+- [ ] **MCP-08** `MUST` MCP-прокси к сторонним API со статическим client_id получает согласие пользователя для каждого клиента (защита от confused deputy).
+- [ ] **MCP-09** `MUST` Session ID криптографически случайный, не используется для аутентификации и привязан к пользователю.
+- [ ] **MCP-10** `MUST` Минимальные scope с постепенным повышением (step-up), а не «всё сразу».
+
+### MCP-C. Сервер
+- [ ] **MCP-11** `MUST` Streamable HTTP-сервер проверяет заголовок `Origin` (защита от DNS rebinding). Локальные серверы слушают `127.0.0.1`.
+- [ ] **MCP-12** `MUST` Аргументы инструментов валидируются как недоверенный ввод: нет shell-интерполяции, есть параметризация, проверка путей и SSRF-защита для URL.
+- [ ] **MCP-13** `MUST` Ответы инструментов не содержат секретов. Контент из внешних источников помечается как недоверенный.
+- [ ] **MCP-14** `MUST` Локальные stdio-серверы запускаются в песочнице (контейнер или OS sandbox) с доступом только к нужным каталогам и доменам.
+- [ ] **MCP-15** `MUST` Аудит: каждый вызов инструмента логируется (кто, какой инструмент, параметры, результат, решение об авторизации).
+
+---
+
+# Инфраструктурное усиление MCP-сервера
+
 ```
 NETWORK LAYER
   ├── Unrestricted inbound connections      → Direct attack from unauthorized hosts
@@ -23,9 +71,6 @@ RUNTIME LAYER
   ├── No behavioral baseline                → Anomalous activity undetected
   └── No infrastructure monitoring          → Process / network anomalies invisible
 ```
-
-### Auth
-[] OAuth 2.1 for HTTP transport. If your server speaks HTTP, no-auth is not an option. Implement OAuth 2.1 with PKCE. Bind tokens to specific audiences.
 
 ### Network Isolation and Egress Control
 [] Inbound connections restricted to authorized agent runtime IPs / pods only — AUTOMATED

